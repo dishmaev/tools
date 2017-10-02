@@ -4,6 +4,51 @@
 
 ##private vars
 AUTO_YES='n' #non-interactively mode enum {n,y}
+#DEPENDENCIES='' #dependencies string format 'dep1 dep2 dep3...depN'
+
+#setDependencies(){
+#  DEPENDENCIES=$1
+#}
+
+checkDependencies(){
+  for CUR_DEP in $1
+  do
+    if ! isCommandExist $CUR_DEP
+    then
+      if [ "$AUTO_YES" = "y" ]
+      then
+        if isLinuxOS
+        then
+          LINUX_BASED=$(checkAptOrRpmLinux)
+          if [ "$LINUX_BASED" = "apt" ]
+          then
+            sudo apt -y install $CUR_DEP
+          elif [ "$LINUX_BASED" = "rpm" ]
+          then
+            #TO-DO
+            echo $LINUX_BASED
+          fi
+        elif isFreeBSDOS
+        then
+          #TO-DO
+          echo 'FreeBSD'
+        fi
+      else
+        exitError "$CUR_DEP not found!"
+      fi
+    fi
+  done
+}
+
+checkAptOrRpmLinux(){
+  if [ -f /etc/debian_version ]; then
+      echo 'apt'
+  elif [ -f /etc/redhat-release ]; then
+    echo 'rpm'
+  else
+      echo 'unknown'
+  fi
+}
 
 showDescription(){
   echo $1
@@ -46,10 +91,11 @@ echoHelp(){
   then
     echo "Usage: $COMMON_CONST_SCRIPT_FILENAME [-y] $3"
     echo "Sample: $COMMON_CONST_SCRIPT_FILENAME $4"
-    PRM_TOOLTIP=$5
-    if [ -z "$PRM_TOOLTIP" ]
+    if [ -n "$5" ]
     then
-      PRM_TOOLTIP=$COMMON_CONST_TOOLTIPY
+      PRM_TOOLTIP="$COMMON_CONST_TOOLTIP. $5"
+    else
+      PRM_TOOLTIP=$COMMON_CONST_TOOLTIP
     fi
     echo "Tooltip: $PRM_TOOLTIP"
     exitOK
@@ -77,4 +123,12 @@ checkAutoYes() {
 
 isCommandExist(){
   [ -x "$(command -v $1)" ]
+}
+
+isLinuxOS(){
+  [ "$(uname)" = "Linux" ]
+}
+
+isFreeBSDOS(){
+  [ "$(uname)" = "FreeBSD" ]
 }

@@ -17,7 +17,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<on | off> [mac=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]' "on $COMMON_CONST_HVHOST $COMMON_CONST_HVMAC" 'on need mac, off need host'
+echoHelp $# 2 '<on | off> [mac=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]' "on $COMMON_CONST_HVHOST $COMMON_CONST_HVMAC" 'On need mac, off need host'
 
 ###check parms
 
@@ -35,10 +35,11 @@ then
   then
     PRM_HV=$COMMON_CONST_HVMAC
     #check availability wakeonlan
-    if ! isCommandExist 'wakeonlan'
-    then
-      exitError 'Wakeonlan not found!'
-    fi
+    checkDependencies 'wakeonlan'
+#    if ! isCommandExist 'wakeonlan'
+#    then
+#      exitError 'Wakeonlan not found!'
+#    fi
   else
     PRM_HV=$COMMON_CONST_HVHOST
   fi
@@ -52,9 +53,11 @@ startPrompt
 
 if [ "$PRM_COMMAND" = "off" ]
 then
-  ssh root@$PRM_HV "poweroff"
+#  ssh root@$PRM_HV "poweroff"
+  echo 'off operation'
 else
-  wakeonlan $PRM_HV
+#  wakeonlan $PRM_HV
+  echo 'on operation'
 fi
 
 doneStage

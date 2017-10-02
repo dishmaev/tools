@@ -23,7 +23,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<source directory> <remote repository> [tools repository=$COMMON_CONST_TOOLSREPO]' ". git@github.com:dishmaev/newrepo.git $COMMON_CONST_TOOLSREPO" "$COMMON_CONST_TOOLTIPY. Remote repository possible empty, not initialized yet"
+echoHelp $# 3 '<source directory> <remote repository> [tools repository=$COMMON_CONST_TOOLSREPO]' ". git@github.com:dishmaev/newrepo.git $COMMON_CONST_TOOLSREPO" "Remote repository possible empty, not initialized yet"
 
 ###check parms
 
