@@ -1,0 +1,21 @@
+Origin: https://dishmaev.github.io/repos/linux/apt
+Codename: stable
+Architectures: amd64 i386 source
+Components: main contrib non-free
+Description: Release APT repository
+SignWith: @COMMON_CONST_GPGKEYID@
+
+Origin: https://dishmaev.github.io/repos/linux/apt
+Codename: testing
+Architectures: amd64 i386 source
+Components: main contrib non-free
+Description: Testing APT repository
+SignWith: @COMMON_CONST_GPGKEYID@
+
+Origin: https://dishmaev.github.io/repos/linux/apt
+Codename: sid
+Suite: unstable
+Architectures: amd64 i386 source
+Components: main contrib non-free
+Description: Development APT repository
+SignWith: @COMMON_CONST_GPGKEYID@
