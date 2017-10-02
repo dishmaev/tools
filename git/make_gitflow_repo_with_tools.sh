@@ -2,10 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Make gitflow remote repository with tools submodule in develop branch'
-
-##using files: none
-##dependencies: git, git-flow AVH Edition
+showDescription 'Make gitflow branch model for remote repository, with tools submodule in develop branch'
 
 ##private consts
 CONST_STAGE_COUNT=5 #stage count
@@ -23,7 +20,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<source directory> <remote repository> [tools repository=$COMMON_CONST_TOOLSREPO]' ". git@github.com:dishmaev/newrepo.git $COMMON_CONST_TOOLSREPO" "Remote repository possible empty, not initialized yet"
+echoHelp $# 3 '<source directory> <remote repository> [tools repository=$COMMON_CONST_TOOLSREPO]' \
+      ". git@github.com:dishmaev/newrepo.git $COMMON_CONST_TOOLSREPO" \
+      "Remote repository possible empty, not initialized yet. Required git-flow package"
 
 ###check parms
 
@@ -42,17 +41,14 @@ then
   exitError "Remote repository missing!"
 fi
 
-if ! isCommandExist 'git'
-then
-  exitError 'Git not found!'
-fi
-
-TMP_DIRNAME=$(mktemp -d)
-
 if [ -z "$PRM_TOOLSREPO" ]
 then
   PRM_TOOLSREPO=$COMMON_CONST_TOOLSREPO
 fi
+
+###check dependencies
+
+checkDependencies 'mktemp git'
 
 ###start prompt
 
@@ -61,6 +57,7 @@ startPrompt
 ###body
 
 beginStage 1 $CONST_STAGE_COUNT 'Clone remote repository to temporary directory'
+TMP_DIRNAME=$(mktemp -d)
 git clone $PRM_REMOTEREPO $TMP_DIRNAME
 CURRENT_DIRNAME=$PWD
 cd $TMP_DIRNAME
@@ -91,12 +88,11 @@ cd $CURRENT_DIRNAME
 doneFinalStage
 
 echo 'Now clone repository by command below and start to work:'
-echo 'git clone -b develop --recursive git@github.com:dishmaev/newrepo.git'
+echo "git clone -b develop --recursive $PRM_REMOTEREPO"
 echo ''
 echo 'Update tools submodule from master branch orinal repository by command:'
 echo 'git submodule update --remote tools'
 echo 'If need to change submodule update branch, change setting by command:'
-echo 'git config -f .gitmodules submodule.tools.branch stable'
-
+echo 'git config -f .gitmodules submodule.tools.branch <branch>'
 
 exitOK

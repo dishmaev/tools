@@ -4,9 +4,6 @@
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
 showDescription 'Power on/off esxi host'
 
-##using files: none
-##dependencies: wakeonlan
-
 ##private vars
 PRM_COMMAND='on' #power operation enum {on,off}
 PRM_HV='' #mac or host name
@@ -26,7 +23,7 @@ PRM_HV=$2
 
 if [ -z "$PRM_COMMAND" ] || [ "$PRM_COMMAND" != "on" ] && [ "$PRM_COMMAND" != "off" ]
 then
-  exitError 'Operation missing or invalid!'
+  exitError 'operation missing or invalid!'
 fi
 
 if [ -z "$PRM_HV" ]
@@ -34,16 +31,15 @@ then
   if [ "$PRM_COMMAND" = "on" ]
   then
     PRM_HV=$COMMON_CONST_HVMAC
-    #check availability wakeonlan
     checkDependencies 'wakeonlan'
-#    if ! isCommandExist 'wakeonlan'
-#    then
-#      exitError 'Wakeonlan not found!'
-#    fi
   else
     PRM_HV=$COMMON_CONST_HVHOST
   fi
 fi
+
+###check dependencies
+
+checkDependencies 'ssh'
 
 ###start prompt
 
@@ -53,11 +49,9 @@ startPrompt
 
 if [ "$PRM_COMMAND" = "off" ]
 then
-#  ssh root@$PRM_HV "poweroff"
-  echo 'off operation'
+  ssh root@$PRM_HV "poweroff"
 else
-#  wakeonlan $PRM_HV
-  echo 'on operation'
+  wakeonlan $PRM_HV
 fi
 
 doneStage

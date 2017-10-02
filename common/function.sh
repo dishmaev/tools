@@ -4,18 +4,13 @@
 
 ##private vars
 AUTO_YES='n' #non-interactively mode enum {n,y}
-#DEPENDENCIES='' #dependencies string format 'dep1 dep2 dep3...depN'
-
-#setDependencies(){
-#  DEPENDENCIES=$1
-#}
 
 checkDependencies(){
   for CUR_DEP in $1
   do
     if ! isCommandExist $CUR_DEP
     then
-      if [ "$AUTO_YES" = "y" ]
+      if isAutoYesMode
       then
         if isLinuxOS
         then
@@ -25,17 +20,30 @@ checkDependencies(){
             sudo apt -y install $CUR_DEP
           elif [ "$LINUX_BASED" = "rpm" ]
           then
-            #TO-DO
-            echo $LINUX_BASED
+            sudo yum -y install $CUR_DEP
           fi
         elif isFreeBSDOS
         then
-          #TO-DO
-          echo 'FreeBSD'
+          echo 'TO-DO FreeBSD'
+        fi
+        #repeat check for availability dependence
+        if ! isCommandExist $CUR_DEP
+        then
+          exitError "dependence $CUR_DEP not found!"
         fi
       else
-        exitError "$CUR_DEP not found!"
+        exitError "dependence $CUR_DEP not found!"
       fi
+    fi
+  done
+}
+
+checkRequiredFiles() {
+  for CUR_FILE in $1
+  do
+    if [ ! -f $CUR_FILE ]
+    then
+      exitError "file $CUR_FILE not found!"
     fi
   done
 }
@@ -103,10 +111,10 @@ echoHelp(){
 }
 
 startPrompt(){
-  if [ "$AUTO_YES" != "y" ]
+  if ! isAutoYesMode
   then
     read -p 'Do you want to continue? [y/N] ' AUTO_YES
-    if [ "$AUTO_YES" != "y" ]
+    if ! isAutoYesMode
     then
       exitOK 'Good bye!'
     fi
@@ -119,6 +127,10 @@ checkAutoYes() {
     AUTO_YES='y'
     return $COMMON_CONST_TRUE
   fi
+}
+
+isAutoYesMode(){
+  [ "$AUTO_YES" = "y" ]
 }
 
 isCommandExist(){

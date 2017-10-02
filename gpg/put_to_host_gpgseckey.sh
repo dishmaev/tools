@@ -4,9 +4,6 @@
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
 showDescription 'Put gpg secret key to host'
 
-##using files: none
-##dependencies: gpg with sec key COMMON_CONST_GPGKEYID for sign
-
 ##private vars
 PRM_HOST='' #host
 PRM_KEYID='' #keyid
@@ -18,7 +15,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 2 '$COMMON_CONST_USER@<host> [keyID=$COMMON_CONST_GPGKEYID]' \
-            "host $COMMON_CONST_GPGKEYID"
+            "host $COMMON_CONST_GPGKEYID" 'Required gpg secret keyID'
 
 ###check parms
 
@@ -31,10 +28,14 @@ then
   PRM_KEYID=$COMMON_CONST_GPGKEYID
 fi
 
+###check dependencies
+
+checkDependencies 'mktemp basename gpg scp ssh rm'
+
 #check availability gpg sec key
 if [ -z  $(gpg -K | grep $PRM_KEYID) ]
 then
-  exitError "GPG secret key $PRM_KEYID not found!"
+  exitError "gpg secret key $PRM_KEYID not found!"
 fi
 
 ###start prompt

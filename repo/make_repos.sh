@@ -5,9 +5,6 @@
 showDescription 'Make set of empty packages repositories for some OS: Linux (apt,rpm),
                     FreeBSD (TO-DO), Windows (TO-DO)'
 
-##using files: ./distributions, $CONST_GPGKEY_FILENAME
-##dependencies: gpg with sec key COMMON_CONST_GPGKEYID for sign, reprepro, createrepo
-
 ##private consts
 CONST_STAGE_COUNT=4 #stage count
 CONST_RPMCFG_FILENAME=.rpmmacros #config file for createrepo
@@ -26,7 +23,7 @@ checkAutoYes "$1" || shift
 
 if [ $# -eq 0 ] || [ $# -gt 2 ]
 then
-  echoHelp $# 1 '<source directory>' '.'
+  echoHelp $# 1 '<source directory>' '.' 'Required gpg secret keyID'
 fi
 
 ###check parms
@@ -34,44 +31,28 @@ fi
 PRM_SOURCE_DIRNAME=$1
 if [ -z "$PRM_SOURCE_DIRNAME" ] || [ ! -d $PRM_SOURCE_DIRNAME ]
 then
-  exitError "Source directory $1 missing or not exist!"
+  exitError "source directory $1 missing or not exist!"
 fi
 
 TARGET_DIRNAME=$PRM_SOURCE_DIRNAME/$CONST_REPOS_DIRNAME
 if [ -d $TARGET_DIRNAME ]
 then
-  exitError "Target directory $CONST_REPOS_DIRNAME already exist!"
+  exitError "target directory $CONST_REPOS_DIRNAME already exist!"
 fi
+
+###check dependencies
+
+checkDependencies 'reprepro createrepo'
 
 #check availability gpg sec key
 if [ "$(gpg -K | grep $COMMON_CONST_GPGKEYID)" = "" ]
 then
-  exitError "GPG secret key $COMMON_CONST_GPGKEYID 'not found!"
+  exitError "gpg secret key $COMMON_CONST_GPGKEYID 'not found!"
 fi
 
-#check availability reprepro
-if ! isCommandExist 'reprepro'
-then
-  exitError 'Reprepro not found!'
-fi
+###check required files
 
-#check availability createrepo
-if ! isCommandExist 'createrepo'
-then
-  exitError 'Createrepo not found!'
-fi
-
-#check availability distributions
-if [ ! -f $COMMON_CONST_SCRIPT_DIRNAME/distributions ]
-then
-  exitError 'Config file distributions not found!'
-fi
-
-#check availability $CONST_GPGKEY_FILENAME
-if [ ! -f $COMMON_CONST_SCRIPT_DIRNAME/$CONST_GPGKEY_FILENAME ]
-then
-  exitError "File $CONST_GPGKEY_FILENAME not found!"
-fi
+checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/distributions $COMMON_CONST_SCRIPT_DIRNAME/$CONST_GPGKEY_FILENAME"
 
 ###start prompt
 
