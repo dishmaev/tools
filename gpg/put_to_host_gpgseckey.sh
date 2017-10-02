@@ -28,15 +28,12 @@ then
   PRM_KEYID=$COMMON_CONST_GPGKEYID
 fi
 
-###check dependencies
+###check body dependencies
 
 checkDependencies 'mktemp basename gpg scp ssh rm'
 
 #check availability gpg sec key
-if [ -z  $(gpg -K | grep $PRM_KEYID) ]
-then
-  exitError "gpg secret key $PRM_KEYID not found!"
-fi
+checkGpgSecKeyExist $PRM_KEYID
 
 ###start prompt
 

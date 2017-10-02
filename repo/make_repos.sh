@@ -29,26 +29,18 @@ fi
 ###check parms
 
 PRM_SOURCE_DIRNAME=$1
-if [ -z "$PRM_SOURCE_DIRNAME" ] || [ ! -d $PRM_SOURCE_DIRNAME ]
-then
-  exitError "source directory $1 missing or not exist!"
-fi
+
+checkDirectoryForExist "$PRM_SOURCE_DIRNAME" 'source '
 
 TARGET_DIRNAME=$PRM_SOURCE_DIRNAME/$CONST_REPOS_DIRNAME
-if [ -d $TARGET_DIRNAME ]
-then
-  exitError "target directory $CONST_REPOS_DIRNAME already exist!"
-fi
+checkDirectoryForNotExist "$TARGET_DIRNAME" 'target '
 
-###check dependencies
+###check body dependencies
 
 checkDependencies 'reprepro createrepo'
 
 #check availability gpg sec key
-if [ "$(gpg -K | grep $COMMON_CONST_GPGKEYID)" = "" ]
-then
-  exitError "gpg secret key $COMMON_CONST_GPGKEYID 'not found!"
-fi
+checkGpgSecKeyExist $COMMON_CONST_GPGKEYID
 
 ###check required files
 

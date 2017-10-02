@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'My short operation script description'
+showDescription 'Take target vm snapshot on esxi host'
 
 ##private consts
 

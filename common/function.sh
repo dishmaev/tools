@@ -5,6 +5,35 @@
 ##private vars
 AUTO_YES='n' #non-interactively mode enum {n,y}
 
+checkParmExist() {
+  if [ -z "$2" ]
+  then
+    exitError "$1 missing!"
+  fi
+}
+
+checkDirectoryForExist() {
+  if [ -z "$1" ] || [ ! -d $1 ]
+  then
+    exitError "$2directory $1 missing or not exist!"
+  fi
+}
+
+checkDirectoryForNotExist() {
+  if [ -n "$1" ] && [ -d $1 ]
+  then
+    exitError "$2directory $1 already exist!"
+  fi
+}
+
+checkGpgSecKeyExist() {
+  checkDependencies 'gpg grep'
+  if [ -z "$1" ] || [ -z  "$(gpg -K | grep $1)" ]
+  then
+    exitError "gpg secret key $1 not found!"
+  fi
+}
+
 checkDependencies(){
   for CUR_DEP in $1
   do

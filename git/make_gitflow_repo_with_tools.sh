@@ -28,25 +28,19 @@ echoHelp $# 3 '<source directory> <remote repository> [tools repository=$COMMON_
 
 PRM_SOURCE_DIRNAME=$1
 #PRM_REMOTEREPO=$2
-PRM_REMOTEREPO=git@github.com:dishmaev/newrepo.git
+PRM_REMOTEREPO='' #git@github.com:dishmaev/newrepo.git
 PRM_TOOLSREPO=$3
 
-if [ -z "$PRM_SOURCE_DIRNAME" ] || [ ! -d $1 ]
-then
-  exitError "Source directory $1 missing or not exist!"
-fi
+checkDirectoryForExist "$PRM_SOURCE_DIRNAME"
 
-if [ -z $PRM_REMOTEREPO ]
-then
-  exitError "Remote repository missing!"
-fi
+checkParmExist 'remote repository' $PRM_REMOTEREPO
 
 if [ -z "$PRM_TOOLSREPO" ]
 then
   PRM_TOOLSREPO=$COMMON_CONST_TOOLSREPO
 fi
 
-###check dependencies
+###check body dependencies
 
 checkDependencies 'mktemp git'
 

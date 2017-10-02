@@ -31,15 +31,14 @@ then
   if [ "$PRM_COMMAND" = "on" ]
   then
     PRM_HV=$COMMON_CONST_HVMAC
-    checkDependencies 'wakeonlan'
   else
     PRM_HV=$COMMON_CONST_HVHOST
   fi
 fi
 
-###check dependencies
+###check body dependencies
 
-checkDependencies 'ssh'
+checkDependencies 'ssh wakeonlan'
 
 ###start prompt
 
