@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Take target vm snapshot on esxi host'
+showDescription 'Take vm snapshot on esxi host'
 
 ##private consts
 
@@ -16,9 +16,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '<parm>' "parmValue" "tooltip"
+echoHelp $# 1 '<command>' "commandValue" "tooltip"
 
-###check parms
+###check commands
 
 #comments
 

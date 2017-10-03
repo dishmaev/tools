@@ -19,12 +19,12 @@ checkAutoYes "$1" || shift
 echoHelp $# 2 '$COMMON_CONST_USER@<host> [keyID=$COMMON_CONST_GPGKEYID]' \
             "host $COMMON_CONST_GPGKEYID" 'Required gpg secret keyID'
 
-###check parms
+###check commands
 
 PRM_HOST=$1
 PRM_KEYID=$2
 
-checkParmExist 'host' $PRM_HOST
+checkCommandExist 'host' $PRM_HOST
 
 if [ -z "$PRM_KEYID" ]
 then

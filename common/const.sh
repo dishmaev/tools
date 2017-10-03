@@ -17,12 +17,16 @@ COMMON_CONST_TOOLSREPO=git@github.com:dishmaev/tools.git #for add tools submodul
 COMMON_CONST_FALSE=0 #false
 COMMON_CONST_TRUE=1 #true
 
+#ci
+COMMON_CONST_GITLABCE_APT_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh'
+COMMON_CONST_GITLABCE_RPM_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh'
+
 #hypervisor
 COMMON_CONST_HVHOST=esxi #DNS name main hypervisor host
 COMMON_CONST_HVMAC=00:1b:21:39:9b:d4 #MAC main hypervisor host
-COMMON_CONST_LINUXAPT_ISOURL='http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.1.0-amd64-netinst.iso' #APT-based Linux ISO url for download
-COMMON_CONST_LINUXRPM_ISOURL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
-COMMON_CONST_FREEBSD_ISOURL='https://download.freebsd.org/ftp/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso' #FreeBSD ISO url for download
-COMMON_CONST_LINUXAPT_POOL='' #APT-based Linux vms pool
-COMMON_CONST_LINUXRPM_POOL='' #RPM-based Linux vms pool
-COMMON_CONST_FREEBSD_POOL='' #FreeBSD vms pool
+COMMON_CONST_LINUX_APT_ISO_URL='http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.1.0-amd64-netinst.iso' #APT-based Linux ISO url for download
+COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
+COMMON_CONST_FREEBSD_ISO_URL='https://download.freebsd.org/ftp/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso' #FreeBSD ISO url for download
+COMMON_CONST_LINUX_APT_POOL_NAME='debian8_64Guest' #APT-based Linux pool name
+COMMON_CONST_LINUX_RPM_POOL_NAME='oracleLinux64Guest' #RPM-based Linux pool name
+COMMON_CONST_FREEBSD_POOL_NAME='freebsd64Guest' #FreeBSD pool name

@@ -26,7 +26,7 @@ then
   echoHelp $# 1 '<source directory>' '.' 'Required gpg secret keyID'
 fi
 
-###check parms
+###check commands
 
 PRM_SOURCE_DIRNAME=$1
 

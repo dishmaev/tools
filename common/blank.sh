@@ -16,9 +16,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '<parm>' "parmValue" "tooltip"
+echoHelp $# 1 '<command>' "commandValue" "tooltip"
 
-###check parms
+###check commands
 
 #comments
 

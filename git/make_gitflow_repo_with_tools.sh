@@ -24,7 +24,7 @@ echoHelp $# 3 '<source directory> <remote repository> [tools repository=$COMMON_
       ". git@github.com:dishmaev/newrepo.git $COMMON_CONST_TOOLSREPO" \
       "Remote repository possible empty, not initialized yet. Required git-flow package"
 
-###check parms
+###check commands
 
 PRM_SOURCE_DIRNAME=$1
 #PRM_REMOTEREPO=$2
@@ -33,7 +33,7 @@ PRM_TOOLSREPO=$3
 
 checkDirectoryForExist "$PRM_SOURCE_DIRNAME"
 
-checkParmExist 'remote repository' $PRM_REMOTEREPO
+checkCommandExist 'remote repository' $PRM_REMOTEREPO
 
 if [ -z "$PRM_TOOLSREPO" ]
 then

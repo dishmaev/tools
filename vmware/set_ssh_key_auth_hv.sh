@@ -20,7 +20,7 @@ echoHelp $# 2 '[keyID=$COMMON_CONST_SSHKEYID] [host=$COMMON_CONST_HVHOST]' \
       "$COMMON_CONST_SSHKEYID $COMMON_CONST_HVHOST" \
       "Required allowing SSH access on the remote host, details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866" \
 
-###check parms
+###check commands
 
 PRM_KEYID='' #keyid
 PRM_HOST='' #host

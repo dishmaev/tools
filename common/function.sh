@@ -6,7 +6,28 @@
 AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 
-checkParmExist() {
+getLinuxAptVmsPool(){
+
+}
+
+getLinuxRpmVmsPool(){
+
+}
+
+getFreeBSDVmsPool(){
+
+}
+
+#$1 vm name, $2 esxi host
+getVMIDbyVMName() {
+  echo $(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'")
+}
+#$1 VMID, $2 esxi host
+getVMNamebyVMID() {
+  echo $(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'")
+}
+#$1 title, $2 value, [$3] allow values
+checkCommandExist() {
   if [ -z "$2" ]
   then
     exitError "command $1 missing"
@@ -58,7 +79,7 @@ checkDependencies(){
       then
         if isLinuxOS
         then
-          LINUX_BASED=$(checkAptOrRpmLinux)
+          LINUX_BASED=$(checkLinuxAptOrRpm)
           if [ "$LINUX_BASED" = "apt" ]
           then
             sudo apt -y install $CUR_DEP
@@ -92,7 +113,7 @@ checkRequiredFiles() {
   done
 }
 
-checkAptOrRpmLinux(){
+checkLinuxAptOrRpm(){
   if [ -f /etc/debian_version ]; then
       echo 'apt'
   elif [ -f /etc/redhat-release ]; then
