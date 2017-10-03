@@ -20,9 +20,9 @@ COMMON_CONST_TRUE=1 #true
 #hypervisor
 COMMON_CONST_HVHOST=esxi #DNS name main hypervisor host
 COMMON_CONST_HVMAC=00:1b:21:39:9b:d4 #MAC main hypervisor host
-COMMON_CONST_LINUXAPT_URL='' #APT-based Linux url for download
-COMMON_CONST_LINUXRPM_URL='' #RPM-based Linux url for download
-COMMON_CONST_FREEBSD_URL='' #FreeBSD url for download
+COMMON_CONST_LINUXAPT_ISOURL='http://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.1.0-amd64-netinst.iso' #APT-based Linux ISO url for download
+COMMON_CONST_LINUXRPM_ISOURL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
+COMMON_CONST_FREEBSD_ISOURL='https://download.freebsd.org/ftp/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso' #FreeBSD ISO url for download
 COMMON_CONST_LINUXAPT_POOL='' #APT-based Linux vms pool
 COMMON_CONST_LINUXRPM_POOL='' #RPM-based Linux vms pool
 COMMON_CONST_FREEBSD_POOL='' #FreeBSD vms pool

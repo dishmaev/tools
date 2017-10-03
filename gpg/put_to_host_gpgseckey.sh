@@ -21,9 +21,10 @@ echoHelp $# 2 '$COMMON_CONST_USER@<host> [keyID=$COMMON_CONST_GPGKEYID]' \
 
 ###check parms
 
-#set parm vars
 PRM_HOST=$1
 PRM_KEYID=$2
+
+checkParmExist 'host' $PRM_HOST
 
 if [ -z "$PRM_KEYID" ]
 then

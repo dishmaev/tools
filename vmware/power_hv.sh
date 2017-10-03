@@ -5,7 +5,7 @@
 showDescription 'Power on/off remote esxi host'
 
 ##private vars
-PRM_COMMAND='on' #power operation enum {on,off}
+PRM_ACTION='' #power command enum {on,off}
 PRM_HV='' #mac or host name
 
 ###check autoyes
@@ -14,21 +14,19 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<on | off> [mac=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]' "on $COMMON_CONST_HVHOST $COMMON_CONST_HVMAC" 'On need mac, off need host'
+echoHelp $# 2 '<action=on | off> [mac=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]'\
+      "on $COMMON_CONST_HVMAC" 'On need mac, off need host'
 
 ###check parms
 
-PRM_COMMAND=$1
+PRM_ACTION=$1
 PRM_HV=$2
 
-if [ -z "$PRM_COMMAND" ] || [ "$PRM_COMMAND" != "on" ] && [ "$PRM_COMMAND" != "off" ]
-then
-  exitError 'operation missing or invalid!'
-fi
+checkParmExist 'action' "$PRM_ACTION" 'on off'
 
 if [ -z "$PRM_HV" ]
 then
-  if [ "$PRM_COMMAND" = "on" ]
+  if [ "$PRM_ACTION" = "on" ]
   then
     PRM_HV=$COMMON_CONST_HVMAC
   else
@@ -46,9 +44,9 @@ startPrompt
 
 ###body
 
-if [ "$PRM_COMMAND" = "off" ]
+if [ "$PRM_ACTION" = "off" ]
 then
-  ssh root@$PRM_HV "poweroff"
+  ssh $COMMON_CONST_USER@$PRM_HV "poweroff"
 else
   wakeonlan $PRM_HV
 fi

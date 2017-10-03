@@ -9,21 +9,35 @@ NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 checkParmExist() {
   if [ -z "$2" ]
   then
-    exitError "$1 missing!"
+    exitError "command $1 missing"
+  elif [ -n "$3" ]
+  then
+    VAR_FOUND=$COMMON_CONST_FALSE
+    for CUR_COMM in $3
+    do
+      if [ "$CUR_COMM" = "$2" ]
+      then
+        VAR_FOUND=$COMMON_CONST_TRUE
+      fi
+    done
+    if ! isTrue $VAR_FOUND
+    then
+      exitError "command $1 value $2 invalid"
+    fi
   fi
 }
 
 checkDirectoryForExist() {
   if [ -z "$1" ] || [ ! -d $1 ]
   then
-    exitError "$2directory $1 missing or not exist!"
+    exitError "$2directory $1 missing or not exist"
   fi
 }
 
 checkDirectoryForNotExist() {
   if [ -n "$1" ] && [ -d $1 ]
   then
-    exitError "$2directory $1 already exist!"
+    exitError "$2directory $1 already exist"
   fi
 }
 
@@ -31,7 +45,7 @@ checkGpgSecKeyExist() {
   checkDependencies 'gpg grep'
   if [ -z "$1" ] || [ -z  "$(gpg -K | grep $1)" ]
   then
-    exitError "gpg secret key $1 not found!"
+    exitError "gpg secret key $1 not found"
   fi
 }
 
@@ -59,10 +73,10 @@ checkDependencies(){
         #repeat check for availability dependence
         if ! isCommandExist $CUR_DEP
         then
-          exitError "dependence $CUR_DEP not found!"
+          exitError "dependence $CUR_DEP not found"
         fi
       else
-        exitError "dependence $CUR_DEP not found!"
+        exitError "dependence $CUR_DEP not found"
       fi
     fi
   done
@@ -73,7 +87,7 @@ checkRequiredFiles() {
   do
     if [ ! -f $CUR_FILE ]
     then
-      exitError "file $CUR_FILE not found!"
+      exitError "file $CUR_FILE not found"
     fi
   done
 }
@@ -117,15 +131,20 @@ exitOK(){
 exitError(){
   if [ -n "$1" ]
   then
-    echo 'Error:' $1
+    echo -n 'Error:' $1
   else
-    echo 'Error: Some problem occured while execute last command, see output for details'
+    echo -n 'Error: Some problem occured while execute last command, see output for details'
   fi
+  echo ". See '$COMMON_CONST_SCRIPT_FILENAME --help'"
   exit 1
 }
 
 echoHelp(){
-  if [ $2 -gt 0 ] && [ $1 -eq 0 ] || [ $1 -gt $2 ] || isTrue $NEED_HELP
+  if [ $1 -gt $2 ]
+  then
+    exitError 'to many command'
+  fi
+  if isTrue $NEED_HELP
   then
     echo "Usage: $COMMON_CONST_SCRIPT_FILENAME [-y] $3"
     echo "Sample: $COMMON_CONST_SCRIPT_FILENAME $4"
