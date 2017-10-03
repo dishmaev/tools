@@ -3,7 +3,8 @@
 ##using files: consts.sh, var.sh
 
 ##private vars
-AUTO_YES='n' #non-interactively mode enum {n,y}
+AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
+NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 
 checkParmExist() {
   if [ -z "$2" ]
@@ -124,7 +125,7 @@ exitError(){
 }
 
 echoHelp(){
-  if [ $2 -gt 0 ] && [ $1 -eq 0 ] || [ $1 -gt $2 ]
+  if [ $2 -gt 0 ] && [ $1 -eq 0 ] || [ $1 -gt $2 ] || isTrue $NEED_HELP
   then
     echo "Usage: $COMMON_CONST_SCRIPT_FILENAME [-y] $3"
     echo "Sample: $COMMON_CONST_SCRIPT_FILENAME $4"
@@ -142,7 +143,29 @@ echoHelp(){
 startPrompt(){
   if ! isAutoYesMode
   then
-    read -p 'Do you want to continue? [y/N] ' AUTO_YES
+    VAR_INPUT=''
+    DO_FLAG=$COMMON_CONST_TRUE
+    while [ "$DO_FLAG" = "$COMMON_CONST_TRUE" ]
+    do
+      read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
+      if [ -z "$VAR_INPUT" ]
+      then
+        DO_FLAG=$COMMON_CONST_FALSE
+      else
+        case $VAR_INPUT in
+          [yY])
+            AUTO_YES=$COMMON_CONST_TRUE
+            DO_FLAG=$COMMON_CONST_FALSE
+            ;;
+          [nN])
+            DO_FLAG=$COMMON_CONST_FALSE
+            ;;
+          *)
+            echo 'Invalid input'
+            ;;
+        esac
+      fi
+    done
     if ! isAutoYesMode
     then
       exitOK 'Good bye!'
@@ -153,13 +176,20 @@ startPrompt(){
 checkAutoYes() {
   if [ "$1" = "-y" ]
   then
-    AUTO_YES='y'
-    return $COMMON_CONST_TRUE
+    AUTO_YES=$COMMON_CONST_TRUE
+    return $AUTO_YES
+  elif [ "$1" = "--help" ]
+  then
+    NEED_HELP=$COMMON_CONST_TRUE
   fi
 }
 
+isTrue(){
+  [ "$1" = "$COMMON_CONST_TRUE" ]
+}
+
 isAutoYesMode(){
-  [ "$AUTO_YES" = "y" ]
+  isTrue $AUTO_YES
 }
 
 isCommandExist(){

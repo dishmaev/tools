@@ -8,7 +8,7 @@ showDescription 'Set SSH access to remote esxi host with public key authenticati
 
 
 ##private vars
-
+TARGET_DIRNAME='' #target directory name
 
 ###check autoyes
 
@@ -16,7 +16,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 0 '<> [keyID=$COMMON_CONST_SSHKEYID] [host=$COMMON_CONST_HVHOST]' "$COMMON_CONST_SSHKEYID $COMMON_CONST_HVHOST" "Required allowing SSH access on the remote host"
+echoHelp $# 0 '<> [keyID=$COMMON_CONST_SSHKEYID] [host=$COMMON_CONST_HVHOST]' \
+      "$COMMON_CONST_SSHKEYID $COMMON_CONST_HVHOST" \
+      "Required allowing SSH access on the remote host, details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866" \
 
 ###check parms
 
@@ -47,7 +49,9 @@ startPrompt
 
 ###body
 
-ssh root@$PRM_HOST "cat >> /etc/ssh/keys-root/authorized_keys" < $HOME/.ssh/$PRM_KEYID.pub
+TARGET_DIRNAME="/etc/ssh/keys-$COMMON_CONST_USER"
+
+ssh $COMMON_CONST_USER@$PRM_HOST "if [ ! -d $TARGET_DIRNAME ]; then mkdir $TARGET_DIRNAME; fi; cat >> $TARGET_DIRNAME/authorized_keys" < $HOME/.ssh/$PRM_KEYID.pub
 
 doneStage
 
