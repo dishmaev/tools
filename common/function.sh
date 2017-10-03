@@ -7,15 +7,15 @@ AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 
 getLinuxAptVmsPool(){
-
+  echo ''
 }
 
 getLinuxRpmVmsPool(){
-
+  echo ''
 }
 
 getFreeBSDVmsPool(){
-
+  echo ''
 }
 
 #$1 vm name, $2 esxi host
