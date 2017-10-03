@@ -37,14 +37,14 @@ checkDirectoryForNotExist "$TARGET_DIRNAME" 'target '
 
 ###check body dependencies
 
-checkDependencies 'reprepro createrepo'
+checkDependencies 'mktemp reprepro createrepo'
 
 #check availability gpg sec key
 checkGpgSecKeyExist $COMMON_CONST_GPGKEYID
 
 ###check required files
 
-checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/distributions $COMMON_CONST_SCRIPT_DIRNAME/$CONST_GPGKEY_FILENAME"
+checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/distributions"
 
 ###start prompt
 
@@ -79,9 +79,11 @@ mkdir $TARGET_DIRNAME/linux/rpm/develop/RPMS/x86_64
 mkdir $TARGET_DIRNAME/linux/rpm/develop/RPMS/noarch
 doneStage
 
-beginStage 2 $CONST_STAGE_COUNT 'Create config files, symlinks'
+beginStage 2 $CONST_STAGE_COUNT 'Create keys, config files, symlinks'
 
-cp $COMMON_CONST_SCRIPT_DIRNAME/$CONST_GPGKEY_FILENAME $TARGET_DIRNAME/linux/
+gpg -q --export --armor --output $TARGET_DIRNAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPGKEYID
+
+#cp $COMMON_CONST_SCRIPT_DIRNAME/$CONST_GPGKEY_FILENAME $TARGET_DIRNAME/linux/
 cat $COMMON_CONST_SCRIPT_DIRNAME/distributions | sed -e "s#@COMMON_CONST_GPGKEYID@#$COMMON_CONST_GPGKEYID#" > $TARGET_DIRNAME/linux/apt/conf/distributions
 
 if [ ! -f ~/$CONST_RPMCFG_FILENAME ]

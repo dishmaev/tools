@@ -3,7 +3,8 @@
 #define common consts
 
 #default user, keys
-COMMON_CONST_GPGKEYID=507650DE33C7BA92EDD1569DF4F5A67BE44EEED4 #GPG KEY ID
+COMMON_CONST_SSHKEYID=id_idax_rsa #SSH keyID
+COMMON_CONST_GPGKEYID=507650DE33C7BA92EDD1569DF4F5A67BE44EEED4 #GPG keyID
 COMMON_CONST_USER=dmitry #default username for connect to hosts, run scripts, etc.
 
 #base tool infrastructure

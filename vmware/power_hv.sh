@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Power on/off esxi host'
+showDescription 'Power on/off remote esxi host'
 
 ##private vars
 PRM_COMMAND='on' #power operation enum {on,off}

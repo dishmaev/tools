@@ -2,11 +2,13 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Put gpg secret key to host'
+showDescription 'Put gpg secret key to remote host'
 
 ##private vars
 PRM_HOST='' #host
 PRM_KEYID='' #keyid
+TMP_FILEPATH='' #temporary file full path
+TMP_FILENAME='' #temporary file name
 
 ###check autoyes
 

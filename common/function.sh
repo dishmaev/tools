@@ -124,7 +124,7 @@ exitError(){
 }
 
 echoHelp(){
-  if [ $1 -eq 0 ] || [ $1 -gt $2 ]
+  if [ $2 -gt 0 ] && [ $1 -eq 0 ] || [ $1 -gt $2 ]
   then
     echo "Usage: $COMMON_CONST_SCRIPT_FILENAME [-y] $3"
     echo "Sample: $COMMON_CONST_SCRIPT_FILENAME $4"

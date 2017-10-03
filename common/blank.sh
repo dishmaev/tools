@@ -28,7 +28,7 @@ echoHelp $# 1 '<parm>' "parmValue" "tooltip"
 
 ###check required files
 
-#checkRequiredFiles 'file1 file2 file3'
+#checkRequiredFiles "file1 file2 file3"
 
 ###start prompt
 
