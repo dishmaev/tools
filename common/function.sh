@@ -5,35 +5,44 @@
 ##private vars
 AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
+STAGE_NUM=0 #stage counter
 
 getLinuxAptVmsPool(){
-  echo ''
+  :
 }
 
 getLinuxRpmVmsPool(){
-  echo ''
+  :
 }
 
 getFreeBSDVmsPool(){
-  echo ''
+  :
 }
-
 #$1 vm name, $2 esxi host
 getVMIDbyVMName() {
-  echo $(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'")
+  checkParmsCount $# 2 'getVMIDbyVMName'
+  local VAR_RESULT
+  VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'") || exitChildError "$"
+  echo "$VAR_RESULT"
 }
 #$1 VMID, $2 esxi host
 getVMNamebyVMID() {
-  echo $(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'")
+  checkParmsCount $# 2 'getVMNamebyVMID'
+  local VAR_RESULT
+  VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$"
+  echo "$VAR_RESULT"
 }
 #$1 title, $2 value, [$3] allow values
 checkCommandExist() {
-  if [ -z "$2" ]
+  checkParmsCount $# 3 'checkCommandExist'
+  if isEmpty "$2"
   then
     exitError "command $1 missing"
-  elif [ -n "$3" ]
+  elif ! isEmpty "$3"
   then
-    VAR_FOUND=$COMMON_CONST_FALSE
+    local VAR_FOUND=$COMMON_CONST_FALSE
     for CUR_COMM in $3
     do
       if [ "$CUR_COMM" = "$2" ]
@@ -47,30 +56,34 @@ checkCommandExist() {
     fi
   fi
 }
-
+#$1 directory name, $2 error message prefix
 checkDirectoryForExist() {
-  if [ -z "$1" ] || [ ! -d $1 ]
+  checkParmsCount $# 2 'checkDirectoryForExist'
+  if isEmpty "$1" || [ ! -d $1 ]
   then
     exitError "$2directory $1 missing or not exist"
   fi
 }
 
 checkDirectoryForNotExist() {
-  if [ -n "$1" ] && [ -d $1 ]
+  checkParmsCount $# 2 'checkDirectoryForNotExist'
+  if ! isEmpty "$1" && [ -d $1 ]
   then
     exitError "$2directory $1 already exist"
   fi
 }
 
 checkGpgSecKeyExist() {
+  checkParmsCount $# 1 'checkGpgSecKeyExist'
   checkDependencies 'gpg grep'
-  if [ -z "$1" ] || [ -z  "$(gpg -K | grep $1)" ]
+  if isEmpty "$1" || isEmpty "$(gpg -K | grep $1)"
   then
     exitError "gpg secret key $1 not found"
   fi
 }
 
 checkDependencies(){
+  checkParmsCount $# 1 'checkDependencies'
   for CUR_DEP in $1
   do
     if ! isCommandExist $CUR_DEP
@@ -79,11 +92,12 @@ checkDependencies(){
       then
         if isLinuxOS
         then
-          LINUX_BASED=$(checkLinuxAptOrRpm)
-          if [ "$LINUX_BASED" = "apt" ]
+          local VAR_LINUX_BASED
+          VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+          if [ "$VAR_LINUX_BASED" = "apt" ]
           then
             sudo apt -y install $CUR_DEP
-          elif [ "$LINUX_BASED" = "rpm" ]
+          elif [ "$VAR_LINUX_BASED" = "rpm" ]
           then
             sudo yum -y install $CUR_DEP
           fi
@@ -104,6 +118,7 @@ checkDependencies(){
 }
 
 checkRequiredFiles() {
+  checkParmsCount $# 1 'checkRequiredFiles'
   for CUR_FILE in $1
   do
     if [ ! -f $CUR_FILE ]
@@ -114,6 +129,7 @@ checkRequiredFiles() {
 }
 
 checkLinuxAptOrRpm(){
+  checkParmsCount $# 0 'checkLinuxAptOrRpm'
   if [ -f /etc/debian_version ]; then
       echo 'apt'
   elif [ -f /etc/redhat-release ]; then
@@ -124,52 +140,73 @@ checkLinuxAptOrRpm(){
 }
 
 showDescription(){
+  checkParmsCount $# 1 'showDescription'
   echo $1
 }
-
+#$1 total stage, $2 stage description
 beginStage(){
-  echo -n "Stage $1 of $2: $3..."
+  checkParmsCount $# 2 'beginStage'
+  STAGE_NUM=$((STAGE_NUM+1))
+  if [ $STAGE_NUM -gt $1 ]
+  then
+    exitError 'too many stages'
+  fi
+  echo -n "Stage $STAGE_NUM of $1: $2..."
 }
 
 doneStage(){
+  checkParmsCount $# 0 'doneStage'
   echo ' Done'
 }
 
 doneFinalStage(){
-  doneStage
+  checkParmsCount $# 0 'doneFinalStage'
+  if [ $STAGE_NUM -gt 0 ]
+  then
+    doneStage
+  fi
   echo 'Success!'
-  echo ''
 }
-
+#[$1] message
 exitOK(){
-  if [ -n "$1" ]
+  if ! isEmpty "$1"
   then
     echo $1
   fi
-  exit 0
+  exit $COMMON_CONST_EXIT_SUCCESS
 }
-
+#[$1] message, [$2] child error
 exitError(){
-  if [ -n "$1" ]
+  if isEmpty "$2"
   then
-    echo -n 'Error:' $1
+    echo -n "Error: ${1:-$COMMON_CONST_ERROR_MES_UNKNOWN}"
+    echo ". See '$COMMON_CONST_SCRIPT_FILENAME --help'"
   else
-    echo -n 'Error: Some problem occured while execute last command, see output for details'
+    echo "$1"
   fi
-  echo ". See '$COMMON_CONST_SCRIPT_FILENAME --help'"
-  exit 1
+  exit $COMMON_CONST_EXIT_ERROR
 }
-
+#$1 message
+exitChildError(){
+  checkParmsCount $# 1 'exitChildError'
+  if isEmpty "$1"
+  then
+    exitError
+  else
+    exitError "$1" "$COMMON_CONST_EXIT_ERROR"
+  fi
+}
+#$1 command count, $2 must be count, $3 usage message, $4 sample message, [$5] add tooltip message
 echoHelp(){
   if [ $1 -gt $2 ]
   then
-    exitError 'to many command'
+    exitError 'too many command'
   fi
   if isTrue $NEED_HELP
   then
     echo "Usage: $COMMON_CONST_SCRIPT_FILENAME [-y] $3"
     echo "Sample: $COMMON_CONST_SCRIPT_FILENAME $4"
-    if [ -n "$5" ]
+    if ! isEmpty "$5"
     then
       PRM_TOOLTIP="$COMMON_CONST_TOOLTIP. $5"
     else
@@ -181,24 +218,25 @@ echoHelp(){
 }
 
 startPrompt(){
+  checkParmsCount $# 0 'startPrompt'
   if ! isAutoYesMode
   then
-    VAR_INPUT=''
-    DO_FLAG=$COMMON_CONST_TRUE
-    while [ "$DO_FLAG" = "$COMMON_CONST_TRUE" ]
+    local VAR_INPUT=''
+    local VAR_DO_FLAG=$COMMON_CONST_TRUE
+    while [ "$VAR_DO_FLAG" = "$COMMON_CONST_TRUE" ]
     do
       read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
-      if [ -z "$VAR_INPUT" ]
+      if isEmpty "$VAR_INPUT"
       then
-        DO_FLAG=$COMMON_CONST_FALSE
+        VAR_DO_FLAG=$COMMON_CONST_FALSE
       else
         case $VAR_INPUT in
           [yY])
             AUTO_YES=$COMMON_CONST_TRUE
-            DO_FLAG=$COMMON_CONST_FALSE
+            VAR_DO_FLAG=$COMMON_CONST_FALSE
             ;;
           [nN])
-            DO_FLAG=$COMMON_CONST_FALSE
+            VAR_DO_FLAG=$COMMON_CONST_FALSE
             ;;
           *)
             echo 'Invalid input'
@@ -211,9 +249,11 @@ startPrompt(){
       exitOK 'Good bye!'
     fi
   fi
+  echo 'Start'
 }
 
 checkAutoYes() {
+  checkParmsCount $# 1 'checkAutoYes'
   if [ "$1" = "-y" ]
   then
     AUTO_YES=$COMMON_CONST_TRUE
@@ -223,23 +263,51 @@ checkAutoYes() {
     NEED_HELP=$COMMON_CONST_TRUE
   fi
 }
+#$1 parm count, $2 must be count, $3 function name
+checkParmsCount(){
+  if [ $# -gt 3 ]
+  then
+    exitError "too many parameters for call function checkParmsCount"
+  elif [ $# -lt 3 ]
+  then
+    exitError "too few parameters for call function checkParmsCount"
+  fi
+  if [ $1 -gt $2 ]
+  then
+    exitError "too many parameters for call function $3"
+  elif [ $1 -lt $2 ]
+  then
+    exitError "too few parameters for call function $3"
+  fi
+}
 
 isTrue(){
+  checkParmsCount $# 1 'isTrue'
   [ "$1" = "$COMMON_CONST_TRUE" ]
 }
 
+isEmpty()
+{
+  checkParmsCount $# 1 'isEmpty'
+  [ -z "$1" ]
+}
+
 isAutoYesMode(){
+  checkParmsCount $# 0 'isAutoYesMode'
   isTrue $AUTO_YES
 }
 
 isCommandExist(){
+  checkParmsCount $# 1 'isCommandExist'
   [ -x "$(command -v $1)" ]
 }
 
 isLinuxOS(){
+  checkParmsCount $# 0 'isLinuxOS'
   [ "$(uname)" = "Linux" ]
 }
 
 isFreeBSDOS(){
+  checkParmsCount $# 0 'isLinuxOS'
   [ "$(uname)" = "FreeBSD" ]
 }

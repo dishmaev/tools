@@ -14,8 +14,8 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<action=on | off> [MAC=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]'\
-      "on $COMMON_CONST_HVMAC" 'On need MAC, off need host'
+echoHelp $# 2 '<action=on | off> [MAC=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]' \
+      "on $COMMON_CONST_HVMAC" 'On action need MAC, off action need host'
 
 ###check commands
 
@@ -51,6 +51,5 @@ else
   wakeonlan $PRM_HV
 fi
 
-doneStage
-
+doneFinalStage
 exitOK

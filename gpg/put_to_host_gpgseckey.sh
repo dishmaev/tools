@@ -22,14 +22,9 @@ echoHelp $# 2 '$COMMON_CONST_USER@<host> [keyID=$COMMON_CONST_GPGKEYID]' \
 ###check commands
 
 PRM_HOST=$1
-PRM_KEYID=$2
+PRM_KEYID=${2:-$COMMON_CONST_GPGKEYID}
 
-checkCommandExist 'host' $PRM_HOST
-
-if [ -z "$PRM_KEYID" ]
-then
-  PRM_KEYID=$COMMON_CONST_GPGKEYID
-fi
+checkCommandExist 'host' "$PRM_HOST" ''
 
 ###check body dependencies
 
@@ -44,13 +39,12 @@ startPrompt
 
 ###body
 
-TMP_FILEPATH=$(mktemp -u)
-TMP_FILENAME=$(basename $TMP_FILEPATH)
+TMP_FILEPATH=$(mktemp -u) || exitChildError "$TMP_FILEPATH"
+TMP_FILENAME=$(basename $TMP_FILEPATH) || exitChildError "$TMP_FILENAME"
 gpg -q --export-secret-keys --output $TMP_FILEPATH $PRM_KEYID
 scp -q $TMP_FILEPATH $COMMON_CONST_USER@$PRM_HOST:~/$TMP_FILENAME
 ssh $COMMON_CONST_USER@$PRM_HOST "gpg --import" $TMP_FILENAME ";rm" $TMP_FILENAME
 rm $TMP_FILEPATH
 
-doneStage
-
+doneFinalStage
 exitOK
