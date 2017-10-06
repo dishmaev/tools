@@ -9,6 +9,9 @@ showDescription 'Take vm snapshot on esxi host'
 
 ##private vars
 PRM_VMNAME='' #vm name
+PRM_SNAPSHOTNAME='' #snapshotName
+PRM_INCLUDEMEMORY=0 #includeMemory
+PRM_QUIESCED=0 #quiesced
 PRM_HOST='' #host
 TARGET_VMID='' #vmid target virtual machine
 
@@ -18,20 +21,26 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<vmname> [host=$COMMON_CONST_HVHOST]' \
-      "myvm $COMMON_CONST_HVHOST" \
+echoHelp $# 2 '<vmname> <snapshotname> [includememory=0] [quiesced=0] [host=$COMMON_CONST_HVHOST]' \
+      "myvm snapshot1 1 0 'description' $COMMON_CONST_HVHOST" \
       "Required allowing SSH access on the remote host"
 
 ###check commands
 
 PRM_VMNAME=$1
-PRM_HOST=${2:-$COMMON_CONST_HVHOST}
+PRM_SNAPSHOTNAME=$2
+PRM_INCLUDEMEMORY=${3:-$COMMON_CONST_FALSE}
+PRM_QUIESCED=${4:-$COMMON_CONST_FALSE}
+PRM_HOST=${5:-$COMMON_CONST_HVHOST}
 
 checkCommandExist 'vmname' "$PRM_VMNAME" ''
+checkCommandExist 'snapshotname' "$PRM_SNAPSHOTNAME" ''
+checkCommandValue 'includememory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUE"
+checkCommandValue 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUE"
 
 ###check body dependencies
 
-#checkDependencies 'ssh'
+checkDependencies 'ssh'
 
 ###check required files
 
@@ -44,10 +53,12 @@ startPrompt
 ###body
 
 TARGET_VMID=$(getVMIDbyVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$TARGET_VMID"
-if isEmpty $TARGET_VMID
+if isEmpty "$TARGET_VMID"
 then
   exitError "vm $PRM_VMNAME not found on $PRM_HOST host"
 fi
+
+ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $TARGET_VMID $PRM_SNAPSHOTNAME '' $PRM_INCLUDEMEMORY $PRM_QUIESCED"
 
 doneFinalStage
 exitOK

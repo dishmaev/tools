@@ -7,31 +7,43 @@ AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
 
-getLinuxAptVmsPool(){
-  :
+#$1 VMID, $2 esxi host
+getIpAddressByVMID()
+{
+  checkParmsCount $# 2 'getIPbyVMID'
+  local VAR_RESULT
+  VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/get.guest $1 | grep ipAddress | \
+        sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
+  echo "$VAR_RESULT"
 }
-
-getLinuxRpmVmsPool(){
-  :
-}
-
-getFreeBSDVmsPool(){
-  :
+#$1 pool, list with space delimiter. Return value format 'vmid:host'
+getVmsPool(){
+  checkParmsCount $# 1 'getVmsPool'
+  for CUR_HV in $COMMON_CONST_HV_POOL_HOSTS
+  do
+    for CUR_OS in $1
+    do
+      local VAR_RESULT
+      VAR_RESULT=$(ssh $COMMON_CONST_USER@$CUR_HV "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+        awk '{print \$1\":\"\$5}' | grep ':'$CUR_OS | awk -F: '{print \$1\":$CUR_HV\"}'") || exitChildError "$VAR_RESULT"
+      echo "$VAR_RESULT"
+    done
+  done
 }
 #$1 vm name, $2 esxi host
-getVMIDbyVMName() {
+getVMIDByVMName() {
   checkParmsCount $# 2 'getVMIDbyVMName'
   local VAR_RESULT
   VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
-   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'") || exitChildError "$"
+   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 esxi host
-getVMNamebyVMID() {
+getVMNameByVMID() {
   checkParmsCount $# 2 'getVMNamebyVMID'
   local VAR_RESULT
   VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
-   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$"
+   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 #$1 title, $2 value, [$3] allow values
@@ -42,18 +54,22 @@ checkCommandExist() {
     exitError "command $1 missing"
   elif ! isEmpty "$3"
   then
-    local VAR_FOUND=$COMMON_CONST_FALSE
-    for CUR_COMM in $3
-    do
-      if [ "$CUR_COMM" = "$2" ]
-      then
-        VAR_FOUND=$COMMON_CONST_TRUE
-      fi
-    done
-    if ! isTrue $VAR_FOUND
+    checkCommandValue "$1" "$2" "$3"
+  fi
+}
+#$1 title, $2 value, [$3] allow values
+checkCommandValue() {
+  local VAR_FOUND=$COMMON_CONST_FALSE
+  for CUR_COMM in $3
+  do
+    if [ "$CUR_COMM" = "$2" ]
     then
-      exitError "command $1 value $2 invalid"
+      VAR_FOUND=$COMMON_CONST_TRUE
     fi
+  done
+  if ! isTrue $VAR_FOUND
+  then
+    exitError "command $1 value $2 invalid"
   fi
 }
 #$1 directory name, $2 error message prefix
@@ -310,4 +326,11 @@ isLinuxOS(){
 isFreeBSDOS(){
   checkParmsCount $# 0 'isLinuxOS'
   [ "$(uname)" = "FreeBSD" ]
+}
+
+isFileSystemMounted(){
+  checkParmsCount $# 1 'isDirectoryMounted'
+  mount | awk '{print $1}' | grep -w $1 >/dev/null
+#  echo "#?"
+  [ "$?" = "0" ]
 }

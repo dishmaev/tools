@@ -16,7 +16,7 @@ readonly COMMON_CONST_TOOLSREPO=git@github.com:dishmaev/tools.git #for add tools
 #boolean
 readonly COMMON_CONST_FALSE=0 #false
 readonly COMMON_CONST_TRUE=1 #true
-
+readonly COMMON_CONST_BOOL_VALUE='0 1' #boolean value for check command value
 #ci
 readonly COMMON_CONST_GITLABCE_APT_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh'
 readonly COMMON_CONST_GITLABCE_RPM_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh'
@@ -28,7 +28,7 @@ readonly COMMON_CONST_LINUX_APT_ISO_URL='http://cdimage.debian.org/debian-cd/cur
 readonly COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
 readonly COMMON_CONST_FREEBSD_ISO_URL='https://download.freebsd.org/ftp/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso' #FreeBSD ISO url for download
 readonly COMMON_CONST_HV_POOL_HOSTS='esxi' #hypervisor hosts, list with space delimiter
-readonly COMMON_CONST_LINUX_APT_POOL_NAMES='debian8_64Guest' #APT-based Linux pool name, list with space delimiter
+readonly COMMON_CONST_LINUX_APT_POOL_NAMES='debian8_64Guest oracleLinux64Guest' #APT-based Linux pool name, list with space delimiter
 readonly COMMON_CONST_LINUX_RPM_POOL_NAMES='oracleLinux64Guest' #RPM-based Linux pool name, list with space delimiter
 readonly COMMON_CONST_FREEBSD_POOL_NAMES='freebsd64Guest' #FreeBSD pool name, list with space delimiter
 
