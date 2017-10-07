@@ -75,10 +75,15 @@ checkCommandValue() {
 #$1 directory name, $2 error message prefix
 checkDirectoryForExist() {
   checkParmsCount $# 2 'checkDirectoryForExist'
-  if isEmpty "$1" || [ ! -d $1 ]
+  if ! isDirectoryExist $1
   then
     exitError "$2directory $1 missing or not exist"
   fi
+}
+
+isDirectoryExist() {
+  checkParmsCount $# 1 'isDirectoryExist'
+  [ ! isEmpty "$1" || -d $1 ]
 }
 
 checkDirectoryForNotExist() {
@@ -137,11 +142,16 @@ checkRequiredFiles() {
   checkParmsCount $# 1 'checkRequiredFiles'
   for CUR_FILE in $1
   do
-    if [ ! -f $CUR_FILE ]
+    if ! isFileExistAndRead $CUR_FILE
     then
       exitError "file $CUR_FILE not found"
     fi
   done
+}
+
+isFileExistAndRead() {
+  checkParmsCount $# 1 'ifFileExistAndRead'
+  [ -f $1 ]
 }
 
 checkLinuxAptOrRpm(){
@@ -279,6 +289,12 @@ checkAutoYes() {
     NEED_HELP=$COMMON_CONST_TRUE
   fi
 }
+#$1 url string
+getFileNameFromUrlString()
+{
+  checkParmsCount $# 1 'getFileNameFromUrlString'
+  echo $1 | awk -F'/|=' '{print $(NF)}'
+}
 #$1 parm count, $2 must be count, $3 function name
 checkParmsCount(){
   if [ $# -gt 3 ]
@@ -331,6 +347,10 @@ isFreeBSDOS(){
 isFileSystemMounted(){
   checkParmsCount $# 1 'isDirectoryMounted'
   mount | awk '{print $1}' | grep -w $1 >/dev/null
-#  echo "#?"
+  [ "$?" = "0" ]
+}
+
+isRetValOK(){
+  checkParmsCount $# 0 'isRetValOK'
   [ "$?" = "0" ]
 }

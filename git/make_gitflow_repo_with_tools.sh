@@ -50,7 +50,7 @@ TMP_DIRNAME=$(mktemp -d) || exitChildError "$TMP_DIRNAME"
 git clone $PRM_REMOTEREPO $TMP_DIRNAME
 CURRENT_DIRNAME=$PWD
 cd $TMP_DIRNAME
-if [ "$?" != "0" ]
+if ! isRetValOK
 then
   exitError
 fi

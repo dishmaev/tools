@@ -10,7 +10,7 @@ SYSLINUX_MODULE_BIOS_DIR='/usr/lib/syslinux/modules/bios'
 
 ##private vars
 PRM_DEVICE='' #usb device, not
-PRM_ISOFILE='' #iso image file with esxi installation
+PRM_FILEISO='' #iso image file with esxi installation
 TMP_USBDIRNAME='' #temporary usb directory name
 TMP_ISODIRNAME='' #temporary iso directory name
 
@@ -20,22 +20,22 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<device> <isoFile>' "/dev/sdb VMware-VMvisor-Installer-201701001-4887370.x86_64.iso" "Device is not partition, all data on device will be destroyed"
+echoHelp $# 2 '<device> <fileIso>' "/dev/sdb VMware-VMvisor-Installer-201701001-4887370.x86_64.iso" "Device is not partition, all data on device will be destroyed"
 
 ###check commands
 
 PRM_DEVICE=$1
-PRM_ISOFILE=$2
+PRM_FILEISO=$2
 
 checkCommandExist 'device' "$PRM_DEVICE" ''
-checkCommandExist 'isoFile' "$PRM_ISOFILE" ''
+checkCommandExist 'fileIso' "$PRM_FILEISO" ''
 
 if [ ! -e $PRM_DEVICE ]
 then
   exitError "device $PRM_DEVICE not found"
 fi
 
-checkRequiredFiles "$PRM_ISOFILE"
+checkRequiredFiles "$PRM_FILEISO"
 checkRequiredFiles "$SYSLINUX_MBR_FILE"
 checkDirectoryForExist "$SYSLINUX_MODULE_BIOS_DIR" ''
 
@@ -93,7 +93,7 @@ echo "TMP_ISODIRNAME $TMP_ISODIRNAME"
 echo "TMP_USBDIRNAME $TMP_USBDIRNAME"
 
 sudo mount $PRM_DEVICE\1 $TMP_USBDIRNAME -o rw,uid=$USER
-sudo mount -r -o loop $PRM_ISOFILE $TMP_ISODIRNAME
+sudo mount -r -o loop $PRM_FILEISO $TMP_ISODIRNAME
 sleep 3
 
 cp -r $TMP_ISODIRNAME/* $TMP_USBDIRNAME/
