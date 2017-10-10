@@ -59,6 +59,10 @@ then
 fi
 
 ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $TARGET_VMID $PRM_SNAPSHOTNAME '' $PRM_INCLUDEMEMORY $PRM_QUIESCED"
-
-doneFinalStage
-exitOK
+if isRetValOK
+then
+  doneFinalStage
+  exitOK
+else
+  exitError
+fi

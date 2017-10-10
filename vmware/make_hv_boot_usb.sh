@@ -76,7 +76,7 @@ t
 b
 w
 "|sudo fdisk $PRM_DEVICE;
-if [ "$?" != '0' ]
+if ! isRetValOK
 then
   exitError
 fi

@@ -75,20 +75,15 @@ checkCommandValue() {
 #$1 directory name, $2 error message prefix
 checkDirectoryForExist() {
   checkParmsCount $# 2 'checkDirectoryForExist'
-  if ! isDirectoryExist $1
+  if ! isDirectoryExist "$1"
   then
     exitError "$2directory $1 missing or not exist"
   fi
 }
 
-isDirectoryExist() {
-  checkParmsCount $# 1 'isDirectoryExist'
-  [ ! isEmpty "$1" || -d $1 ]
-}
-
 checkDirectoryForNotExist() {
   checkParmsCount $# 2 'checkDirectoryForNotExist'
-  if ! isEmpty "$1" && [ -d $1 ]
+  if ! isEmpty "$1" && [ -d "$1" ]
   then
     exitError "$2directory $1 already exist"
   fi
@@ -147,11 +142,6 @@ checkRequiredFiles() {
       exitError "file $CUR_FILE not found"
     fi
   done
-}
-
-isFileExistAndRead() {
-  checkParmsCount $# 1 'ifFileExistAndRead'
-  [ -f $1 ]
 }
 
 checkLinuxAptOrRpm(){
@@ -311,6 +301,16 @@ checkParmsCount(){
   then
     exitError "too few parameters for call function $3"
   fi
+}
+
+isDirectoryExist() {
+  checkParmsCount $# 1 'isDirectoryExist'
+  ! isEmpty "$1" || [ -d "$1" ]
+}
+
+isFileExistAndRead() {
+  checkParmsCount $# 1 'ifFileExistAndRead'
+  ! isEmpty "$1" || [ -f $1 ] ]
 }
 
 isTrue(){

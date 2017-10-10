@@ -44,6 +44,10 @@ startPrompt
 TARGET_DIRNAME="/etc/ssh/keys-$COMMON_CONST_USER"
 
 ssh $COMMON_CONST_USER@$PRM_HOST "if [ ! -d $TARGET_DIRNAME ]; then mkdir $TARGET_DIRNAME; fi; cat >> $TARGET_DIRNAME/authorized_keys" < $HOME/.ssh/$PRM_KEYID.pub
-
-doneFinalStage
-exitOK
+if isRetValOK
+then
+  doneFinalStage
+  exitOK
+else
+  exitError
+fi

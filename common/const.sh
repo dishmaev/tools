@@ -13,6 +13,7 @@ readonly COMMON_CONST_SCRIPT_DIRNAME=$(dirname "$0") #script directory name
 readonly COMMON_CONST_TOOLTIP='-y mean non-interactively with yes answer and try install missing dependencies' #simple autoyes tooltip
 readonly COMMON_CONST_TOOLSREPO=git@github.com:dishmaev/tools.git #for add tools submodule
 readonly COMMON_CONST_DOWNLOAD_PATH="$HOME/Downloads" #user directory to save downloads
+readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
 
 #boolean
 readonly COMMON_CONST_FALSE=0 #false
@@ -34,10 +35,11 @@ readonly COMMON_CONST_HV_POOL_HOSTS='esxi' #hypervisor hosts, list with space de
 readonly COMMON_CONST_LINUX_APT_POOL_NAMES='debian8_64Guest' #APT-based Linux pool name, list with space delimiter
 readonly COMMON_CONST_LINUX_RPM_POOL_NAMES='oracleLinux64Guest' #RPM-based Linux pool name, list with space delimiter
 readonly COMMON_CONST_FREEBSD_POOL_NAMES='freebsd64Guest' #FreeBSD pool name, list with space delimiter
+readonly COMMON_CONST_HV_DATASTORE_BASE='datastore1' #default datastore of base content: images, patches, tools
 readonly COMMON_CONST_HV_DATASTORE_VM='datastore2' #default datastore of virtual machines on esxi host
-readonly COMMON_CONST_HV_IMAGES_PATH='/vmfs/volumes/datastore1/images' #vm images directory on esxi host
-readonly COMMON_CONST_HV_PATCHES_PATH='/vmfs/volumes/datastore1/patches' #esxi patches directory on esxi host
-readonly COMMON_CONST_HV_OVFTOOL_PATH='/vmfs/volumes/datastore1/ofvtool' #ovf tools directory on esxi host
+readonly COMMON_CONST_HV_IMAGES_PATH="/vmfs/volumes/$COMMON_CONST_HV_DATASTORE_BASE/images" #vm images (iso, ova, etc) directory on esxi host
+readonly COMMON_CONST_HV_PATCHES_PATH="/vmfs/volumes/$COMMON_CONST_HV_DATASTORE_BASE/patches" #esxi patches directory on esxi host
+readonly COMMON_CONST_HV_OVFTOOL_PATH="/vmfs/volumes/$COMMON_CONST_HV_DATASTORE_BASE/vmware-ovftool" #ovf tools directory on esxi host
 
 #exit values
 readonly COMMON_CONST_EXIT_ERROR=1
