@@ -52,7 +52,7 @@ startPrompt
 
 ###body
 
-TARGET_VMID=$(getVMIDbyVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$TARGET_VMID"
+TARGET_VMID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$TARGET_VMID"
 if isEmpty "$TARGET_VMID"
 then
   exitError "vm $PRM_VMNAME not found on $PRM_HOST host"

@@ -32,7 +32,7 @@ getVmsPool(){
 }
 #$1 vm name, $2 esxi host
 getVMIDByVMName() {
-  checkParmsCount $# 2 'getVMIDbyVMName'
+  checkParmsCount $# 2 'getVMIDByVMName'
   local VAR_RESULT
   VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
    | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"

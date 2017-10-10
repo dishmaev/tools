@@ -52,10 +52,6 @@ startPrompt
 
 #check ovftool on remote esxi host
 RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -x $COMMON_CONST_HV_OVFTOOL_PATH/ovftool ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
-if ! isRetValOK
-then
-  exitError
-fi
 if ! isTrue "$RET_VAL"
 then #if not exist, put ovftool on remote esxi host
   checkDependencies 'ovftool'
@@ -71,15 +67,12 @@ fi
 #check required ova package on remote esxi host
 OVA_FILE_NAME=$(getFileNameFromUrlString $PRM_OVA_PACKAGE_URL) || exitChildError "$OVA_FILE_NAME"
 RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_HV_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
-if ! isRetValOK
-then
-  exitError
-fi
 if ! isTrue "$RET_VAL"
 then #if not exist, find it localy, or download package and put it on remote esxi host
   OVA_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$OVA_FILE_NAME
   if ! isFileExistAndRead "$OVA_FILE_PATH"
   then
+    checkDependencies 'wget'
     wget -O $OVA_FILE_PATH $PRM_OVA_PACKAGE_URL
     if ! isRetValOK
     then
