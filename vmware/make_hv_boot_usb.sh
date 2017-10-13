@@ -76,10 +76,7 @@ t
 b
 w
 "|sudo fdisk $PRM_DEVICE;
-if ! isRetValOK
-then
-  exitError
-fi
+if ! isRetValOK; then exitError; fi
 
 sudo dd bs=440 count=1 conv=notrunc if=$SYSLINUX_MBR_FILE of=$PRM_DEVICE
 sudo sync

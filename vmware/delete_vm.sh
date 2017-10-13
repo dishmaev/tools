@@ -49,19 +49,13 @@ then
 fi
 #try standard power off if vm running
 ssh $COMMON_CONST_USER@$PRM_HOST "if [ \"\$(vim-cmd vmsvc/power.getstate $TARGET_VMID | sed -e '1d')\" != 'Power off' ]; then vim-cmd vmsvc/power.off $TARGET_VMID; fi; sleep 2"
-if ! isRetValOK
-then
-  exitError
-fi
+if ! isRetValOK; then exitError; fi
 #check running
 RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$RET_VAL"
 if ! isEmpty "$RET_VAL"
 then #still running, force kill vm
   ssh $COMMON_CONST_USER@$PRM_HOST "esxcli vm process kill --type force --world-id $RET_VAL"
-  if ! isRetValOK
-  then
-    exitError
-  fi
+  if ! isRetValOK; then exitError; fi
 fi
 #delete vm
 ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/destroy $TARGET_VMID"

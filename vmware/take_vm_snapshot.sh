@@ -35,8 +35,8 @@ PRM_HOST=${5:-$COMMON_CONST_HVHOST}
 
 checkCommandExist 'vmname' "$PRM_VMNAME" ''
 checkCommandExist 'snapshotname' "$PRM_SNAPSHOTNAME" ''
-checkCommandValue 'includememory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUE"
-checkCommandValue 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUE"
+checkCommandValue 'includememory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUES"
+checkCommandValue 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
 

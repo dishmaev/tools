@@ -302,15 +302,69 @@ checkParmsCount(){
     exitError "too few parameters for call function $3"
   fi
 }
+#$1 esxi host
+put_ovftool_to_hv(){
+  checkParmsCount $# 1 'put_ovftool_to_hv'
+  scp -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_USER@$1:$COMMON_CONST_HV_TOOLS_PATH
+  if ! isRetValOK; then exitError; fi
+  ssh $COMMON_CONST_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_HV_OVFTOOL_PATH/ovftool"
+  if ! isRetValOK; then exitError; fi
+}
+#$1 esxi host
+put_script_tools_to_hv(){
+  checkParmsCount $# 1 'put_script_tools_to_hv'
+  scp -r $COMMON_CONST_SCRIPT_DIRNAME/scripts $COMMON_CONST_USER@$1:$COMMON_CONST_HV_SCRIPTS_PATH
+  if ! isRetValOK; then exitError; fi
+  echo 'TO-DO: copy script tools on remote esxi host'
+}
+#$1 local version, $2 remote version, format MAJOR.MINOR.PATCH
+isNewLocalVersion() {
+  checkParmsCount $# 2 'isNewLocalVersion'
+  local VAR_LOCAL_MAJOR=''
+  local VAR_LOCAL_MINOR=''
+  local VAR_LOCAL_PATCH=''
+  local VAR_LOCAL_TEST=''
+  local VAR_REMOTE_MAJOR=''
+  local VAR_REMOTE_MINOR=''
+  local VAR_REMOTE_PATCH=''
+  local VAR_REMOTE_TEST=''
+  VAR_LOCAL_MAJOR=$(echo $1 | awk -F. '{print $1}')
+  VAR_LOCAL_MINOR=$(echo $1 | awk -F. '{print $2}')
+  VAR_LOCAL_PATCH=$(echo $1 | awk -F. '{print $3}')
+  VAR_LOCAL_TEST=$(echo $1 | awk -F. '{print $4}')
+  VAR_REMOTE_MAJOR=$(echo $2 | awk -F. '{print $1}')
+  VAR_REMOTE_MINOR=$(echo $2 | awk -F. '{print $2}')
+  VAR_REMOTE_PATCH=$(echo $2 | awk -F. '{print $3}')
+  VAR_REMOTE_TEST=$(echo $2 | awk -F. '{print $4}')
+  if isEmpty "$VAR_LOCAL_MAJOR" || isEmpty "$VAR_REMOTE_MAJOR"
+  then
+    exitError 'isNewLocalVersion not found major version for compare'
+  fi
+  if ! isEmpty "$VAR_LOCAL_TEST" || ! isEmpty "$VAR_REMOTE_TEST"
+  then
+    exitError 'isNewLocalVersion wrong version format, need MAJOR.MINOR.PATCH'
+  fi
+  VAR_LOCAL_MINOR=${VAR_LOCAL_MINOR:-'0'}
+  VAR_LOCAL_PATCH=${VAR_LOCAL_PATCH:-'0'}
+  VAR_REMOTE_MINOR=${VAR_REMOTE_MINOR:-'0'}
+  VAR_REMOTE_PATCH=${VAR_REMOTE_PATCH:-'0'}
+  if [ $VAR_LOCAL_MAJOR -lt $VAR_REMOTE_MAJOR ]; then return $COMMON_CONST_EXIT_ERROR;fi
+  if [ $VAR_LOCAL_MAJOR -gt $VAR_REMOTE_MAJOR ]; then return $COMMON_CONST_EXIT_SUCCESS;fi
+  if [ $VAR_LOCAL_MINOR -lt $VAR_REMOTE_MINOR ]; then return $COMMON_CONST_EXIT_ERROR;fi
+  if [ $VAR_LOCAL_MINOR -gt $VAR_REMOTE_MINOR ]; then return $COMMON_CONST_EXIT_SUCCESS;fi
+  if [ $VAR_LOCAL_PATCH -lt $VAR_REMOTE_PATCH ]; then return $COMMON_CONST_EXIT_ERROR;fi
+  if [ $VAR_LOCAL_PATCH -gt $VAR_REMOTE_PATCH ]; then return $COMMON_CONST_EXIT_SUCCESS;fi
+  return $COMMON_CONST_EXIT_ERROR
+}
 
 isDirectoryExist() {
   checkParmsCount $# 1 'isDirectoryExist'
-  ! isEmpty "$1" || [ -d "$1" ]
+  ! isEmpty "$1" && [ -d "$1" ]
 }
 
 isFileExistAndRead() {
   checkParmsCount $# 1 'ifFileExistAndRead'
-  ! isEmpty "$1" || [ -f $1 ] ]
+  ! isEmpty "$1" && [ -f $1 ]
 }
 
 isTrue(){

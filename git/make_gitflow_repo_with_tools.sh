@@ -50,10 +50,7 @@ TMP_DIRNAME=$(mktemp -d) || exitChildError "$TMP_DIRNAME"
 git clone $PRM_REMOTEREPO $TMP_DIRNAME
 CURRENT_DIRNAME=$PWD
 cd $TMP_DIRNAME
-if ! isRetValOK
-then
-  exitError
-fi
+if ! isRetValOK; then exitError; fi
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Init gitflow branching model with default settings'
