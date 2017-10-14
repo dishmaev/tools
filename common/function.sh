@@ -19,13 +19,13 @@ getIpAddressByVMID()
 #$1 pool, list with space delimiter. Return value format 'vmid:host'
 getVmsPool(){
   checkParmsCount $# 1 'getVmsPool'
-  for CUR_HV in $COMMON_CONST_HV_POOL_HOSTS
+  for CUR_ESXI in $COMMON_CONST_ESXI_POOL_HOSTS
   do
     for CUR_OS in $1
     do
       local VAR_RESULT
-      VAR_RESULT=$(ssh $COMMON_CONST_USER@$CUR_HV "vim-cmd vmsvc/getallvms | sed -e '1d' | \
-        awk '{print \$1\":\"\$5}' | grep ':'$CUR_OS | awk -F: '{print \$1\":$CUR_HV\"}'") || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$(ssh $COMMON_CONST_USER@$CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+        awk '{print \$1\":\"\$5}' | grep ':'$CUR_OS | awk -F: '{print \$1\":$CUR_ESXI\"}'") || exitChildError "$VAR_RESULT"
       echo "$VAR_RESULT"
     done
   done
@@ -303,17 +303,17 @@ checkParmsCount(){
   fi
 }
 #$1 esxi host
-put_ovftool_to_hv(){
-  checkParmsCount $# 1 'put_ovftool_to_hv'
-  scp -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_USER@$1:$COMMON_CONST_HV_TOOLS_PATH
+put_ovftool_to_esxi(){
+  checkParmsCount $# 1 'put_ovftool_to_esxi'
+  scp -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_USER@$1:$COMMON_CONST_ESXI_TOOLS_PATH
   if ! isRetValOK; then exitError; fi
-  ssh $COMMON_CONST_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_HV_OVFTOOL_PATH/ovftool"
+  ssh $COMMON_CONST_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
   if ! isRetValOK; then exitError; fi
 }
 #$1 esxi host
-put_script_tools_to_hv(){
-  checkParmsCount $# 1 'put_script_tools_to_hv'
-  scp -r $COMMON_CONST_SCRIPT_DIRNAME/scripts $COMMON_CONST_USER@$1:$COMMON_CONST_HV_SCRIPTS_PATH
+put_script_tools_to_esxi(){
+  checkParmsCount $# 1 'put_script_tools_to_esxi'
+  scp -r $COMMON_CONST_SCRIPT_DIRNAME/scripts $COMMON_CONST_USER@$1:$COMMON_CONST_ESXI_SCRIPTS_PATH
   if ! isRetValOK; then exitError; fi
   echo 'TO-DO: copy script tools on remote esxi host'
 }

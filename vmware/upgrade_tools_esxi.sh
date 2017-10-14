@@ -21,13 +21,13 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[host=$COMMON_CONST_HVHOST]' \
-      "$COMMON_CONST_HVHOST" \
+echoHelp $# 1 '[host=$COMMON_CONST_ESXI_HOST]' \
+      "$COMMON_CONST_ESXI_HOST" \
       "Required allowing ssh access on the remote esxi host, details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required vSphere CLI https://code.vmware.com/tool/vsphere-cli/"
 
 ###check commands
 
-PRM_HOST=${1:-$COMMON_CONST_HVHOST}
+PRM_HOST=${1:-$COMMON_CONST_ESXI_HOST}
 
 ###check body dependencies
 
@@ -53,41 +53,41 @@ LOCAL_TOOLS_VER=$(cat $COMMON_CONST_SCRIPT_DIRNAME/data/version)
 #get local ovftools version
 LOCAL_OVFTOOLS_VER=$(ovftool --version | awk '{print $3}')
 #check tools exist
-RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -d $COMMON_CONST_HV_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"
 then #first install
-  ssh $COMMON_CONST_USER@$PRM_HOST "mkdir $COMMON_CONST_HV_TOOLS_PATH; mkdir $COMMON_CONST_HV_PATCHES_PATH; mkdir $COMMON_CONST_HV_IMAGES_PATH"
+  ssh $COMMON_CONST_USER@$PRM_HOST "mkdir $COMMON_CONST_ESXI_TOOLS_PATH; mkdir $COMMON_CONST_ESXI_PATCHES_PATH; mkdir $COMMON_CONST_ESXI_IMAGES_PATH"
   if ! isRetValOK; then exitError; fi
   #copy tools
-  scp -r $COMMON_CONST_SCRIPT_DIRNAME/data $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_HV_TOOLS_PATH
+  scp -r $COMMON_CONST_SCRIPT_DIRNAME/data $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_TOOLS_PATH
   if ! isRetValOK; then exitError; fi
   #put scripts
-  put_script_tools_to_hv "$PRM_HOST"
+  put_script_tools_to_esxi "$PRM_HOST"
   #put ofvtool
-  put_ovftool_to_hv "$PRM_HOST"
+  put_ovftool_to_esxi "$PRM_HOST"
 else
   #get remote tools version
-  REMOTE_TOOLS_VER=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_HV_DATA_PATH/version") || exitChildError "$REMOTE_TOOLS_VER"
+  REMOTE_TOOLS_VER=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/version") || exitChildError "$REMOTE_TOOLS_VER"
   #get remote ovftools version
-  REMOTE_OVFTOOLS_VER=$(ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_HV_OVFTOOL_PATH/ovftool --version | awk '{print \$3}'") || exitChildError "$REMOTE_TOOLS_VER"
+  REMOTE_OVFTOOLS_VER=$(ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool --version | awk '{print \$3}'") || exitChildError "$REMOTE_TOOLS_VER"
   if isNewLocalVersion "$LOCAL_TOOLS_VER" "$REMOTE_TOOLS_VER"
   then
     #remove old version scripts
-    ssh $COMMON_CONST_USER@$PRM_HOST "rm -fR $COMMON_CONST_HV_SCRIPTS_PATH"
+    ssh $COMMON_CONST_USER@$PRM_HOST "rm -fR $COMMON_CONST_ESXI_SCRIPTS_PATH"
     if ! isRetValOK; then exitError; fi
     #put new version scripts
-    put_script_tools_to_hv "$PRM_HOST"
+    put_script_tools_to_esxi "$PRM_HOST"
     #put new version tag
-    scp -r $COMMON_CONST_SCRIPT_DIRNAME/data/version $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_HV_TOOLS_PATH/data/
+    scp -r $COMMON_CONST_SCRIPT_DIRNAME/data/version $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_TOOLS_PATH/data/
     if ! isRetValOK; then exitError; fi
   fi
   if isNewLocalVersion "$LOCAL_OVFTOOLS_VER" "$REMOTE_OVFTOOLS_VER"
   then
     #remove old version ofvtool
-    ssh $COMMON_CONST_USER@$PRM_HOST "rm -fR $COMMON_CONST_HV_TOOLS_PATH"
+    ssh $COMMON_CONST_USER@$PRM_HOST "rm -fR $COMMON_CONST_ESXI_TOOLS_PATH"
     if ! isRetValOK; then exitError; fi
     #put new version ofvtool
-    put_ovftool_to_hv "$PRM_HOST"
+    put_ovftool_to_esxi "$PRM_HOST"
   fi
 fi
 

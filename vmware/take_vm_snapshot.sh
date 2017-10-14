@@ -21,8 +21,8 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<vmname> <snapshotname> [includememory=0] [quiesced=0] [host=$COMMON_CONST_HVHOST]' \
-      "myvm snapshot1 1 0 'description' $COMMON_CONST_HVHOST" \
+echoHelp $# 2 '<vmname> <snapshotname> [includememory=0] [quiesced=0] [host=$COMMON_CONST_ESXI_HOST]' \
+      "myvm snapshot1 1 0 'description' $COMMON_CONST_ESXI_HOST" \
       "Required allowing SSH access on the remote host"
 
 ###check commands
@@ -31,7 +31,7 @@ PRM_VMNAME=$1
 PRM_SNAPSHOTNAME=$2
 PRM_INCLUDEMEMORY=${3:-$COMMON_CONST_FALSE}
 PRM_QUIESCED=${4:-$COMMON_CONST_FALSE}
-PRM_HOST=${5:-$COMMON_CONST_HVHOST}
+PRM_HOST=${5:-$COMMON_CONST_ESXI_HOST}
 
 checkCommandExist 'vmname' "$PRM_VMNAME" ''
 checkCommandExist 'snapshotname' "$PRM_SNAPSHOTNAME" ''

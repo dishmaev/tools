@@ -14,8 +14,8 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<action=on | off> [MAC=$COMMON_CONST_HVMAC | host=$COMMON_CONST_HVHOST]' \
-      "on $COMMON_CONST_HVMAC" 'On action need MAC, off action need host'
+echoHelp $# 2 '<action=on | off> [MAC=$COMMON_CONST_ESXI_MAC | host=$COMMON_CONST_ESXI_HOST]' \
+      "on $COMMON_CONST_ESXI_MAC" 'On action need MAC, off action need host'
 
 ###check commands
 
@@ -28,9 +28,9 @@ if [ -z "$PRM_HV" ]
 then
   if [ "$PRM_ACTION" = "on" ]
   then
-    PRM_HV=$COMMON_CONST_HVMAC
+    PRM_HV=$COMMON_CONST_ESXI_MAC
   else
-    PRM_HV=$COMMON_CONST_HVHOST
+    PRM_HV=$COMMON_CONST_ESXI_HOST
   fi
 fi
 

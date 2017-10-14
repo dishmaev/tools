@@ -29,15 +29,15 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<vmType> [host=$COMMON_CONST_HVHOST] [dataStoreVm=$COMMON_CONST_HV_DATASTORE_VM]' \
-    "VMwarePhoton $COMMON_CONST_HVHOST $COMMON_CONST_HV_DATASTORE_VM" \
+echoHelp $# 3 '<vmType> [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
+    "VMwarePhoton $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
     "Support vm types: $COMMON_CONST_VM_TYPES"
 
 ###check commands
 
 PRM_VMTYPE=$1
-PRM_HOST=${2:-$COMMON_CONST_HVHOST}
-PRM_DATASTOREVM=${3:-$COMMON_CONST_HV_DATASTORE_VM}
+PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
+PRM_DATASTOREVM=${3:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
 checkCommandValue 'vmType' "$PRM_VMTYPE" "$COMMON_CONST_VM_TYPES"
 
@@ -74,10 +74,10 @@ elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
 fi
 
 #update tools
-$COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_hv.sh -y $PRM_HOST
+$COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST
 if ! isRetValOK; then exitError; fi
 #check required ova package on remote esxi host
-RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_HV_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"
 then #if not exist, find it localy, or download package and put it on remote esxi host
   OVA_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$OVA_FILE_NAME
@@ -92,23 +92,23 @@ then #if not exist, find it localy, or download package and put it on remote esx
         wget -O $ORIG_FILE_PATH $FILE_URL
         if ! isRetValOK; then exitError; fi
       fi
-      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_HV_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
       if ! isTrue "$RET_VAL"; then
-        scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_HV_IMAGES_PATH/$ORIG_FILE_NAME
+        scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME
         if ! isRetValOK; then exitError; fi
       fi
       DISK_DIR_PATH="/vmfs/volumes/$PRM_DATASTOREVM/$COMMON_CONST_VMTYPE_FREEBSD"
       DISK_FILE_PATH="$DISK_DIR_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmdk"
-      TMP_FILE_PATH=$COMMON_CONST_HV_IMAGES_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmdk
-      ssh $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_HV_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
+      TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmdk
+      ssh $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
       if ! isRetValOK; then exitError; fi
-      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$COMMON_CONST_VMTYPE_FREEBSD; cp $COMMON_CONST_HV_SCRIPTS_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH $DISK_FILE_PATH"
+      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$COMMON_CONST_VMTYPE_FREEBSD; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH $DISK_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #register template vm
       ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmx"
       if ! isRetValOK; then exitError; fi
       #make ova package
-      ovftool --noSSLVerify "vi://$COMMON_CONST_OVF_USERPASSWORD@$PRM_HOST/$COMMON_CONST_VMTYPE_FREEBSD" $OVA_FILE_PATH
+      ovftool --noSSLVerify "vi://$COMMON_CONST_USER@$PRM_HOST/$COMMON_CONST_VMTYPE_FREEBSD" $OVA_FILE_PATH < $COMMON_CONST_PASS_FILE
       if ! isRetValOK; then exitError; fi
       #delete template vm
       $COMMON_CONST_SCRIPT_DIRNAME/delete_vm.sh -y $COMMON_CONST_VMTYPE_FREEBSD $PRM_HOST
@@ -127,22 +127,22 @@ then #if not exist, find it localy, or download package and put it on remote esx
     fi
   fi
   #put vm ova packages on esxi host
-  scp "$OVA_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_HV_IMAGES_PATH/$OVA_FILE_NAME
+  scp "$OVA_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME
   if ! isRetValOK; then exitError; fi
   #put start number for new vm type
-  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_HV_DATA_PATH/$FILE_NUM"
+  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_ESXI_DATA_PATH/$FILE_NUM"
   if ! isRetValOK; then exitError; fi
   CUR_NUM=1
 else
   #get vm number
-  CUR_NUM=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_HV_DATA_PATH/$FILE_NUM") || exitChildError "$CUR_NUM"
+  CUR_NUM=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/$FILE_NUM") || exitChildError "$CUR_NUM"
 fi
 #put next vm number
-ssh $COMMON_CONST_USER@$PRM_HOST "echo \$(($CUR_NUM+1)) > $COMMON_CONST_HV_DATA_PATH/$FILE_NUM"
+ssh $COMMON_CONST_USER@$PRM_HOST "echo \$(($CUR_NUM+1)) > $COMMON_CONST_ESXI_DATA_PATH/$FILE_NUM"
 if ! isRetValOK; then exitError; fi
 #create new vm on remote esxi host
-ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_HV_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM --acceptAllEulas \
-    --noSSLVerify --powerOn -n=$FILE_NUM-$CUR_NUM $COMMON_CONST_HV_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_OVF_USERPASSWORD@$PRM_HOST"
+ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM --acceptAllEulas \
+    --noSSLVerify --powerOn -n=$FILE_NUM-$CUR_NUM $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_PASS_FILE
 if isRetValOK
 then
   doneFinalStage

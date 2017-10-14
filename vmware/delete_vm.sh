@@ -19,12 +19,12 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<vmname> [host=$COMMON_CONST_HVHOST]' "myvm $COMMON_CONST_HVHOST" ""
+echoHelp $# 2 '<vmname> [host=$COMMON_CONST_ESXI_HOST]' "myvm $COMMON_CONST_ESXI_HOST" ""
 
 ###check commands
 
 PRM_VMNAME=$1
-PRM_HOST=${2:-$COMMON_CONST_HVHOST}
+PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 
 checkCommandExist 'vmname' "$PRM_VMNAME" ''
 
