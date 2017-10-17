@@ -8,12 +8,42 @@ NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
 
 #$1 VMID, $2 esxi host
+powerOnVM()
+{
+  checkParmsCount $# 2 'powerOnVM'
+  ssh $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; sleep 3; fi"
+  if ! isRetValOK; then exitError; fi
+}
+
+#$1 VMID, $2 esxi host
+powerOffVM()
+{
+  checkParmsCount $# 2 'powerOffVM'
+  ssh $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; sleep 3; fi"
+  if ! isRetValOK; then exitError; fi
+}
+#$1 VMID, $2 esxi host
 getIpAddressByVMID()
 {
-  checkParmsCount $# 2 'getIPbyVMID'
-  local VAR_RESULT
-  VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/get.guest $1 | grep ipAddress | \
+  checkParmsCount $# 2 'getIpAddressByVMID'
+  local VAR_RESULT=''
+  local VAR_COUNT=3
+  local VAR_TRY=2
+  while true
+  do
+    sleep 10
+    VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/get.guest $1 | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
+    if ! isEmpty "$VAR_RESULT"; then break; fi
+    VAR_COUNT=$((VAR_COUNT-1))
+    if [ $VAR_COUNT -eq 0 ]; then
+      VAR_TRY=$((VAR_TRY-1))
+      if [ $VAR_TRY -eq 0 ]; then
+        exitError "failed get ip address of the VMID $1 on $2 host. Check VM Tools install"
+      fi;
+      VAR_COUNT=3
+    fi
+  done
   echo "$VAR_RESULT"
 }
 #$1 pool, list with space delimiter. Return value format 'vmid:host'
@@ -55,6 +85,25 @@ checkCommandExist() {
   elif ! isEmpty "$3"
   then
     checkCommandValue "$1" "$2" "$3"
+  fi
+}
+#$1 vm name , $2 esxi host
+checkTriggerTemplateVM(){
+  checkParmsCount $# 2 'checkTriggerTemplateVM'
+  local VAR_VMID=''
+  local VAR_VMIP=''
+  local VAR_COUNT=3
+  local VAR_TRY=2
+  local VAR_INPUT=''
+  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh";then
+    VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
+    powerOnVM "$VAR_VMID" "$2"
+    if ! isAutoYesMode; then
+      read -r -p "Now making OVA package procedure paused. You can make changes manualy on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+    fi
+    VAR_VMIP=$(getIpAddressByVMID "$VAR_VMID" "$2") || exitChildError "$VAR_VMIP"
+    $COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh -y "$VAR_VMIP"
+    powerOffVM "$VAR_VMID" "$2"
   fi
 }
 #$1 title, $2 value, [$3] allow values
@@ -238,6 +287,7 @@ startPrompt(){
   if ! isAutoYesMode
   then
     local VAR_INPUT=''
+    local VAR_YES=$COMMON_CONST_FALSE
     local VAR_DO_FLAG=$COMMON_CONST_TRUE
     while [ "$VAR_DO_FLAG" = "$COMMON_CONST_TRUE" ]
     do
@@ -248,7 +298,7 @@ startPrompt(){
       else
         case $VAR_INPUT in
           [yY])
-            AUTO_YES=$COMMON_CONST_TRUE
+            VAR_YES=$COMMON_CONST_TRUE
             VAR_DO_FLAG=$COMMON_CONST_FALSE
             ;;
           [nN])
@@ -260,7 +310,7 @@ startPrompt(){
         esac
       fi
     done
-    if ! isAutoYesMode
+    if ! isTrue $VAR_YES
     then
       exitOK 'Good bye!'
     fi
@@ -364,7 +414,7 @@ isDirectoryExist() {
 
 isFileExistAndRead() {
   checkParmsCount $# 1 'ifFileExistAndRead'
-  ! isEmpty "$1" && [ -f $1 ]
+  ! isEmpty "$1" && [ -f "$1" ]
 }
 
 isTrue(){

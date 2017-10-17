@@ -14,9 +14,9 @@ PRM_DATASTOREVM='' #datastore for vm
 OVA_FILE_NAME='' # ova package name
 OVA_FILE_PATH='' # ova package name with local path
 FILE_URL='' # url for download
-FILE_NUM='' #vm number for name generation
 RET_VAL='' #child return value
 CUR_NUM='' #current number of vm
+VM_IP='' #new vm ip address
 ORIG_FILE_NAME='' #original file name
 ORIG_FILE_PATH='' #original file name with local path
 DISK_FILE_PATH='' #vmdk file name with local esxi host path
@@ -56,20 +56,18 @@ startPrompt
 
 ###body
 
+DISK_DIR_PATH="/vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE"
+DISK_FILE_PATH="$DISK_DIR_PATH/$PRM_VMTYPE.vmdk"
 if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_PHOTON" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_PHOTON'-'$COMMON_CONST_PHOTON_VERSION.ova
-  FILE_NUM=$COMMON_CONST_VMTYPE_PHOTON
   FILE_URL=$COMMON_CONST_PHOTON_OVA_URL
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_DEBIAN'-'$COMMON_CONST_DEBIAN_VERSION.ova
-  FILE_NUM=$COMMON_CONST_VMTYPE_DEBIAN
   FILE_URL=$COMMON_CONST_DEBIAN_VMDK_URL
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_ORACLELINUX'-'$COMMON_CONST_ORACLELINUX_VERSION.ova
-  FILE_NUM=$COMMON_CONST_VMTYPE_ORACLELINUX
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_FREEBSD'-'$COMMON_CONST_FREEBSD_VERSION.ova
-  FILE_NUM=$COMMON_CONST_VMTYPE_FREEBSD
   FILE_URL=$COMMON_CONST_FREEBSD_VMDKXZ_URL
 fi
 
@@ -83,43 +81,73 @@ then #if not exist, find it localy, or download package and put it on remote esx
   OVA_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$OVA_FILE_NAME
   if ! isFileExistAndRead "$OVA_FILE_PATH"
   then
+    ORIG_FILE_NAME=$(getFileNameFromUrlString "$FILE_URL")
+    ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$ORIG_FILE_NAME
     if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_PHOTON" ]; then
-      wget -O $OVA_FILE_PATH $FILE_URL
-    elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
-      ORIG_FILE_NAME=$(getFileNameFromUrlString "$FILE_URL")
-      ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$ORIG_FILE_NAME
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
         wget -O $ORIG_FILE_PATH $FILE_URL
         if ! isRetValOK; then exitError; fi
       fi
+      #check exist base ova package on esxi host in the images directory
       RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
-      if ! isTrue "$RET_VAL"; then
+      if ! isTrue "$RET_VAL"; then #put if not exist
         scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME
         if ! isRetValOK; then exitError; fi
       fi
-      DISK_DIR_PATH="/vmfs/volumes/$PRM_DATASTOREVM/$COMMON_CONST_VMTYPE_FREEBSD"
-      DISK_FILE_PATH="$DISK_DIR_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmdk"
-      TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmdk
-      ssh $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
+      #register template vm
+      ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+          --noSSLVerify -n=$COMMON_CONST_VMTYPE_PHOTON $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
       if ! isRetValOK; then exitError; fi
-      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$COMMON_CONST_VMTYPE_FREEBSD; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH $DISK_FILE_PATH"
+    elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
+      if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
+        exitError "file \'$ORIG_FILE_PATH\' not found, need manualy download and unpack url http://www.osboxes.org/debian/"
+      fi
+      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+      #check exist base vmdk disk on esxi host in the images directory
+      if ! isTrue "$RET_VAL"; then #put if not exist
+        scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH
+        if ! isRetValOK; then exitError; fi
+      fi
+      #make vm template directory, copy vmdk disk
+      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' -d thin $DISK_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #register template vm
-      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$COMMON_CONST_VMTYPE_FREEBSD.vmx"
+      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
-      #make ova package
-      ovftool --noSSLVerify "vi://$COMMON_CONST_USER@$PRM_HOST/$COMMON_CONST_VMTYPE_FREEBSD" $OVA_FILE_PATH < $COMMON_CONST_PASS_FILE
+    elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
+      #register template vm
+      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
-      #delete template vm
-      $COMMON_CONST_SCRIPT_DIRNAME/delete_vm.sh -y $COMMON_CONST_VMTYPE_FREEBSD $PRM_HOST
-    elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
-      ORIG_FILE_NAME=$(getFileNameFromUrlString "$FILE_URL")
-      ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$ORIG_FILE_NAME
+    elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
-        exitError "file $ORIG_FILE_PATH not found, need manualy download and unpack url http://www.osboxes.org/debian/"
+        wget -O $ORIG_FILE_PATH $FILE_URL
+        if ! isRetValOK; then exitError; fi
       fi
-      exitOK
+      #check exist base vmdk disk on esxi host in the images directory
+      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+      if ! isTrue "$RET_VAL"; then #put if not exist
+        scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME
+        if ! isRetValOK; then exitError; fi
+      fi
+      # unpack xz archive with vmdk disk, specialy for osboxes debian image
+      TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTYPE.vmdk
+      ssh $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
+      if ! isRetValOK; then exitError; fi
+      #make vm template directory, copy vmdk disk
+#      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
+      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH $DISK_FILE_PATH"
+      if ! isRetValOK; then exitError; fi
+      #register template vm
+      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
+      if ! isRetValOK; then exitError; fi
     fi
+    #execute triggres when exist
+    checkTriggerTemplateVM "$PRM_VMTYPE" "$PRM_HOST"
+    #make ova package
+    ovftool --noSSLVerify "vi://$COMMON_CONST_USER@$PRM_HOST/$PRM_VMTYPE" $OVA_FILE_PATH < $COMMON_CONST_OVFTOOL_PASS_FILE
+    if ! isRetValOK; then exitError; fi
+    #delete template vm
+    $COMMON_CONST_SCRIPT_DIRNAME/delete_vm.sh -y $PRM_VMTYPE $PRM_HOST
     if ! isRetValOK; then exitError; fi
     if ! isFileExistAndRead "$OVA_FILE_PATH"
     then #can't make/download ova package
@@ -130,21 +158,25 @@ then #if not exist, find it localy, or download package and put it on remote esx
   scp "$OVA_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME
   if ! isRetValOK; then exitError; fi
   #put start number for new vm type
-  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_ESXI_DATA_PATH/$FILE_NUM"
+  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
   if ! isRetValOK; then exitError; fi
   CUR_NUM=1
 else
   #get vm number
-  CUR_NUM=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/$FILE_NUM") || exitChildError "$CUR_NUM"
+  CUR_NUM=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE") || exitChildError "$CUR_NUM"
 fi
 #put next vm number
-ssh $COMMON_CONST_USER@$PRM_HOST "echo \$(($CUR_NUM+1)) > $COMMON_CONST_ESXI_DATA_PATH/$FILE_NUM"
+ssh $COMMON_CONST_USER@$PRM_HOST "echo \$(($CUR_NUM+1)) > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
 if ! isRetValOK; then exitError; fi
 #create new vm on remote esxi host
-ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM --acceptAllEulas \
-    --noSSLVerify --powerOn -n=$FILE_NUM-$CUR_NUM $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_PASS_FILE
+ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+    --noSSLVerify --powerOn -n=$PRM_VMTYPE-$CUR_NUM $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
 if isRetValOK
 then
+  sleep 5
+  VM_IP=$(getVMIDByVMName "$PRM_VMTYPE-$CUR_NUM" "$PRM_HOST") || exitChildError "$VM_IP"
+  VM_IP=$(getIpAddressByVMID "$VM_IP" "$PRM_HOST") || exitChildError "$VM_IP"
+  echo 'New VM name / ip:' $PRM_VMTYPE-$CUR_NUM / $VM_IP
   doneFinalStage
   exitOK
 else
