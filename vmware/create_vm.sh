@@ -22,6 +22,7 @@ ORIG_FILE_PATH='' #original file name with local path
 DISK_FILE_PATH='' #vmdk file name with local esxi host path
 DISK_DIR_PATH='' #local esxi host path for template vm
 TMP_FILE_PATH='' #extracted file name with local esxi host path
+PAUSE_MESSAGE='' #for show message before paused
 
 ###check autoyes
 
@@ -69,11 +70,18 @@ elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_FREEBSD'-'$COMMON_CONST_FREEBSD_VERSION.ova
   FILE_URL=$COMMON_CONST_FREEBSD_VMDKXZ_URL
+  PAUSE_MESSAGE="Manualy must be:\n\
+-echo sshd_enable=\"YES\" >> in /etc/rc.conf\n\
+-set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
+-set root not empty password by 'passwd'\n\
+-setenv ASSUME_ALWAYS_YES yes\n\
+-pkg install open-vm-tools-nox11\n\
+-reboot vm, check that ssh and vm tools are working"
 fi
 
 #update tools
-$COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST
-if ! isRetValOK; then exitError; fi
+RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$RET_VAL"
+echo "$RET_VAL"
 #check required ova package on remote esxi host
 RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"
@@ -134,21 +142,20 @@ then #if not exist, find it localy, or download package and put it on remote esx
       ssh $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #make vm template directory, copy vmdk disk
-#      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
-      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH $DISK_FILE_PATH"
+      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #register template vm
       ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
     fi
     #execute triggres when exist
-    checkTriggerTemplateVM "$PRM_VMTYPE" "$PRM_HOST"
+    checkTriggerTemplateVM "$PRM_VMTYPE" "$PRM_HOST" "$PAUSE_MESSAGE"
     #make ova package
     ovftool --noSSLVerify "vi://$COMMON_CONST_USER@$PRM_HOST/$PRM_VMTYPE" $OVA_FILE_PATH < $COMMON_CONST_OVFTOOL_PASS_FILE
     if ! isRetValOK; then exitError; fi
     #delete template vm
-    $COMMON_CONST_SCRIPT_DIRNAME/delete_vm.sh -y $PRM_VMTYPE $PRM_HOST
-    if ! isRetValOK; then exitError; fi
+    RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/delete_vm.sh -y $PRM_VMTYPE $PRM_HOST) || exitChildError "$RET_VAL"
+    echo "$RET_VAL"
     if ! isFileExistAndRead "$OVA_FILE_PATH"
     then #can't make/download ova package
       exitError
@@ -158,8 +165,8 @@ then #if not exist, find it localy, or download package and put it on remote esx
   scp "$OVA_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME
   if ! isRetValOK; then exitError; fi
   #put start number for new vm type
-  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
-  if ! isRetValOK; then exitError; fi
+#  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
+#  if ! isRetValOK; then exitError; fi
   CUR_NUM=1
 else
   #get vm number

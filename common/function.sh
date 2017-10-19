@@ -13,6 +13,7 @@ powerOnVM()
   checkParmsCount $# 2 'powerOnVM'
   ssh $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; sleep 3; fi"
   if ! isRetValOK; then exitError; fi
+  sleep 5
 }
 
 #$1 VMID, $2 esxi host
@@ -21,14 +22,15 @@ powerOffVM()
   checkParmsCount $# 2 'powerOffVM'
   ssh $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; sleep 3; fi"
   if ! isRetValOK; then exitError; fi
+  sleep 5
 }
 #$1 VMID, $2 esxi host
 getIpAddressByVMID()
 {
   checkParmsCount $# 2 'getIpAddressByVMID'
   local VAR_RESULT=''
-  local VAR_COUNT=3
-  local VAR_TRY=2
+  local VAR_COUNT=5
+  local VAR_TRY=3
   while true
   do
     sleep 10
@@ -89,20 +91,28 @@ checkCommandExist() {
 }
 #$1 vm name , $2 esxi host
 checkTriggerTemplateVM(){
-  checkParmsCount $# 2 'checkTriggerTemplateVM'
+  checkParmsCount $# 3 'checkTriggerTemplateVM'
   local VAR_VMID=''
   local VAR_VMIP=''
-  local VAR_COUNT=3
-  local VAR_TRY=2
   local VAR_INPUT=''
+  local VAR_RESULT=''
   if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh";then
     VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
     powerOnVM "$VAR_VMID" "$2"
     if ! isAutoYesMode; then
+      if ! isEmpty "$3"; then
+        echo "$3"
+      fi
       read -r -p "Now making OVA package procedure paused. You can make changes manualy on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     fi
     VAR_VMIP=$(getIpAddressByVMID "$VAR_VMID" "$2") || exitChildError "$VAR_VMIP"
-    $COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh -y "$VAR_VMIP"
+    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh -y "$VAR_VMIP" "$1") || exitChildError "$VAR_RESULT"
+    echo "$VAR_RESULT"
+    if ! isAutoYesMode; then
+      read -r -p "Last check template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+    else
+      sleep 5
+    fi
     powerOffVM "$VAR_VMID" "$2"
   fi
 }
@@ -168,7 +178,7 @@ checkDependencies(){
           fi
         elif isFreeBSDOS
         then
-          echo 'TO-DO FreeBSD'
+          echo 'TO-DO FreeBSD try install missing dependencies'
         fi
         #repeat check for availability dependence
         if ! isCommandExist $CUR_DEP
@@ -455,6 +465,8 @@ isFileSystemMounted(){
 }
 
 isRetValOK(){
+  local VAR_RESULT
+  VAR_RESULT="$?"
   checkParmsCount $# 0 'isRetValOK'
-  [ "$?" = "0" ]
+  [ "$VAR_RESULT" = "0" ]
 }

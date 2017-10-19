@@ -31,11 +31,12 @@ PRM_HOST=${1:-$COMMON_CONST_ESXI_HOST}
 
 ###check body dependencies
 
-checkDependencies 'ovftool vmkfstools ssh scp'
+checkDependencies 'ovftool ssh scp'
 checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
 
 ###check required files
 
+checkRequiredFiles "$HOME/.ssh/$COMMON_CONST_SSHKEYID"
 checkRequiredFiles "$HOME/.ssh/$COMMON_CONST_SSHKEYID.pub"
 checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/data/version"
 

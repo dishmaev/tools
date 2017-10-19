@@ -2,13 +2,14 @@
 
 ###header
 . $(dirname "$0")/../../common/define_trigger.sh #include common defines, like $COMMON_...
-showDescription 'Trigger for ptn type template VM'
+showDescription "Trigger for $COMMON_CONST_VMTYPE_PHOTON type template VM"
 
 ##private consts
 
 
 ##private vars
 PRM_IPADDRESS='' #ptn vm ip address
+PRM_HOSTNAME'' #host name for vm
 
 ###check autoyes
 
@@ -16,12 +17,14 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '<ipAddressVMPtn>' "192.168.0.100" ""
+echoHelp $# 2 '<ipAddressVM> [hostNameVM=$COMMON_CONST_VMTYPE_PHOTON]' "192.168.0.100 $COMMON_CONST_VMTYPE_PHOTON" ""
 
 ###check commands
 
 PRM_IPADDRESS=$1
-checkCommandExist 'ipAddressVMPtn' "$PRM_IPADDRESS" ''
+PRM_HOSTNAME=${2:-$COMMON_CONST_VMTYPE_PHOTON}
+
+checkCommandExist 'ipAddressVM' "$PRM_IPADDRESS" ''
 
 
 ###check body dependencies

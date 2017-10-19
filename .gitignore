@@ -1,4 +1,5 @@
-/common/password
+/common/ovftoolpwd
+/common/sshpwd
 /test/
 /repo/repos
 *.iso
