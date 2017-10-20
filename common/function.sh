@@ -169,16 +169,18 @@ checkDependencies(){
         then
           local VAR_LINUX_BASED
           VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-          if [ "$VAR_LINUX_BASED" = "apt" ]
+          if isAPTLinux "$VAR_LINUX_BASED"
           then
             sudo apt -y install $CUR_DEP
-          elif [ "$VAR_LINUX_BASED" = "rpm" ]
+          elif isRPMLinux "$VAR_LINUX_BASED"
           then
             sudo yum -y install $CUR_DEP
           fi
         elif isFreeBSDOS
         then
-          echo 'TO-DO FreeBSD try install missing dependencies'
+          setenv ASSUME_ALWAYS_YES yes
+          pkg install $CUR_DEP
+          setenv ASSUME_ALWAYS_YES
         fi
         #repeat check for availability dependence
         if ! isCommandExist $CUR_DEP
@@ -451,6 +453,18 @@ isCommandExist(){
 isLinuxOS(){
   checkParmsCount $# 0 'isLinuxOS'
   [ "$(uname)" = "Linux" ]
+}
+
+isAPTLinux()
+{
+  checkParmsCount $# 1 'isAPTLinux'
+  [ "$1" = "$COMMON_CONST_LINUX_APT" ]
+}
+
+isRPMLinux()
+{
+  checkParmsCount $# 1 'isRPMLinux'
+  [ "$1" = "$COMMON_CONST_LINUX_RPM" ]
 }
 
 isFreeBSDOS(){

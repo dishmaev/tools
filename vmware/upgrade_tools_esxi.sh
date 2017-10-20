@@ -23,7 +23,9 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 1 '[host=$COMMON_CONST_ESXI_HOST]' \
       "$COMMON_CONST_ESXI_HOST" \
-      "Required allowing ssh access on the remote esxi host, details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required vSphere CLI https://code.vmware.com/tool/vsphere-cli/"
+      "Required allowing ssh access on the remote esxi host, \
+details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. \
+Required OVF Tool https://www.vmware.com/support/developer/ovf/"
 
 ###check commands
 

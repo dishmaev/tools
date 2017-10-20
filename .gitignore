@@ -1,5 +1,7 @@
 /common/ovftoolpwd
 /common/sshpwd
+/virtualbox/.vagrant
+/virtualbox/Vagrantfile
 /test/
 /repo/repos
 *.iso

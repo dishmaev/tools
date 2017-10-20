@@ -12,6 +12,8 @@ readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools lo
 readonly COMMON_CONST_OVFTOOL_PASS_FILE=$COMMON_CONST_SCRIPT_DIRNAME/../common/ovftoolpwd #default password, used by ovftool
 readonly COMMON_CONST_SSH_PASS_FILE=$COMMON_CONST_SCRIPT_DIRNAME/../../common/sshpwd #default password, used by ssh client from triggers
 readonly SSH_CLIENT='ssh -o StrictHostKeyChecking=no'
+readonly COMMON_CONST_LINUX_APT='apt'
+readonly COMMON_CONST_LINUX_RPM='rpm'
 
 #default user, keys
 readonly COMMON_CONST_SSHKEYID=id_idax_rsa #ssh keyID
@@ -60,14 +62,15 @@ readonly COMMON_CONST_LINUX_APT_POOL_NAMES='debian8_64Guest' #APT-based Linux po
 
 readonly COMMON_CONST_VMTYPE_ORACLELINUX='orl' # Oracle Linux
 readonly COMMON_CONST_ORACLELINUX_VERSION='7.4' #oracle linux version
+readonly COMMON_CONST_ORACLELINUX_BOX_URL='http://yum.oracle.com/boxes/oraclelinux/ol74/ol74.box'
 #readonly COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
-readonly COMMON_CONST_LINUX_RPM_POOL_NAMES='oracleLinux64Guest' #RPM-based Linux pool name, list with space delimiter
 
 readonly COMMON_CONST_VMTYPE_FREEBSD='fbd' # FreeBSD
 readonly COMMON_CONST_FREEBSD_VERSION='11.1' #freebsd version
 readonly COMMON_CONST_FREEBSD_VMDKXZ_URL="https://download.freebsd.org/ftp/releases/VM-IMAGES/$COMMON_CONST_FREEBSD_VERSION-RELEASE/amd64/Latest/FreeBSD-$COMMON_CONST_FREEBSD_VERSION-RELEASE-amd64.vmdk.xz" #https://download.freebsd.org/ftp/releases/VM-IMAGES
 readonly COMMON_CONST_FREEBSD_POOL_NAMES='freebsd64Guest' #FreeBSD pool name, list with space delimiter
 
+readonly COMMON_CONST_LINUX_RPM_POOL_NAMES='oracleLinux64Guest other3xLinux64Guest' #RPM-based Linux pool name, list with space delimiter
 readonly COMMON_CONST_VM_TYPES="$COMMON_CONST_VMTYPE_PHOTON $COMMON_CONST_VMTYPE_DEBIAN $COMMON_CONST_VMTYPE_ORACLELINUX $COMMON_CONST_VMTYPE_FREEBSD" #support OS types for deploy on remote esxi host
 
 #virtualbox

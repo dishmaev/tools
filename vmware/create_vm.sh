@@ -49,7 +49,7 @@ checkDependencies 'ssh scp xz'
 
 ###check required files
 
-checkRequiredFiles "$COMMON_CONST_SSH_PASS_FILE $COMMON_CONST_OVFTOOL_PASS_FILE"
+checkRequiredFiles "$COMMON_CONST_OVFTOOL_PASS_FILE $COMMON_CONST_SCRIPT_DIRNAME/../common/sshpwd"
 
 ###start prompt
 
@@ -69,6 +69,7 @@ elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
   FILE_URL=$COMMON_CONST_DEBIAN_VMDK_URL
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_ORACLELINUX'-'$COMMON_CONST_ORACLELINUX_VERSION.ova
+  FILE_URL=$COMMON_CONST_ORACLELINUX_BOX_URL
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_FREEBSD'-'$COMMON_CONST_FREEBSD_VERSION.ova
   FILE_URL=$COMMON_CONST_FREEBSD_VMDKXZ_URL
@@ -106,7 +107,7 @@ then #if not exist, find it localy, or download package and put it on remote esx
       fi
       #register template vm
       $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
-          --noSSLVerify -n=$COMMON_CONST_VMTYPE_PHOTON $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
+          --noSSLVerify -n=$PRM_VMTYPE $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
       if ! isRetValOK; then exitError; fi
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
@@ -125,9 +126,18 @@ then #if not exist, find it localy, or download package and put it on remote esx
       $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
+      if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
+        wget -O $ORIG_FILE_PATH $FILE_URL
+        if ! isRetValOK; then exitError; fi
+      fi
       #register template vm
-      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+          --noSSLVerify -n=$PRM_VMTYPE $COMMON_CONST_ESXI_IMAGES_PATH/orl.ova vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
       if ! isRetValOK; then exitError; fi
+
+#      RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$RET_VAL"
+#      echo "$RET_VAL"
+#      exitOK
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
         wget -O $ORIG_FILE_PATH $FILE_URL
