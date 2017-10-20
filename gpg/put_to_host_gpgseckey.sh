@@ -43,7 +43,7 @@ TMP_FILEPATH=$(mktemp -u) || exitChildError "$TMP_FILEPATH"
 TMP_FILENAME=$(basename $TMP_FILEPATH) || exitChildError "$TMP_FILENAME"
 gpg -q --export-secret-keys --output $TMP_FILEPATH $PRM_KEYID
 scp -q $TMP_FILEPATH $COMMON_CONST_USER@$PRM_HOST:~/$TMP_FILENAME
-ssh $COMMON_CONST_USER@$PRM_HOST "gpg --import" $TMP_FILENAME ";rm" $TMP_FILENAME
+$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "gpg --import" $TMP_FILENAME ";rm" $TMP_FILENAME
 rm $TMP_FILEPATH
 
 doneFinalStage

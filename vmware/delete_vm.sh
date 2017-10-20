@@ -50,14 +50,14 @@ fi
 #try standard power off if vm running
 powerOffVM "$TARGET_VMID" "$PRM_HOST"
 #check running
-RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$RET_VAL"
+RET_VAL=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$RET_VAL"
 if ! isEmpty "$RET_VAL"
 then #still running, force kill vm
-  ssh $COMMON_CONST_USER@$PRM_HOST "esxcli vm process kill --type force --world-id $RET_VAL"
+  $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "esxcli vm process kill --type force --world-id $RET_VAL"
   if ! isRetValOK; then exitError; fi
 fi
 #delete vm
-ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/destroy $TARGET_VMID"
+$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/destroy $TARGET_VMID"
 if isRetValOK
 then
   doneFinalStage

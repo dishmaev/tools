@@ -49,7 +49,7 @@ checkDependencies 'ssh scp xz'
 
 ###check required files
 
-#checkRequiredFiles "file1 file2 file3"
+checkRequiredFiles "$COMMON_CONST_SSH_PASS_FILE $COMMON_CONST_OVFTOOL_PASS_FILE"
 
 ###start prompt
 
@@ -62,6 +62,8 @@ DISK_FILE_PATH="$DISK_DIR_PATH/$PRM_VMTYPE.vmdk"
 if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_PHOTON" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_PHOTON'-'$COMMON_CONST_PHOTON_VERSION.ova
   FILE_URL=$COMMON_CONST_PHOTON_OVA_URL
+  PAUSE_MESSAGE="Manualy must be:\n\
+-change default root password 'changeme'"
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_DEBIAN'-'$COMMON_CONST_DEBIAN_VERSION.ova
   FILE_URL=$COMMON_CONST_DEBIAN_VMDK_URL
@@ -83,7 +85,7 @@ fi
 RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$RET_VAL"
 echo "$RET_VAL"
 #check required ova package on remote esxi host
-RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+RET_VAL=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"
 then #if not exist, find it localy, or download package and put it on remote esxi host
   OVA_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$OVA_FILE_NAME
@@ -97,34 +99,34 @@ then #if not exist, find it localy, or download package and put it on remote esx
         if ! isRetValOK; then exitError; fi
       fi
       #check exist base ova package on esxi host in the images directory
-      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+      RET_VAL=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
       if ! isTrue "$RET_VAL"; then #put if not exist
         scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME
         if ! isRetValOK; then exitError; fi
       fi
       #register template vm
-      ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
           --noSSLVerify -n=$COMMON_CONST_VMTYPE_PHOTON $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
       if ! isRetValOK; then exitError; fi
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
         exitError "file \'$ORIG_FILE_PATH\' not found, need manualy download and unpack url http://www.osboxes.org/debian/"
       fi
-      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+      RET_VAL=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "if [ -r '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
       #check exist base vmdk disk on esxi host in the images directory
       if ! isTrue "$RET_VAL"; then #put if not exist
         scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH
         if ! isRetValOK; then exitError; fi
       fi
       #make vm template directory, copy vmdk disk
-      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' -d thin $DISK_FILE_PATH"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' -d thin $DISK_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #register template vm
-      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
       #register template vm
-      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
@@ -132,20 +134,20 @@ then #if not exist, find it localy, or download package and put it on remote esx
         if ! isRetValOK; then exitError; fi
       fi
       #check exist base vmdk disk on esxi host in the images directory
-      RET_VAL=$(ssh $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+      RET_VAL=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
       if ! isTrue "$RET_VAL"; then #put if not exist
         scp "$ORIG_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME
         if ! isRetValOK; then exitError; fi
       fi
       # unpack xz archive with vmdk disk, specialy for osboxes debian image
       TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTYPE.vmdk
-      ssh $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "xz -dc $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME > $TMP_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #make vm template directory, copy vmdk disk
-      ssh $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "mkdir /vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTYPE; cp $COMMON_CONST_ESXI_SCRIPTS_PATH/$PRM_VMTYPE.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
       if ! isRetValOK; then exitError; fi
       #register template vm
-      ssh $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
+      $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/$PRM_VMTYPE.vmx"
       if ! isRetValOK; then exitError; fi
     fi
     #execute triggres when exist
@@ -164,23 +166,19 @@ then #if not exist, find it localy, or download package and put it on remote esx
   #put vm ova packages on esxi host
   scp "$OVA_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME
   if ! isRetValOK; then exitError; fi
-  #put start number for new vm type
-#  ssh $COMMON_CONST_USER@$PRM_HOST "echo 1 > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
-#  if ! isRetValOK; then exitError; fi
   CUR_NUM=1
 else
   #get vm number
-  CUR_NUM=$(ssh $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE") || exitChildError "$CUR_NUM"
+  CUR_NUM=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE") || exitChildError "$CUR_NUM"
 fi
 #put next vm number
-ssh $COMMON_CONST_USER@$PRM_HOST "echo \$(($CUR_NUM+1)) > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
+$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "echo \$(($CUR_NUM+1)) > $COMMON_CONST_ESXI_DATA_PATH/$PRM_VMTYPE"
 if ! isRetValOK; then exitError; fi
 #create new vm on remote esxi host
-ssh $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
     --noSSLVerify --powerOn -n=$PRM_VMTYPE-$CUR_NUM $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
 if isRetValOK
 then
-  sleep 5
   VM_IP=$(getVMIDByVMName "$PRM_VMTYPE-$CUR_NUM" "$PRM_HOST") || exitChildError "$VM_IP"
   VM_IP=$(getIpAddressByVMID "$VM_IP" "$PRM_HOST") || exitChildError "$VM_IP"
   echo 'New VM name / ip:' $PRM_VMTYPE-$CUR_NUM / $VM_IP

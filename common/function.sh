@@ -11,18 +11,18 @@ STAGE_NUM=0 #stage counter
 powerOnVM()
 {
   checkParmsCount $# 2 'powerOnVM'
-  ssh $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; sleep 3; fi"
+  $SSH_CLIENT $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
   if ! isRetValOK; then exitError; fi
-  sleep 5
+  sleep 10
 }
 
 #$1 VMID, $2 esxi host
 powerOffVM()
 {
   checkParmsCount $# 2 'powerOffVM'
-  ssh $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; sleep 3; fi"
+  $SSH_CLIENT $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; fi"
   if ! isRetValOK; then exitError; fi
-  sleep 5
+  sleep 10
 }
 #$1 VMID, $2 esxi host
 getIpAddressByVMID()
@@ -34,7 +34,7 @@ getIpAddressByVMID()
   while true
   do
     sleep 10
-    VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/get.guest $1 | grep 'ipAddress = \"' | \
+    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_USER@$2 "vim-cmd vmsvc/get.guest $1 | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
     if ! isEmpty "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
@@ -56,7 +56,7 @@ getVmsPool(){
     for CUR_OS in $1
     do
       local VAR_RESULT
-      VAR_RESULT=$(ssh $COMMON_CONST_USER@$CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+      VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_USER@$CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
         awk '{print \$1\":\"\$5}' | grep ':'$CUR_OS | awk -F: '{print \$1\":$CUR_ESXI\"}'") || exitChildError "$VAR_RESULT"
       echo "$VAR_RESULT"
     done
@@ -66,7 +66,7 @@ getVmsPool(){
 getVMIDByVMName() {
   checkParmsCount $# 2 'getVMIDByVMName'
   local VAR_RESULT
-  VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
    | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep ':'$1 | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
@@ -74,7 +74,7 @@ getVMIDByVMName() {
 getVMNameByVMID() {
   checkParmsCount $# 2 'getVMNamebyVMID'
   local VAR_RESULT
-  VAR_RESULT=$(ssh $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
    | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
@@ -109,7 +109,7 @@ checkTriggerTemplateVM(){
     VAR_RESULT=$($COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh -y "$VAR_VMIP" "$1") || exitChildError "$VAR_RESULT"
     echo "$VAR_RESULT"
     if ! isAutoYesMode; then
-      read -r -p "Last check template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      read -r -p "Last check template VM $1/$VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     else
       sleep 5
     fi
@@ -367,7 +367,7 @@ put_ovftool_to_esxi(){
   checkParmsCount $# 1 'put_ovftool_to_esxi'
   scp -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_USER@$1:$COMMON_CONST_ESXI_TOOLS_PATH
   if ! isRetValOK; then exitError; fi
-  ssh $COMMON_CONST_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
+  $SSH_CLIENT $COMMON_CONST_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
   if ! isRetValOK; then exitError; fi
 }
 #$1 esxi host

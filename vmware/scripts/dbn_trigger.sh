@@ -33,7 +33,7 @@ checkDependencies 'ssh scp'
 
 ###check required files
 
-#checkRequiredFiles "file1 file2 file3"
+checkRequiredFiles "$COMMON_CONST_SSH_PASS_FILE"
 
 ###start prompt
 
@@ -41,9 +41,9 @@ startPrompt
 
 ###body
 
-ssh -o StrictHostKeyChecking=no root@$PRM_IPADDRESS "cat > \$HOME/.ssh/authorized_keys" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub
+$SSH_CLIENT root@$PRM_IPADDRESS "cat > \$HOME/.ssh/authorized_keys" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub
 if ! isRetValOK; then exitError; fi
-ssh root@$PRM_IPADDRESS "uname -a"
+$SSH_CLIENT root@$PRM_IPADDRESS "uname -a"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage
