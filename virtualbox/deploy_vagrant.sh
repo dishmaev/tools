@@ -18,7 +18,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 0 '' "" "While tested on APT-based Linux. Vagrant url https://www.vagrantup.com/downloads.html"
+echoHelp $# 0 '' "" "While tested only on APT-based Linux. Vagrant url https://www.vagrantup.com/downloads.html"
 
 ###check commands
 

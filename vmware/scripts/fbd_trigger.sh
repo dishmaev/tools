@@ -41,7 +41,7 @@ startPrompt
 
 ###body
 
-$SSH_CLIENT root@$PRM_IPADDRESS "mkdir -m u=rwx,g=,o= /root/.ssh; cat > /root/.ssh/authorized_keys" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub
+$SSH_CLIENT root@$PRM_IPADDRESS "mkdir -m u=rwx,g=,o= /root/.ssh; cat > \$HOME/.ssh/authorized_keys" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub
 if ! isRetValOK; then exitError; fi
 $SSH_CLIENT root@$PRM_IPADDRESS "setenv ASSUME_ALWAYS_YES yes; pkg install sudo; setenv ASSUME_ALWAYS_YES"
 if ! isRetValOK; then exitError; fi

@@ -24,7 +24,7 @@ echoHelp $# 2 '<ipAddressVM> [hostNameVM=$COMMON_CONST_VMTYPE_DEBIAN]' "192.168.
 PRM_IPADDRESS=$1
 PRM_HOSTNAME=${2:-$COMMON_CONST_VMTYPE_DEBIAN}
 
-checkCommandExist 'ipAddressVMPtn' "$PRM_IPADDRESS" ''
+checkCommandExist 'ipAddressVM' "$PRM_IPADDRESS" ''
 
 
 ###check body dependencies

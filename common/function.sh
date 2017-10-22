@@ -20,16 +20,45 @@ powerOnVM()
 powerOffVM()
 {
   checkParmsCount $# 2 'powerOffVM'
+  local readonly CONST_COUNT=10
+  local VAR_RESULT=''
+  local VAR_COUNT=$CONST_COUNT
+  local VAR_TRY=3
   $SSH_CLIENT $COMMON_CONST_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; fi"
   if ! isRetValOK; then exitError; fi
-  sleep 10
+  while true
+  do
+    sleep 10
+    #check running
+    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
+    if isEmpty "$VAR_RESULT"; then break; fi
+    VAR_COUNT=$((VAR_COUNT-1))
+    if [ $VAR_COUNT -eq 0 ]; then
+      VAR_TRY=$((VAR_TRY-1))
+      if [ $VAR_TRY -eq 0 ]; then  #still running, force kill vm
+        echo "Failed standard power off the VMID $1 on $2 host, use force power off."
+        $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "esxcli vm process kill --type force --world-id $VAR_RESULT"
+        if ! isRetValOK; then exitError; fi
+        sleep 5
+        VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
+        if ! isEmpty "$VAR_RESULT"; then
+          exitError "failed force power off the VMID $1 on $2 host"
+        fi
+      else
+        echo "Still cannot standard power off the VMID $1 on $2 host, left $VAR_TRY attempts"
+      fi;
+      VAR_COUNT=$CONST_COUNT
+    fi
+  done
+  return $COMMON_CONST_EXIT_SUCCESS
 }
 #$1 VMID, $2 esxi host
 getIpAddressByVMID()
 {
   checkParmsCount $# 2 'getIpAddressByVMID'
+  local readonly CONST_COUNT=10
   local VAR_RESULT=''
-  local VAR_COUNT=5
+  local VAR_COUNT=$CONST_COUNT
   local VAR_TRY=3
   while true
   do
@@ -42,8 +71,10 @@ getIpAddressByVMID()
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then
         exitError "failed get ip address of the VMID $1 on $2 host. Check VM Tools install"
+      #else
+        #echo "Still cannot get ip address of the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=3
+      VAR_COUNT=$CONST_COUNT
     fi
   done
   echo "$VAR_RESULT"
@@ -109,7 +140,7 @@ checkTriggerTemplateVM(){
     VAR_RESULT=$($COMMON_CONST_SCRIPT_DIRNAME/scripts/${1}_trigger.sh -y "$VAR_VMIP" "$1") || exitChildError "$VAR_RESULT"
     echo "$VAR_RESULT"
     if ! isAutoYesMode; then
-      read -r -p "Last check template VM $1/$VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      read -r -p "Last check template VM $1 / $VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     else
       sleep 5
     fi
@@ -346,6 +377,12 @@ getFileNameFromUrlString()
 {
   checkParmsCount $# 1 'getFileNameFromUrlString'
   echo $1 | awk -F'/|=' '{print $(NF)}'
+}
+#$1 file name with ext
+getFileNameWithoutExt()
+{
+  checkParmsCount $# 1 'getFileNameWithoutExt'
+  echo $1 | awk -F. '{print $1}'
 }
 #$1 parm count, $2 must be count, $3 function name
 checkParmsCount(){

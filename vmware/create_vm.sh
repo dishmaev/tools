@@ -23,6 +23,8 @@ DISK_FILE_PATH='' #vmdk file name with local esxi host path
 DISK_DIR_PATH='' #local esxi host path for template vm
 TMP_FILE_PATH='' #extracted file name with local esxi host path
 PAUSE_MESSAGE='' #for show message before paused
+CURRENT_DIRNAME='' #current directory name
+TMP_DIRNAME='' #temporary directory name
 
 ###check autoyes
 
@@ -63,20 +65,26 @@ if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_PHOTON" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_PHOTON'-'$COMMON_CONST_PHOTON_VERSION.ova
   FILE_URL=$COMMON_CONST_PHOTON_OVA_URL
   PAUSE_MESSAGE="Manualy must be:\n\
--change default root password 'changeme'"
+-set root not empty password by 'passwd', default is 'changeme'\n\
+-reboot vm, check that ssh and vm tools are working"
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_DEBIAN'-'$COMMON_CONST_DEBIAN_VERSION.ova
   FILE_URL=$COMMON_CONST_DEBIAN_VMDK_URL
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_ORACLELINUX'-'$COMMON_CONST_ORACLELINUX_VERSION.ova
   FILE_URL=$COMMON_CONST_ORACLELINUX_BOX_URL
+  PAUSE_MESSAGE="Manualy must be:\n\
+-set root not empty password by 'passwd', default is ''\n\
+-set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
+-yum -y install open-vm-tools\n\
+-reboot vm, check that ssh and vm tools are working"
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_FREEBSD'-'$COMMON_CONST_FREEBSD_VERSION.ova
   FILE_URL=$COMMON_CONST_FREEBSD_VMDKXZ_URL
   PAUSE_MESSAGE="Manualy must be:\n\
+-set root not empty password by 'passwd', default is ''\n\
 -echo sshd_enable=\"YES\" >> in /etc/rc.conf\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
--set root not empty password by 'passwd'\n\
 -setenv ASSUME_ALWAYS_YES yes\n\
 -pkg install open-vm-tools-nox11\n\
 -reboot vm, check that ssh and vm tools are working"
@@ -130,14 +138,43 @@ then #if not exist, find it localy, or download package and put it on remote esx
         wget -O $ORIG_FILE_PATH $FILE_URL
         if ! isRetValOK; then exitError; fi
       fi
+      #check virtual box deploy
+      RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$RET_VAL"
+      echo "$RET_VAL"
+
+      TMP_DIRNAME=$(mktemp -d) || exitChildError "$TMP_DIRNAME"
+#      rm -fR ~/Downloads/test
+#      mkdir ~/Downloads/test
+#      TMP_DIRNAME=~/Downloads/test
+
+      TMP_FILE_PATH=$TMP_DIRNAME/$PRM_VMTYPE.ova
+      CURRENT_DIRNAME=$PWD
+      cd $TMP_DIRNAME
+
+      #add vm box file
+      vagrant init $PRM_VMTYPE $ORIG_FILE_PATH
+      sed -i Vagrantfile -e "/config.vm.box = \"$PRM_VMTYPE\"/ a\ \n\  config.vm.provider :virtualbox do |vb|\n    vb.name = \"$PRM_VMTYPE\"\n  end"
+      vagrant up
+      vagrant halt
+      #export ova
+      vboxmanage export --ovf10 --options manifest $PRM_VMTYPE -o ${PRM_VMTYPE}_tmp.ova
+      #destroy and remove
+      vagrant destroy -f $PRM_VMTYPE
+      vagrant box remove $PRM_VMTYPE
+      #fix any format error
+      ovftool --lax ${PRM_VMTYPE}_tmp.ova $PRM_VMTYPE.vmx
+      #make target vm template ova package
+      ovftool $PRM_VMTYPE.vmx $TMP_FILE_PATH
+      #put base ova package on esxi host
+      scp "$TMP_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTYPE.ova
+
+      rm -fR $TMP_DIRNAME
+      cd $CURRENT_DIRNAME
+
       #register template vm
       $SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
-          --noSSLVerify -n=$PRM_VMTYPE $COMMON_CONST_ESXI_IMAGES_PATH/orl.ova vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
+          --noSSLVerify -n=$PRM_VMTYPE $COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTYPE.ova vi://$COMMON_CONST_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
       if ! isRetValOK; then exitError; fi
-
-#      RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$RET_VAL"
-#      echo "$RET_VAL"
-#      exitOK
     elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
       if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
         wget -O $ORIG_FILE_PATH $FILE_URL
