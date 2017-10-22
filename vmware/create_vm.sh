@@ -66,7 +66,7 @@ if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_PHOTON" ]; then
   FILE_URL=$COMMON_CONST_PHOTON_OVA_URL
   PAUSE_MESSAGE="Manualy must be:\n\
 -set root not empty password by 'passwd', default is 'changeme'\n\
--reboot vm, check that ssh and vm tools are working"
+-reboot, check that ssh and vm tools are working"
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_DEBIAN" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_DEBIAN'-'$COMMON_CONST_DEBIAN_VERSION.ova
   FILE_URL=$COMMON_CONST_DEBIAN_VMDK_URL
@@ -77,7 +77,7 @@ elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_ORACLELINUX" ]; then
 -set root not empty password by 'passwd', default is ''\n\
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
 -yum -y install open-vm-tools\n\
--reboot vm, check that ssh and vm tools are working"
+-reboot, check that ssh and vm tools are working"
 elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
   OVA_FILE_NAME=$COMMON_CONST_VMTYPE_FREEBSD'-'$COMMON_CONST_FREEBSD_VERSION.ova
   FILE_URL=$COMMON_CONST_FREEBSD_VMDKXZ_URL
@@ -87,7 +87,7 @@ elif [ "$PRM_VMTYPE" = "$COMMON_CONST_VMTYPE_FREEBSD" ]; then
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -setenv ASSUME_ALWAYS_YES yes\n\
 -pkg install open-vm-tools-nox11\n\
--reboot vm, check that ssh and vm tools are working"
+-reboot, check that ssh and vm tools are working"
 fi
 
 #update tools
@@ -147,6 +147,7 @@ then #if not exist, find it localy, or download package and put it on remote esx
 #      mkdir ~/Downloads/test
 #      TMP_DIRNAME=~/Downloads/test
 
+      #create temporary directory
       TMP_FILE_PATH=$TMP_DIRNAME/$PRM_VMTYPE.ova
       CURRENT_DIRNAME=$PWD
       cd $TMP_DIRNAME
@@ -159,15 +160,15 @@ then #if not exist, find it localy, or download package and put it on remote esx
       #export ova
       vboxmanage export --ovf10 --options manifest $PRM_VMTYPE -o ${PRM_VMTYPE}_tmp.ova
       #destroy and remove
-      vagrant destroy -f $PRM_VMTYPE
-      vagrant box remove $PRM_VMTYPE
+      vagrant destroy -f
+      vagrant box remove --force $PRM_VMTYPE
       #fix any format error
       ovftool --lax ${PRM_VMTYPE}_tmp.ova $PRM_VMTYPE.vmx
       #make target vm template ova package
       ovftool $PRM_VMTYPE.vmx $TMP_FILE_PATH
       #put base ova package on esxi host
       scp "$TMP_FILE_PATH" $COMMON_CONST_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTYPE.ova
-
+      #remove temporary directory
       rm -fR $TMP_DIRNAME
       cd $CURRENT_DIRNAME
 

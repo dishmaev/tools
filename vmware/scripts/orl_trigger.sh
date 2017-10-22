@@ -41,14 +41,19 @@ startPrompt
 
 ###body
 
-$SSH_CLIENT root@$PRM_IPADDRESS "mkdir -m u=rwx,g=,o= /root/.ssh; cat > \$HOME/.ssh/authorized_keys" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub
+$SSH_CLIENT root@$PRM_IPADDRESS "if [ ! -d \$HOME/.ssh ]; then mkdir -m u=rwx,g=,o= \$HOME/.ssh; fi; cat > \$HOME/.ssh/authorized_keys" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub
 if ! isRetValOK; then exitError; fi
 $SSH_CLIENT root@$PRM_IPADDRESS "useradd --create-home $COMMON_CONST_USER; groupadd sudo; usermod -aG sudo $COMMON_CONST_USER; \
-hostnamectl set-hostname $PRM_HOSTNAME; mkdir -m u=rwx,g=,o= /home/$COMMON_CONST_USER/.ssh; chown $COMMON_CONST_USER:users /home/$COMMON_CONST_USER/.ssh; \
-cp /root/.ssh/authorized_keys /home/$COMMON_CONST_USER/.ssh; chown $COMMON_CONST_USER:$COMMON_CONST_USER /home/$COMMON_CONST_USER/.ssh/authorized_keys; \
+if [ ! -d /home/$COMMON_CONST_USER/.ssh ]; then mkdir -m u=rwx,g=,o= /home/$COMMON_CONST_USER/.ssh; fi; \
+chown $COMMON_CONST_USER:users /home/$COMMON_CONST_USER/.ssh; cp \$HOME/.ssh/authorized_keys /home/$COMMON_CONST_USER/.ssh/; \
+chown $COMMON_CONST_USER:$COMMON_CONST_USER /home/$COMMON_CONST_USER/.ssh/authorized_keys; \
 chmod u=rw,g=,o= /home/$COMMON_CONST_USER/.ssh/authorized_keys"
 if ! isRetValOK; then exitError; fi
-$SSH_CLIENT root@$PRM_IPADDRESS "cat > pass1; cp pass1 pass2; cat pass1 >> pass2; cat pass2 | passwd toolsuser; rm pass1 pass2; chmod u+w /etc/sudoers; echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers; chmod u-w /etc/sudoers;" < $COMMON_CONST_SSH_PASS_FILE
+$SSH_CLIENT root@$PRM_IPADDRESS "cat > pass1; cp pass1 pass2; cat pass1 >> pass2; cat pass2 | passwd toolsuser; \
+rm pass1 pass2; chmod u+w /etc/sudoers; echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers; \
+chmod u-w /etc/sudoers;" < $COMMON_CONST_SSH_PASS_FILE
+if ! isRetValOK; then exitError; fi
+$SSH_CLIENT root@$PRM_IPADDRESS "hostnamectl set-hostname $PRM_HOSTNAME"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage
