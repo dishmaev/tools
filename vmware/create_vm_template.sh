@@ -73,16 +73,24 @@ if [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_PHOTON_VMTEMPLATE" ]; then
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANGUI_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'osboxes.org'\n\
--rm /etc/apt/trusted.gpg.d/*
--apt-key add /usr/share/keyrings/debian-archive-keyring.gpg;
--set up downloadable officially supported (main) by Synaptic\n\
+-rm /etc/apt/trusted.gpg.d/*\n\
+-apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
+-add string 'deb http://deb.debian.org/debian/ stretch main' to /etc/apt/sources.list\n\
+-apt update\n\
 -apt -y install open-vm-tools\n\
 -apt -y install openssh-server\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -reboot, check that ssh and vm tools are working"
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANMINI_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
--set root not empty password by 'passwd', default is ''\n\
+-install OS in minimal version, without any gui\n\
+-disconnect CD-ROM with ISO image\n\
+-rm /etc/apt/trusted.gpg.d/*\n\
+-apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
+-apt update\n\
+-apt -y install open-vm-tools\n\
+-apt -y install openssh-server\n\
+-set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -reboot, check that ssh and vm tools are working"
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_ORACLELINUX_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\

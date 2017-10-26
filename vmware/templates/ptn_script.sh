@@ -4,7 +4,8 @@
 
 if [ "$#" != "4" ]; then exit 1; fi
 if [ -f ${3}_script.result ]; then rm ${3}_script.result; fi
-exec &>${3}_script.log
+exec 1>${3}_script.log
+exec 2>${3}_script.err
 echo "VM $3 OS version:" $4
 
 ###body

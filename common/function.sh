@@ -218,7 +218,7 @@ checkTriggerTemplateVM(){
     if ! isRetValOK; then exitError; fi
     SSH_PWD=$(cat $COMMON_CONST_SSH_PASS_FILE) || exitChildError "$VAR_VMIP"
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VMIP "chmod u+x ${1}_script.sh;./${1}_script.sh $COMMON_CONST_SCRIPT_USER $SSH_PWD $1 $3; \
-if [ -f ${1}_script.result ]; then cat ${1}_script.result; rm ${1}_script.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+if [ -f ${1}_script.result ]; then cat ${1}_script.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_script.log ]; then cat ${1}_script.log; fi") || exitChildError "$VAR_LOG"
     echo "$VAR_LOG"
     VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_script.err ]; then cat ${1}_script.err; fi") || exitChildError "$VAR_LOG"
