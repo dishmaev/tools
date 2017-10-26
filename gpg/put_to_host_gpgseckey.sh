@@ -16,7 +16,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '$COMMON_CONST_USER@<host> [keyID=$COMMON_CONST_GPGKEYID]' \
+echoHelp $# 2 '$COMMON_CONST_SCRIPT_USER@<host> [keyID=$COMMON_CONST_GPGKEYID]' \
             "host $COMMON_CONST_GPGKEYID" 'Required gpg secret keyID'
 
 ###check commands
@@ -42,8 +42,8 @@ startPrompt
 TMP_FILEPATH=$(mktemp -u) || exitChildError "$TMP_FILEPATH"
 TMP_FILENAME=$(basename $TMP_FILEPATH) || exitChildError "$TMP_FILENAME"
 gpg -q --export-secret-keys --output $TMP_FILEPATH $PRM_KEYID
-scp -q $TMP_FILEPATH $COMMON_CONST_USER@$PRM_HOST:~/$TMP_FILENAME
-$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "gpg --import" $TMP_FILENAME ";rm" $TMP_FILENAME
+scp -q $TMP_FILEPATH $COMMON_CONST_SCRIPT_USER@$PRM_HOST:~/$TMP_FILENAME
+$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "gpg --import" $TMP_FILENAME ";rm" $TMP_FILENAME
 rm $TMP_FILEPATH
 
 doneFinalStage

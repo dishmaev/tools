@@ -58,7 +58,7 @@ then
   exitError "vm $PRM_VMNAME not found on $PRM_HOST host"
 fi
 
-$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $TARGET_VMID $PRM_SNAPSHOTNAME '' $PRM_INCLUDEMEMORY $PRM_QUIESCED"
+$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $TARGET_VMID $PRM_SNAPSHOTNAME '' $PRM_INCLUDEMEMORY $PRM_QUIESCED"
 if isRetValOK
 then
   doneFinalStage

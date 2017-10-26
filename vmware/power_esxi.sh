@@ -46,7 +46,7 @@ startPrompt
 
 if [ "$PRM_ACTION" = "off" ]
 then
-  $SSH_CLIENT $COMMON_CONST_USER@$PRM_HV "poweroff"
+  $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HV "poweroff"
 else
   wakeonlan $PRM_HV
 fi

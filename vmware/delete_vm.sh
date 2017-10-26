@@ -43,6 +43,7 @@ startPrompt
 ###body
 
 TARGET_VMID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$TARGET_VMID"
+
 if isEmpty "$TARGET_VMID"
 then
   exitError "vm $PRM_VMNAME not found on $PRM_HOST host"
@@ -51,7 +52,7 @@ fi
 powerOffVM "$TARGET_VMID" "$PRM_HOST"
 if ! isRetValOK; then exitError; fi
 #delete vm
-$SSH_CLIENT $COMMON_CONST_USER@$PRM_HOST "vim-cmd vmsvc/destroy $TARGET_VMID"
+$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/destroy $TARGET_VMID"
 if isRetValOK
 then
   doneFinalStage
