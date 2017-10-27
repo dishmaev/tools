@@ -50,6 +50,11 @@ readonly COMMON_CONST_ESXI_PATCHES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/patches" 
 readonly COMMON_CONST_ESXI_TEMPLATES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/templates" #templates directory on esxi host
 readonly COMMON_CONST_ESXI_DATA_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/data" #notupgradable data directory on esxi host
 readonly COMMON_CONST_ESXI_OVFTOOL_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmware-ovftool" #ovf tools directory on esxi host
+readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
+readonly COMMON_CONST_ESXI_TRY_LONG=10 #one try long
+readonly COMMON_CONST_ESXI_SLEEP_LONG=10 #sleep long
+readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
+readonly COMMON_CONST_ESXI_SNAPSHOT_PROJECT_NAME='project' #project vm snapshot name
 
 #templates
 readonly COMMON_CONST_PHOTON_VMTEMPLATE='ptn' # VMware Photon

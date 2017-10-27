@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Take vm snapshot on esxi host'
+showDescription 'Take VM snapshot on esxi host'
 
 ##private consts
 
@@ -10,10 +10,11 @@ showDescription 'Take vm snapshot on esxi host'
 ##private vars
 PRM_VMNAME='' #vm name
 PRM_SNAPSHOTNAME='' #snapshotName
+PRM_SNAPSHOTDESCRIPTION='' #snapshotDescription
 PRM_INCLUDEMEMORY=0 #includeMemory
 PRM_QUIESCED=0 #quiesced
 PRM_HOST='' #host
-TARGET_VMID='' #vmid target virtual machine
+VM_ID='' #VMID target virtual machine
 
 ###check autoyes
 
@@ -21,21 +22,22 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '<vmname> <snapshotname> [includememory=0] [quiesced=0] [host=$COMMON_CONST_ESXI_HOST]' \
-      "myvm snapshot1 1 0 'description' $COMMON_CONST_ESXI_HOST" \
+echoHelp $# 6 '<vmName> <snapshotName> [snapshotDescription] [host=$COMMON_CONST_ESXI_HOST] [includeMemory=0] [quiesced=0]' \
+      "myvm snapshot1 'my description' $COMMON_CONST_ESXI_HOST 0 0" \
       "Required allowing SSH access on the remote host"
 
 ###check commands
 
 PRM_VMNAME=$1
 PRM_SNAPSHOTNAME=$2
-PRM_INCLUDEMEMORY=${3:-$COMMON_CONST_FALSE}
-PRM_QUIESCED=${4:-$COMMON_CONST_FALSE}
-PRM_HOST=${5:-$COMMON_CONST_ESXI_HOST}
+PRM_SNAPSHOTDESCRIPTION=${3:-"''"}
+PRM_HOST=${4:-$COMMON_CONST_ESXI_HOST}
+PRM_INCLUDEMEMORY=${5:-$COMMON_CONST_FALSE}
+PRM_QUIESCED=${6:-$COMMON_CONST_FALSE}
 
-checkCommandExist 'vmname' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotname' "$PRM_SNAPSHOTNAME" ''
-checkCommandValue 'includememory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUES"
+checkCommandExist 'vmName' "$PRM_VMNAME" ''
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" ''
+checkCommandValue 'includeMemory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUES"
 checkCommandValue 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
@@ -52,13 +54,9 @@ startPrompt
 
 ###body
 
-TARGET_VMID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$TARGET_VMID"
-if isEmpty "$TARGET_VMID"
-then
-  exitError "vm $PRM_VMNAME not found on $PRM_HOST host"
-fi
+VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
 
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $TARGET_VMID $PRM_SNAPSHOTNAME '' $PRM_INCLUDEMEMORY $PRM_QUIESCED"
+$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $VM_ID $PRM_SNAPSHOTNAME \"$PRM_SNAPSHOTDESCRIPTION\" $PRM_INCLUDEMEMORY $PRM_QUIESCED"
 if isRetValOK
 then
   doneFinalStage

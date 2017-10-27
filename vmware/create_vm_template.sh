@@ -83,7 +83,7 @@ elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANGUI_VMTEMPLATE" ]; then
 -reboot, check that ssh and vm tools are working"
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANMINI_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
--install OS in minimal version, without any gui\n\
+-install OS in minimal version, without a gui\n\
 -disconnect CD-ROM with ISO image\n\
 -rm /etc/apt/trusted.gpg.d/*\n\
 -apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
@@ -267,7 +267,7 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
     $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd solo/registervm $DISK_DIR_PATH/${PRM_VMTEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi
   fi
-  #execute triggres when exist
+  #execute trigger when exist
   checkTriggerTemplateVM "$PRM_VMTEMPLATE" "$PRM_HOST" "$CUR_VMVER" "$PAUSE_MESSAGE"
   #make ova package
   ovftool --noSSLVerify "vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST/$PRM_VMTEMPLATE" $OVA_FILE_PATH < $COMMON_CONST_OVFTOOL_PASS_FILE

@@ -8,7 +8,6 @@ NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
 
 
-
 getVMTypes(){
   checkParmsCount $# 0 'getVMTypes'
   echo "$COMMON_CONST_VM_TYPES" | sed -e 's/://g'
@@ -63,14 +62,12 @@ getVMTemplates(){
 powerOnVM()
 {
   checkParmsCount $# 2 'powerOnVM'
-  local readonly CONST_COUNT=10
   local VAR_RESULT=''
-  local VAR_COUNT=$CONST_COUNT
-  local VAR_TRY=3
+  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
   $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
-    sleep 5
     #check status
     VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
@@ -82,8 +79,9 @@ powerOnVM()
       else
         echo "Still cannot power on the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$CONST_COUNT
+      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
   done
   return $COMMON_CONST_EXIT_SUCCESS
 }
@@ -91,14 +89,12 @@ powerOnVM()
 powerOffVM()
 {
   checkParmsCount $# 2 'powerOffVM'
-  local readonly CONST_COUNT=10
   local VAR_RESULT=''
-  local VAR_COUNT=$CONST_COUNT
-  local VAR_TRY=3
+  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
   $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
-    sleep 10
     #check running
     VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
     if isEmpty "$VAR_RESULT"; then break; fi
@@ -109,7 +105,7 @@ powerOffVM()
         echo "Failed standard power off the VMID $1 on $2 host, use force power off."
         $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "esxcli vm process kill --type force --world-id $VAR_RESULT"
         if ! isRetValOK; then exitError; fi
-        sleep 5
+        sleep $COMMON_CONST_ESXI_SLEEP_LONG
         VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         if ! isEmpty "$VAR_RESULT"; then
           exitError "failed force power off the VMID $1 on $2 host"
@@ -117,35 +113,37 @@ powerOffVM()
       else
         echo "Still cannot standard power off the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$CONST_COUNT
+      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
   done
   return $COMMON_CONST_EXIT_SUCCESS
 }
-#$1 VMID, $2 esxi host
-getIpAddressByVMID()
+#$1 vm name, $2 esxi host
+getIpAddressByVMName()
 {
-  checkParmsCount $# 2 'getIpAddressByVMID'
-  local readonly CONST_COUNT=10
+  checkParmsCount $# 2 'getIpAddressByVMName'
   local VAR_RESULT=''
-  local VAR_COUNT=$CONST_COUNT
-  local VAR_TRY=3
+  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  local VAR_VMID=''
+  VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
   while true
   do
-    sleep 10
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/get.guest $1 | grep 'ipAddress = \"' | \
+    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/get.guest $VAR_VMID | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
     if ! isEmpty "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then
-        exitError "failed get ip address of the VMID $1 on $2 host. Check VM Tools install and running"
+        exitError "failed get ip address of the VM $1 on $2 host. Check VM Tools install and running"
       #else
         #echo "Still cannot get ip address of the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$CONST_COUNT
+      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
   done
   echo "$VAR_RESULT"
 }
@@ -170,16 +168,50 @@ getVmsPool(){
 getVMIDByVMName() {
   checkParmsCount $# 2 'getVMIDByVMName'
   local VAR_RESULT
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  while true
+  do
+    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
 | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"\$2\":\"}' | grep ':'$1':' | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"
+    if ! isEmpty "$VAR_RESULT"; then break; fi
+    VAR_COUNT=$((VAR_COUNT-1))
+    if [ $VAR_COUNT -eq 0 ]; then
+      VAR_TRY=$((VAR_TRY-1))
+      if [ $VAR_TRY -eq 0 ]; then
+        exitError "failed get VMID of the VM $1 on $2 host"
+      #else
+        #echo "Still cannot get VMID of the VM $1 on $2 host, left $VAR_TRY attempts"
+      fi;
+      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+    fi
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+  done
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 esxi host
 getVMNameByVMID() {
   checkParmsCount $# 2 'getVMNamebyVMID'
   local VAR_RESULT
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
-   | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$VAR_RESULT"
+  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  while true
+  do
+    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+| awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$VAR_RESULT"
+    if ! isEmpty "$VAR_RESULT"; then break; fi
+    VAR_COUNT=$((VAR_COUNT-1))
+    if [ $VAR_COUNT -eq 0 ]; then
+      VAR_TRY=$((VAR_TRY-1))
+      if [ $VAR_TRY -eq 0 ]; then
+        exitError "failed get VMID of the VM $1 on $2 host"
+      #else
+        #echo "Still cannot get VMID of the VM $1 on $2 host, left $VAR_TRY attempts"
+      fi;
+      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+    fi
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+  done
   echo "$VAR_RESULT"
 }
 #$1 title, $2 value, [$3] allow values
@@ -201,6 +233,9 @@ checkTriggerTemplateVM(){
   local VAR_INPUT=''
   local VAR_RESULT=''
   local VAR_LOG=''
+  if ! isAutoYesMode; then
+    read -r -p "Pause 1 if 3: Check necessary virtual hardware on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+  fi
   if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/templates/${1}_script.sh";then
     VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
     powerOnVM "$VAR_VMID" "$2"
@@ -208,9 +243,9 @@ checkTriggerTemplateVM(){
       if ! isEmpty "$4"; then
         echo "$4"
       fi
-      read -r -p "Now making OVA package procedure paused. You can make changes manually on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      read -r -p "Pause 2 of 3: Manually make changes on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     fi
-    VAR_VMIP=$(getIpAddressByVMID "$VAR_VMID" "$2") || exitChildError "$VAR_VMIP"
+    VAR_VMIP=$(getIpAddressByVMName "$1" "$2") || exitChildError "$VAR_VMIP"
     echo "VM ${1} ip address: $VAR_VMIP"
     $SSH_COPY_ID root@$VAR_VMIP
     if ! isRetValOK; then exitError; fi
@@ -224,12 +259,12 @@ if [ -f ${1}_script.result ]; then cat ${1}_script.result; else echo $COMMON_CON
     VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_script.err ]; then cat ${1}_script.err; fi") || exitChildError "$VAR_LOG"
     echo "$VAR_LOG"
     if ! isTrue "$VAR_RESULT"; then
-      exitError "failed execute ${1}_script.sh on vmname:ip ${1}:$VAR_VMIP"
+      exitError "failed execute ${1}_script.sh on template VM ${1} ip $VAR_VMIP on $2 host"
     fi
     if ! isAutoYesMode; then
-      read -r -p "Manualy reboot and check template vmname:ip ${1}:$VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      read -r -p "Pause 3 of 3: Manually reboot and last check template VM ${1} ip $VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     else
-      sleep 5
+      sleep $COMMON_CONST_ESXI_SLEEP_LONG
     fi
     powerOffVM "$VAR_VMID" "$2"
   fi
@@ -332,6 +367,12 @@ checkLinuxAptOrRpm(){
   else
       echo 'unknown'
   fi
+}
+#$1 vm name, $2 host
+checkExistVMByName(){
+  checkParmsCount $# 2 'checkExistVMByName'
+
+  exitError "VM $1 on $2 host already exist"
 }
 
 showDescription(){
