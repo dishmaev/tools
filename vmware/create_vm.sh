@@ -38,7 +38,7 @@ PRM_VMNAME=$2
 PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_DATASTOREVM=${4:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
-checkCommandValue 'vmTemplate' "$PRM_VMTEMPLATE" "$CONST_VM_TEMPLATES"
+checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$CONST_VM_TEMPLATES"
 
 ###check body dependencies
 
@@ -77,15 +77,17 @@ if isEmpty "$PRM_VMNAME"; then
   #set new vm name
   VM_NAME="${PRM_VMTEMPLATE}-${CUR_NUM}"
 else
-  checkExistVMByName "$PRM_VMNAME" "$PRM_HOST"
   VM_NAME=$PRM_VMNAME
+fi
+if isVMExist "$VM_NAME" "$PRM_HOST"; then
+  exitError "VM with name $VM_NAME already exist on $PRM_HOST host"
 fi
 #create new vm on remote esxi host
 $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
     --noSSLVerify -n=$VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
 if ! isRetValOK; then exitError; fi
 #take base template snapshot
-RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "base vm type $CUR_VMTYPE" $PRM_HOST) || exitChildError "$RET_VAL"
+RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$CUR_VMTYPE" $PRM_HOST) || exitChildError "$RET_VAL"
 #set autostart new vm
 VM_ID=$(getVMIDByVMName "$VM_NAME" "$PRM_HOST") || exitChildError "$VM_ID"
 $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VM_ID powerOn 120 1 systemDefault 120 systemDefault"

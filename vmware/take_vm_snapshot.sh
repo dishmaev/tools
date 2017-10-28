@@ -10,10 +10,10 @@ showDescription 'Take VM snapshot on esxi host'
 ##private vars
 PRM_VMNAME='' #vm name
 PRM_SNAPSHOTNAME='' #snapshotName
+PRM_HOST='' #host
 PRM_SNAPSHOTDESCRIPTION='' #snapshotDescription
 PRM_INCLUDEMEMORY=0 #includeMemory
 PRM_QUIESCED=0 #quiesced
-PRM_HOST='' #host
 VM_ID='' #VMID target virtual machine
 
 ###check autoyes
@@ -30,7 +30,7 @@ echoHelp $# 6 '<vmName> <snapshotName> [snapshotDescription] [host=$COMMON_CONST
 
 PRM_VMNAME=$1
 PRM_SNAPSHOTNAME=$2
-PRM_SNAPSHOTDESCRIPTION=${3:-"''"}
+PRM_SNAPSHOTDESCRIPTION=$3
 PRM_HOST=${4:-$COMMON_CONST_ESXI_HOST}
 PRM_INCLUDEMEMORY=${5:-$COMMON_CONST_FALSE}
 PRM_QUIESCED=${6:-$COMMON_CONST_FALSE}
@@ -55,12 +55,17 @@ startPrompt
 ###body
 
 VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
+#check vm name
+if isEmpty "$VM_ID"; then
+  exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
+fi
+#check snapshotName
+if isSnapshotVMExist "$VM_ID" "$PRM_SNAPSHOTNAME" "$PRM_HOST"; then
+  exitError "snapshot $PRM_SNAPSHOTNAME already exist for VM $PRM_VMNAME on $PRM_HOST host"
+fi
 
 $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $VM_ID $PRM_SNAPSHOTNAME \"$PRM_SNAPSHOTDESCRIPTION\" $PRM_INCLUDEMEMORY $PRM_QUIESCED"
-if isRetValOK
-then
-  doneFinalStage
-  exitOK
-else
-  exitError
-fi
+if ! isRetValOK; then exitError; fi
+
+doneFinalStage
+exitOK

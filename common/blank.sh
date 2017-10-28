@@ -25,6 +25,7 @@ echoHelp $# 1 '<command>' "commandValue" "tooltip"
 ###check body dependencies
 
 #checkDependencies 'dep1 dep2 dep3'
+checkDependencies 'ssh'
 
 ###check required files
 

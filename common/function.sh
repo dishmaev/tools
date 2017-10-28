@@ -7,6 +7,37 @@ AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
 
+#$1 VMID, $2 snapshotName, $3 host
+getVMSnapshotIDByName(){
+  checkParmsCount $# 3 'getVMSnapshotIDByName'
+  local VAR_RESULT=''
+  local VAR_CUR_STR=''
+  local VAR_CUR_SSNAME=''
+  local VAR_FOUND=$COMMON_CONST_FALSE
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$3 "vim-cmd vmsvc/snapshot.get $1 | egrep -- '--Snapshot Name|--Snapshot Id' | awk '{print \$4}' | awk '{ORS=NR%2?FS:RS} 1' | awk '{print \$1\":\"\$2}'") || exitChildError "$VAR_RESULT"
+  if ! isEmpty "$VAR_RESULT"; then
+    for VAR_CUR_STR in $VAR_RESULT; do
+      VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}')
+      if [ "$2" = "$VAR_CUR_SSNAME" ]; then
+        VAR_RESULT=$(echo $VAR_CUR_STR | awk -F: '{print $2}')
+        VAR_FOUND=$COMMON_CONST_TRUE
+        break
+      fi
+    done
+    if ! isTrue "$VAR_FOUND"; then
+      VAR_RESULT=''
+    fi
+  fi
+  echo "$VAR_RESULT"
+}
+#$1 VMID, $2 host
+getVMSnapshotCount(){
+  checkParmsCount $# 2 'getVMSnapshotCount'
+  local VAR_RESULT=''
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/snapshot.get $1 | egrep -- '--\|-CHILD|^\|-ROOT' | wc -l") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=${VAR_RESULT:-"0"}
+  echo "$VAR_RESULT"
+}
 
 getVMTypes(){
   checkParmsCount $# 0 'getVMTypes'
@@ -48,7 +79,7 @@ getVMTypeVersion(){
 }
 
 getVMTemplates(){
-  checkParmsCount $# 0 'getVMTemplatesFromVMTypes'
+  checkParmsCount $# 0 'getVMTemplates'
   local VAR_CUR_VMTYPE=''
   local VAR_RESULT=''
   local VAR_CUR_VMTEMPLATE=''
@@ -68,6 +99,7 @@ powerOnVM()
   $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
     VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
@@ -81,7 +113,6 @@ powerOnVM()
       fi;
       VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
   done
   return $COMMON_CONST_EXIT_SUCCESS
 }
@@ -95,6 +126,7 @@ powerOffVM()
   $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check running
     VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
     if isEmpty "$VAR_RESULT"; then break; fi
@@ -115,7 +147,6 @@ powerOffVM()
       fi;
       VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
   done
   return $COMMON_CONST_EXIT_SUCCESS
 }
@@ -153,7 +184,7 @@ getVmsPool(){
   local VAR_CUR_ESXI=''
   local VAR_CUR_OS=''
   local VAR_RESULT=''
-  for VAR_CUR_ESXI in $COMMON_CONST_ESXI_POOL_HOSTS
+  for VAR_CUR_ESXI in $COMMON_CONST_ESXI_HOSTS_POOL
   do
     for VAR_CUR_OS in $1
     do
@@ -168,50 +199,16 @@ getVmsPool(){
 getVMIDByVMName() {
   checkParmsCount $# 2 'getVMIDByVMName'
   local VAR_RESULT
-  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
-  while true
-  do
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
 | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"\$2\":\"}' | grep ':'$1':' | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"
-    if ! isEmpty "$VAR_RESULT"; then break; fi
-    VAR_COUNT=$((VAR_COUNT-1))
-    if [ $VAR_COUNT -eq 0 ]; then
-      VAR_TRY=$((VAR_TRY-1))
-      if [ $VAR_TRY -eq 0 ]; then
-        exitError "failed get VMID of the VM $1 on $2 host"
-      #else
-        #echo "Still cannot get VMID of the VM $1 on $2 host, left $VAR_TRY attempts"
-      fi;
-      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-    fi
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
-  done
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 esxi host
 getVMNameByVMID() {
   checkParmsCount $# 2 'getVMNamebyVMID'
   local VAR_RESULT
-  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
-  while true
-  do
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
 | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$VAR_RESULT"
-    if ! isEmpty "$VAR_RESULT"; then break; fi
-    VAR_COUNT=$((VAR_COUNT-1))
-    if [ $VAR_COUNT -eq 0 ]; then
-      VAR_TRY=$((VAR_TRY-1))
-      if [ $VAR_TRY -eq 0 ]; then
-        exitError "failed get VMID of the VM $1 on $2 host"
-      #else
-        #echo "Still cannot get VMID of the VM $1 on $2 host, left $VAR_TRY attempts"
-      fi;
-      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-    fi
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
-  done
   echo "$VAR_RESULT"
 }
 #$1 title, $2 value, [$3] allow values
@@ -269,8 +266,9 @@ if [ -f ${1}_script.result ]; then cat ${1}_script.result; else echo $COMMON_CON
     powerOffVM "$VAR_VMID" "$2"
   fi
 }
-#$1 title, $2 value, [$3] allow values
+#$1 title, $2 value, $3 allow values
 checkCommandValue() {
+  checkParmsCount $# 3 'checkCommandValue'
   local VAR_FOUND=$COMMON_CONST_FALSE
   for CUR_COMM in $3
   do
@@ -365,14 +363,8 @@ checkLinuxAptOrRpm(){
   elif [ -f /etc/redhat-release ]; then
     echo 'rpm'
   else
-      echo 'unknown'
+    exitError "unknown Linux based package system"
   fi
-}
-#$1 vm name, $2 host
-checkExistVMByName(){
-  checkParmsCount $# 2 'checkExistVMByName'
-
-  exitError "VM $1 on $2 host already exist"
 }
 
 showDescription(){
@@ -432,8 +424,9 @@ exitChildError(){
     exitError "$1" "$COMMON_CONST_EXIT_ERROR"
   fi
 }
-#$1 command count, $2 must be count, $3 usage message, $4 sample message, [$5] add tooltip message
+#$1 command count, $2 must be count, $3 usage message, $4 sample message, $5 add tooltip message
 echoHelp(){
+  checkParmsCount $# 5 'echoHelp'
   if [ $1 -gt $2 ]
   then
     exitError 'too many command'
@@ -606,7 +599,7 @@ isEmpty()
 
 isAutoYesMode(){
   checkParmsCount $# 0 'isAutoYesMode'
-  isTrue $AUTO_YES
+  isTrue "$AUTO_YES"
 }
 
 isCommandExist(){
@@ -643,8 +636,21 @@ isFileSystemMounted(){
 }
 
 isRetValOK(){
-  local VAR_RESULT
-  VAR_RESULT="$?"
   checkParmsCount $# 0 'isRetValOK'
-  [ "$VAR_RESULT" = "0" ]
+  [ "$?" = "$COMMON_CONST_EXIT_SUCCESS" ]
+}
+#$1 vm name, $2 host
+isVMExist(){
+  checkParmsCount $# 2 'isVMExist'
+  local VAR_RESULT=''
+  VAR_RESULT=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_RESULT"
+  ! isEmpty "$VAR_RESULT"
+}
+#$1 VMID, $2 snapshotName, $3 host
+isSnapshotVMExist(){
+  checkParmsCount $# 3 'isSnapshotVMExist'
+  local VAR_RESULT=''
+  local VAR_VMID=''
+  VAR_RESULT=$(getVMSnapshotIDByName "$1" "$2" "$3") || exitChildError "$VAR_RESULT"
+  ! isEmpty "$VAR_RESULT"
 }

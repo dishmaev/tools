@@ -42,7 +42,7 @@ PRM_VMTEMPLATE=$1
 PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 PRM_DATASTOREVM=${3:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
-checkCommandValue 'vmTemplate' "$PRM_VMTEMPLATE" "$CONST_VM_TEMPLATES"
+checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$CONST_VM_TEMPLATES"
 
 ###check body dependencies
 

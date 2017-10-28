@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Restore target VM snapshot on esxi host'
+showDescription 'Remove target VM snapshot on esxi host'
 
 ##private consts
 
@@ -20,10 +20,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 "<vmName> <snapshotName=\$COMMON_CONST_ESXI_SNAPSHOT_PROJECT_NAME | \
-\$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME> [host=\$COMMON_CONST_ESXI_HOST]" \
-"myvm $COMMON_CONST_ESXI_SNAPSHOT_PROJECT_NAME $COMMON_CONST_ESXI_HOST" \
-"Required allowing SSH access on the remote host. Available snapshotName: $COMMON_CONST_ESXI_SNAPSHOT_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+echoHelp $# 3 '<vmName> <snapshotName> [host=$COMMON_CONST_ESXI_HOST]' \
+      "myvm snapshot1 $COMMON_CONST_ESXI_HOST" \
+      "Required allowing SSH access on the remote host"
 
 ###check commands
 
@@ -32,11 +31,11 @@ PRM_SNAPSHOTNAME=$2
 PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 
 checkCommandExist 'vmName' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" "$COMMON_CONST_ESXI_SNAPSHOT_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" ''
 
 ###check body dependencies
 
-checkDependencies 'ssh'
+#checkDependencies 'dep1 dep2 dep3'
 
 ###check required files
 
@@ -50,7 +49,8 @@ startPrompt
 
 VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
 #check vm name
-if isEmpty "$VM_ID"; then
+if isEmpty "$VM_ID"
+then
   exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
 fi
 
@@ -61,7 +61,8 @@ then
   exitError "snapshot $PRM_SNAPSHOTNAME not found for VM $PRM_VMNAME on $PRM_HOST host"
 fi
 
-
+$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.remove $VM_ID $SS_ID"
+if ! isRetValOK; then exitError; fi
 
 doneFinalStage
 exitOK

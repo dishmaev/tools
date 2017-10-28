@@ -41,7 +41,8 @@ readonly COMMON_CONST_ERROR_MES_UNKNOWN='some problem occured while execute last
 #vmware esxi
 readonly COMMON_CONST_ESXI_HOST=esxi #DNS name main esxi host
 readonly COMMON_CONST_ESXI_MAC=00:1b:21:39:9b:d4 #MAC main esxi host
-readonly COMMON_CONST_ESXI_POOL_HOSTS='esxi' #esxi hosts, list with space delimiter
+readonly COMMON_CONST_ESXI_MACS_POOL="$COMMON_CONST_ESXI_MAC" #mac esxi hosts, list with space delimiter
+readonly COMMON_CONST_ESXI_HOSTS_POOL="$COMMON_CONST_ESXI_HOST" #esxi hosts, list with space delimiter
 readonly COMMON_CONST_ESXI_DATASTORE_BASE='datastore1' #default datastore of base content: images, patches, tools
 readonly COMMON_CONST_ESXI_DATASTORE_VM='datastore2' #default datastore of virtual machines on esxi host
 readonly COMMON_CONST_ESXI_TOOLS_PATH="/vmfs/volumes/$COMMON_CONST_ESXI_DATASTORE_BASE/$COMMON_CONST_GIT_USER-tools" #tools directory
