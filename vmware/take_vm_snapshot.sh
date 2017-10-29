@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Take VM snapshot on esxi host'
+showDescription 'Take VM standard snapshot on esxi host'
 
 ##private consts
 
@@ -24,7 +24,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 6 '<vmName> <snapshotName> [snapshotDescription] [host=$COMMON_CONST_ESXI_HOST] [includeMemory=0] [quiesced=0]' \
       "myvm snapshot1 'my description' $COMMON_CONST_ESXI_HOST 0 0" \
-      "Required allowing SSH access on the remote host"
+      "Required allowing SSH access on the remote host. Available standard snapshotName: $COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 
 ###check commands
 
@@ -36,9 +36,9 @@ PRM_INCLUDEMEMORY=${5:-$COMMON_CONST_FALSE}
 PRM_QUIESCED=${6:-$COMMON_CONST_FALSE}
 
 checkCommandExist 'vmName' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" ''
-checkCommandValue 'includeMemory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUES"
-checkCommandValue 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUES"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" "$COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'includeMemory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUES"
+checkCommandExist 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
 

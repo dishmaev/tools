@@ -1,1 +1,2 @@
+#version list in descending order, top item - default version
 11.1::https://download.freebsd.org/ftp/releases/VM-IMAGES/11.1-RELEASE/amd64/Latest/FreeBSD-11.1-RELEASE-amd64.vmdk.xz

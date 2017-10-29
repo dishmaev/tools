@@ -9,7 +9,7 @@ CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$COMMON_CONST_SCRIPT_USER"
 
 ##private vars
 PRM_HOSTS_POOL='' # esxi hosts pool
-CUR_HOST='' #host
+CUR_HOST='' #current esxi host
 RET_VAL='' #child return value
 LOCAL_TOOLS_VER='' #local tools version
 REMOTE_TOOLS_VER='' #remote tools version
@@ -23,7 +23,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 1 "[hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]" \
-      "'$COMMON_CONST_ESXI_HOSTS_POOL esxi2'" \
+      "'$COMMON_CONST_ESXI_HOSTS_POOL'" \
       "Required allowing ssh access on the remote esxi host, \
 details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. \
 Required OVF Tool https://www.vmware.com/support/developer/ovf/"
@@ -61,7 +61,7 @@ for CUR_HOST in $PRM_HOSTS_POOL; do
   echo "Target esxi host:" $CUR_HOST
   #check default user ssh key exist
   RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_HOST "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; echo $COMMON_CONST_TRUE" < $HOME/.ssh/$COMMON_CONST_SSHKEYID.pub) || exitChildError "$RET_VAL"
-  if ! isTrue "RET_VAL"; then exitError; fi
+  if ! isTrue "$RET_VAL"; then exitError; fi
   #get local tools version
   LOCAL_TOOLS_VER=$(cat $COMMON_CONST_SCRIPT_DIRNAME/data/version)
   #get local ovftools version

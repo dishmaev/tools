@@ -5,13 +5,12 @@
 showDescription 'Create VM template on remote esxi host'
 
 ##private consts
-CONST_VM_TEMPLATES=$(getVMTemplates)
 
 ##private vars
 PRM_VMTEMPLATE='' #vm template
+PRM_VMVERSION='' #vm version
 PRM_HOST='' #host
 PRM_DATASTOREVM='' #datastore for vm
-CUR_VMTYPE='' #current vp type
 CUR_VMVER='' #current vp version
 OVA_FILE_NAME='' # ova package name
 OVA_FILE_PATH='' # ova package name with local path
@@ -32,17 +31,26 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<vmTemplate> [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
-    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
-    "Available VM templates: $CONST_VM_TEMPLATES"
+echoHelp $# 4 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VMVERSION] [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
+    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_DEFAULT_VMVERSION $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
+    "Available VM templates: $COMMON_CONST_VMTEMPLATES_POOL"
 
 ###check commands
 
 PRM_VMTEMPLATE=$1
-PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
-PRM_DATASTOREVM=${3:-$COMMON_CONST_ESXI_DATASTORE_VM}
+PRM_VMVERSION=${2:-$COMMON_CONST_DEFAULT_VMVERSION}
+PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
+PRM_DATASTOREVM=${4:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
-checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$CONST_VM_TEMPLATES"
+checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VMTEMPLATES_POOL"
+
+if [ "$PRM_VMVERSION" = "$COMMON_CONST_DEFAULT_VMVERSION" ]; then
+  CUR_VMVER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
+else
+  CUR_VMVER=$(getAvailableVMVersions "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
+  checkCommandExist 'vmVersion' "$PRM_VMVERSION" "$CUR_VMVER"
+  CUR_VMVER=$PRM_VMVERSION
+fi
 
 ###check body dependencies
 
@@ -57,12 +65,9 @@ startPrompt
 
 ###body
 
-#get vmtype current version
-CUR_VMVER=$(getVMTypeVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
-CUR_VMTYPE=${PRM_VMTEMPLATE}-${CUR_VMVER}
 #get url for current vm type version
 FILE_URL=$(getVMUrl "$PRM_VMTEMPLATE" "$CUR_VMVER") || exitChildError "$FILE_URL"
-OVA_FILE_NAME="${CUR_VMTYPE}.ova"
+OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
 DISK_DIR_PATH="/vmfs/volumes/$PRM_DATASTOREVM/$PRM_VMTEMPLATE"
 DISK_FILE_PATH="$DISK_DIR_PATH/$PRM_VMTEMPLATE.vmdk"
 #set paused text
@@ -143,24 +148,25 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
     if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
       exitError "file '$ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/debian/"
     fi
-    RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r '$COMMON_CONST_ESXI_IMAGES_PATH/$COMMON_CONST_DEBIANGUI_VMDKXZ_URL' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+    TMP_FILE_NAME2=$PRM_VMTEMPLATE-${CUR_VMVER}.vmdk
+    RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r '$COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz}' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
     #check exist base vmdk disk on esxi host in the images directory
     if ! isTrue "$RET_VAL"; then #put if not exist
-      TMP_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_DEBIANGUI_VMDKXZ_URL
+      TMP_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/${TMP_FILE_NAME2}.xz
       if ! isFileExistAndRead "$TMP_FILE_PATH"; then
-        TMP_FILE_PATH2=$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_DEBIANGUI_VMTEMPLATE-${COMMON_CONST_DEBIANGUI_VERSION}.vmdk
+        TMP_FILE_PATH2=$COMMON_CONST_DOWNLOAD_PATH/$TMP_FILE_NAME2
         echo "Unpack archive $ORIG_FILE_PATH"
         p7zip -f -c -d "$ORIG_FILE_PATH" > "$TMP_FILE_PATH2"
         echo "Pack archive ${TMP_FILE_PATH2}.xz"
         xz -2fz $TMP_FILE_PATH2
       fi
-      scp "$TMP_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$COMMON_CONST_DEBIANGUI_VMDKXZ_URL
+      scp "$TMP_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz
       if ! isRetValOK; then exitError; fi
     fi
     # unpack xz archive with vmdk disk
     TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTEMPLATE.vmdk
-    echo "Unpack archive $COMMON_CONST_ESXI_IMAGES_PATH/$COMMON_CONST_DEBIANGUI_VMDKXZ_URL on $PRM_HOST host"
-    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "xz -dc '$COMMON_CONST_ESXI_IMAGES_PATH/$COMMON_CONST_DEBIANGUI_VMDKXZ_URL' > $TMP_FILE_PATH"
+    echo "Unpack archive $COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz on $PRM_HOST host"
+    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "xz -dc '$COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz' > $TMP_FILE_PATH"
     if ! isRetValOK; then exitError; fi
     #make vm template directory, copy vmdk disk
     $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "mkdir $DISK_DIR_PATH; cp $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VMTEMPLATE}.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"

@@ -7,7 +7,7 @@ showDescription 'Power off esxi hosts pool'
 
 ##private vars
 PRM_HOSTS_POOL='' # esxi hosts pool
-CUR_HOST='' #host
+CUR_HOST='' #current esxi host
 RET_VAL='' #child return value
 
 ###check autoyes

@@ -5,7 +5,6 @@
 showDescription 'Create new VM on remote esxi host'
 
 ##private consts
-CONST_VM_TEMPLATES=$(getVMTemplates)
 
 ##private vars
 PRM_VMTEMPLATE='' #vm template
@@ -13,7 +12,6 @@ PRM_VMNAME='' #vm name
 PRM_HOST='' #host
 PRM_DATASTOREVM='' #datastore for vm
 RET_VAL='' #child return value
-CUR_VMTYPE='' #current vp type
 CUR_VMVER='' #current vp version
 CUR_NUM='' #current number of vm
 VM_NAME='' #new vm name
@@ -29,7 +27,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 4 '<vmTemplate> [vmName] [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
     "$COMMON_CONST_PHOTON_VMTEMPLATE my${COMMON_CONST_PHOTON_VMTEMPLATE} $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
-    "Available VM templates: $CONST_VM_TEMPLATES"
+    "Available VM templates: $COMMON_CONST_VMTEMPLATES_POOL"
 
 ###check commands
 
@@ -38,7 +36,7 @@ PRM_VMNAME=$2
 PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_DATASTOREVM=${4:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
-checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$CONST_VM_TEMPLATES"
+checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VMTEMPLATES_POOL"
 
 ###check body dependencies
 
@@ -55,9 +53,8 @@ startPrompt
 ###body
 
 #get vmtype current version
-CUR_VMVER=$(getVMTypeVersion "$PRM_VMTEMPLATE")
-CUR_VMTYPE=${PRM_VMTEMPLATE}-${CUR_VMVER}
-OVA_FILE_NAME="${CUR_VMTYPE}.ova"
+CUR_VMVER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
+OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
 
 #update tools
 RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$RET_VAL"
@@ -65,7 +62,7 @@ echo "$RET_VAL"
 #check required ova package on remote esxi host
 RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"; then
-  exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec 'create_vm_template.sh ' previously"
+  exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec 'create_vm_template.sh $PRM_VMTEMPLATE' previously"
 fi
 #check vm name
 if isEmpty "$PRM_VMNAME"; then
@@ -87,7 +84,7 @@ $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH
     --noSSLVerify -n=$VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
 if ! isRetValOK; then exitError; fi
 #take base template snapshot
-RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$CUR_VMTYPE" $PRM_HOST) || exitChildError "$RET_VAL"
+RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$OVA_FILE_NAME" $PRM_HOST) || exitChildError "$RET_VAL"
 #set autostart new vm
 VM_ID=$(getVMIDByVMName "$VM_NAME" "$PRM_HOST") || exitChildError "$VM_ID"
 $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VM_ID powerOn 120 1 systemDefault 120 systemDefault"

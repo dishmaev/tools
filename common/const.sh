@@ -2,7 +2,8 @@
 
 #define common consts
 
-#default user, keys
+#default project, user, keys
+readonly COMMON_CONST_PROJECT_NAME='MYPROJ' #project name
 readonly COMMON_CONST_SSHKEYID=id_idax_rsa #ssh keyID, also key file name
 readonly COMMON_CONST_GPGKEYID=507650DE33C7BA92EDD1569DF4F5A67BE44EEED4 #gpg keyID
 readonly COMMON_CONST_SCRIPT_USER=toolsuser #default username for connect to hosts, run scripts, etc.
@@ -55,35 +56,29 @@ readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_ESXI_TRY_LONG=10 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=10 #sleep long
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
-readonly COMMON_CONST_ESXI_SNAPSHOT_PROJECT_NAME='project' #project vm snapshot name
+
+#readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter
+#readonly COMMON_CONST_ESXI_LINUX_RPM_VMTYPES_POOL='oracleLinux64Guest other3xLinux64Guest' #RPM-based Linux vm types pool, list with space delimiter
+#readonly COMMON_CONST_ESXI_FREEBSD_VMTYPES_POOL='freebsd64Guest' #FreeBSD vm types pool, list with space delimiter
 
 #templates
 readonly COMMON_CONST_PHOTON_VMTEMPLATE='ptn' # VMware Photon
-readonly COMMON_CONST_PHOTON_VERSION='1.0' #current Photon version
-readonly COMMON_CONST_PHOTON_VMTYPE="${COMMON_CONST_PHOTON_VMTEMPLATE}:${COMMON_CONST_PHOTON_VERSION}" # VMware Photon
 
 readonly COMMON_CONST_DEBIANMINI_VMTEMPLATE='dbn' # Debian without gui
-readonly COMMON_CONST_DEBIANMINI_VERSION='9.2.1' #current Debian version
-readonly COMMON_CONST_DEBIANMINI_VMTYPE="${COMMON_CONST_DEBIANMINI_VMTEMPLATE}:${COMMON_CONST_DEBIANMINI_VERSION}" # Debian without gui
 
 readonly COMMON_CONST_DEBIANGUI_VMTEMPLATE='dbngui' # Debian
-readonly COMMON_CONST_DEBIANGUI_VERSION='9.1.0' #current Debian version
-readonly COMMON_CONST_DEBIANGUI_VMTYPE="${COMMON_CONST_DEBIANGUI_VMTEMPLATE}:${COMMON_CONST_DEBIANGUI_VERSION}" # Debian
-readonly COMMON_CONST_DEBIANGUI_VMDKXZ_URL="$COMMON_CONST_DEBIANGUI_VMTEMPLATE-$COMMON_CONST_DEBIANGUI_VERSION.vmdk.xz" #http://www.osboxes.org/debian/, unpack from 7z and pack to xz
 
 readonly COMMON_CONST_ORACLELINUX_VMTEMPLATE='orl' #Oracle linux
-readonly COMMON_CONST_ORACLELINUX_VERSION="7.4" #current Oracle linux version
-readonly COMMON_CONST_ORACLELINUX_VMTYPE="${COMMON_CONST_ORACLELINUX_VMTEMPLATE}:$COMMON_CONST_ORACLELINUX_VERSION" # Oracle Linux
 #readonly COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
 
 readonly COMMON_CONST_FREEBSD_VMTEMPLATE='fbd' # FreeBSD
-readonly COMMON_CONST_FREEBSD_VERSION='11.1' #current FreeBSD version
-readonly COMMON_CONST_FREEBSD_VMTYPE="${COMMON_CONST_FREEBSD_VMTEMPLATE}:${COMMON_CONST_FREEBSD_VERSION}" # FreeBSD
-readonly COMMON_CONST_FREEBSD_POOL_NAMES='freebsd64Guest' #FreeBSD pool name, list with space delimiter
 
-readonly COMMON_CONST_LINUX_APT_POOL_NAMES='debian9_64Guest' #APT-based Linux pool name, list with space delimiter
-readonly COMMON_CONST_LINUX_RPM_POOL_NAMES='oracleLinux64Guest other3xLinux64Guest' #RPM-based Linux pool name, list with space delimiter
+readonly COMMON_CONST_VMTEMPLATES_POOL="$COMMON_CONST_PHOTON_VMTEMPLATE \
+$COMMON_CONST_DEBIANMINI_VMTEMPLATE \
+$COMMON_CONST_DEBIANGUI_VMTEMPLATE \
+$COMMON_CONST_ORACLELINUX_VMTEMPLATE \
+$COMMON_CONST_FREEBSD_VMTEMPLATE" # available vm templates pool
 
-readonly COMMON_CONST_VM_TYPES="$COMMON_CONST_PHOTON_VMTYPE $COMMON_CONST_DEBIANMINI_VMTYPE $COMMON_CONST_DEBIANGUI_VMTYPE $COMMON_CONST_ORACLELINUX_VMTYPE $COMMON_CONST_FREEBSD_VMTYPE" #support OS types for deploy on remote esxi host
+readonly COMMON_CONST_DEFAULT_VMVERSION='default' # default vm version name
 
 #virtualbox

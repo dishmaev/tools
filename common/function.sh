@@ -7,6 +7,50 @@ AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
 
+#$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
+getChildSnapshotsPool(){
+  checkParmsCount $# 4 'getChildSnapshotsPool'
+  local VAR_RESULT=''
+  local VAR_CUR_STR=''
+  local VAR_CUR_SSNAME=''
+  local VAR_CUR_SSID=''
+  local VAR_CUR_SSID2=''
+  local VAR_CUR_LEVEL=''
+  local VAR_CUR_LEVEL2=''
+  local VAR_CUR_STR2=''
+  local VAR_SS_LIST=''
+  local VAR_SS_LIST2=''
+  local VAR_FOUND=$COMMON_CONST_FALSE
+  VAR_SS_LIST=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$4 "vim-cmd vmsvc/snapshot.get $1 | \
+  egrep -- '--Snapshot Name|--Snapshot Id' | awk '{ORS=NR%2?FS:RS; print \$4\":\"(length(\$1)-8)/2}' | \
+  awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
+  for VAR_CUR_STR in $VAR_SS_LIST; do
+    VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}')
+    VAR_CUR_SSID=$(echo $VAR_CUR_STR | awk -F: '{print $2}')
+    if [ "$2:$3" = "$VAR_CUR_SSNAME:$VAR_CUR_SSID" ]; then
+      VAR_CUR_LEVEL=$(echo $VAR_CUR_STR | awk -F: '{print $3}')
+      VAR_SS_LIST2=$(echo "$VAR_SS_LIST" | sed -n '/'$VAR_CUR_SSNAME:$VAR_CUR_SSID:$VAR_CUR_LEVEL'/,$p' | sed 1d)
+      VAR_CUR_LEVEL=$((VAR_CUR_LEVEL+1))
+      for VAR_CUR_STR2 in $VAR_SS_LIST2; do
+        VAR_CUR_LEVEL2=$(echo $VAR_CUR_STR2 | awk -F: '{print $3}')
+        if [ $VAR_CUR_LEVEL2 -eq $VAR_CUR_LEVEL ]; then
+          VAR_CUR_SSID2=$(echo $VAR_CUR_STR2 | awk -F: '{print $2}')
+          VAR_RESULT="$VAR_RESULT $VAR_CUR_SSID2"
+        elif [ $VAR_CUR_LEVEL2 -lt $VAR_CUR_LEVEL ]; then
+          break
+        elif [ $VAR_CUR_LEVEL2 -gt $VAR_CUR_LEVEL ]; then
+          continue
+        fi
+      done
+      VAR_FOUND=$COMMON_CONST_TRUE
+      break
+    fi
+  done
+  if ! isTrue $VAR_FOUND; then
+    exitError "snapshot $2 Id $3 not found for VMID $1 on $4 host"
+  fi
+  echo "$VAR_RESULT"
+}
 #$1 VMID, $2 snapshotName, $3 host
 getVMSnapshotIDByName(){
   checkParmsCount $# 3 'getVMSnapshotIDByName'
@@ -14,7 +58,9 @@ getVMSnapshotIDByName(){
   local VAR_CUR_STR=''
   local VAR_CUR_SSNAME=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$3 "vim-cmd vmsvc/snapshot.get $1 | egrep -- '--Snapshot Name|--Snapshot Id' | awk '{print \$4}' | awk '{ORS=NR%2?FS:RS} 1' | awk '{print \$1\":\"\$2}'") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$3 "vim-cmd vmsvc/snapshot.get $1 | \
+  egrep -- '--Snapshot Name|--Snapshot Id' | awk '{ORS=NR%2?FS:RS; print \$4\":\"(length(\$1)-8)/2}' | \
+  awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
   if ! isEmpty "$VAR_RESULT"; then
     for VAR_CUR_STR in $VAR_RESULT; do
       VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}')
@@ -38,11 +84,6 @@ getVMSnapshotCount(){
   VAR_RESULT=${VAR_RESULT:-"0"}
   echo "$VAR_RESULT"
 }
-
-getVMTypes(){
-  checkParmsCount $# 0 'getVMTypes'
-  echo "$COMMON_CONST_VM_TYPES" | sed -e 's/://g'
-}
 #$1 vm type, $2 vm version
 getVMUrl() {
   checkParmsCount $# 2 'getVMUrl'
@@ -53,40 +94,57 @@ getVMUrl() {
   fi
   VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2::" | awk -F:: '{print $2}')
   if isEmpty "$VAR_RESULT"; then
-    exitError "url missing for vm type $1 version $2 in file $CONST_FILE_PATH"
+    exitError "missing url for vm type $1 version $2 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
 #$1 vm type
-getVMTypeVersion(){
-  checkParmsCount $# 1 'getVMTypeVersion'
-  local VAR_CUR_VMTYPE=''
-  local VAR_CUR_VMTEMPLATE=''
+getAvailableVMVersions(){
+  checkParmsCount $# 1 'getAvailableVMVersions'
+  local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
   local VAR_RESULT=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  for VAR_CUR_VMTYPE in $COMMON_CONST_VM_TYPES; do
-    VAR_CUR_VMTEMPLATE=$(echo $VAR_CUR_VMTYPE | awk -F: '{print $1}')
+  if ! isFileExistAndRead "$CONST_FILE_PATH"; then
+    exitError "file $CONST_FILE_PATH not found"
+  fi
+  for VAR_CUR_VMTEMPLATE in $COMMON_CONST_VMTEMPLATES_POOL; do
     if [ "$1" = "$VAR_CUR_VMTEMPLATE" ]; then
-      VAR_RESULT=$(echo $VAR_CUR_VMTYPE | awk -F: '{print $2}')
+      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F:: '{print $1}'| awk '{ORS=FS} 1')
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
   done
   if ! isTrue $VAR_FOUND; then
-    exitError "vm type $1 not found"
+    exitError "VM template $1 not found"
+  fi
+  if isEmpty "$VAR_RESULT"; then
+    exitError "cannot found any version for vm type $1 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
-
-getVMTemplates(){
-  checkParmsCount $# 0 'getVMTemplates'
-  local VAR_CUR_VMTYPE=''
+#$1 vm type
+getDefaultVMVersion(){
+  checkParmsCount $# 1 'getDefaultVMVersion'
+  local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
   local VAR_RESULT=''
   local VAR_CUR_VMTEMPLATE=''
-  for VAR_CUR_VMTYPE in $COMMON_CONST_VM_TYPES; do
-    VAR_CUR_VMTEMPLATE=$(echo $VAR_CUR_VMTYPE | awk -F: '{print $1}')
-    VAR_RESULT=$VAR_RESULT$VAR_CUR_VMTEMPLATE' '
+  local VAR_FOUND=$COMMON_CONST_FALSE
+  if ! isFileExistAndRead "$CONST_FILE_PATH"; then
+    exitError "file $CONST_FILE_PATH not found"
+  fi
+  for VAR_CUR_VMTEMPLATE in $COMMON_CONST_VMTEMPLATES_POOL; do
+    if [ "$1" = "$VAR_CUR_VMTEMPLATE" ]; then
+      VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F: '{print $1}')
+      VAR_FOUND=$COMMON_CONST_TRUE
+      break
+    fi
   done
+  if ! isTrue $VAR_FOUND; then
+    exitError "VM template $1 not found"
+  fi
+  if isEmpty "$VAR_RESULT"; then
+    exitError "missing default version for vm type $1 in file $CONST_FILE_PATH"
+  fi
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 esxi host
@@ -231,7 +289,7 @@ checkTriggerTemplateVM(){
   local VAR_RESULT=''
   local VAR_LOG=''
   if ! isAutoYesMode; then
-    read -r -p "Pause 1 if 3: Check necessary virtual hardware on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+    read -r -p "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
   fi
   if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/templates/${1}_script.sh";then
     VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
@@ -266,7 +324,7 @@ if [ -f ${1}_script.result ]; then cat ${1}_script.result; else echo $COMMON_CON
     powerOffVM "$VAR_VMID" "$2"
   fi
 }
-#$1 title, $2 value, $3 allow values
+#$1 title, $2 value, $3 allowed values
 checkCommandValue() {
   checkParmsCount $# 3 'checkCommandValue'
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -279,7 +337,7 @@ checkCommandValue() {
   done
   if ! isTrue $VAR_FOUND
   then
-    exitError "command $1 value $2 invalid"
+    exitError "command $1 value $2 invalid. Allowed values: $3"
   fi
 }
 #$1 directory name, $2 error message prefix
