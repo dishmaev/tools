@@ -30,7 +30,7 @@ echoHelp $# 0 '' "" "While tested only on APT-based Linux. VBoxManage url https:
 
 ###check body dependencies
 
-checkDependencies 'wget'
+checkDependencies 'wget apt dpkg apt-key'
 
 ###check required files
 
@@ -52,7 +52,7 @@ if ! isLinuxOS; then exitError 'not supported OS'; fi
 LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$LINUX_BASED"
 if ! isAPTLinux $LINUX_BASED; then exitError 'not supported OS'; fi
 #check for vbox repo
-if grep -qF "$VBOX_REPO" "$APT_SOURCE_FILE"; then
+if ! grep -qF "$VBOX_REPO" "$APT_SOURCE_FILE"; then
   wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
   if ! isRetValOK; then exitError; fi
   echo "$VBOX_REPO" | sudo tee -a $APT_SOURCE_FILE

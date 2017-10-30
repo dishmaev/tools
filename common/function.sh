@@ -545,10 +545,11 @@ checkAutoYes() {
   if [ "$1" = "-y" ]
   then
     AUTO_YES=$COMMON_CONST_TRUE
-    return $AUTO_YES
+    return $COMMON_CONST_TRUE
   elif [ "$1" = "--help" ]
   then
     NEED_HELP=$COMMON_CONST_TRUE
+    return $COMMON_CONST_TRUE
   fi
 }
 #$1 url string

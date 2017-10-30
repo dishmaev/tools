@@ -50,6 +50,9 @@ chmod u+w /etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 
+#install git package
+apt -y install git
+
 ###finish
 
 echo 1 > ${3}_script.result

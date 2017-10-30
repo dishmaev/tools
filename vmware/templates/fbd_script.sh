@@ -35,9 +35,10 @@ fi
 cp $HOME/.ssh/authorized_keys /home/${1}/.ssh/
 chown $1 /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
-#install sudo package
+#install sudo & git packages
 export ASSUME_ALWAYS_YES=yes
 pkg install sudo
+pkg install git
 export ASSUME_ALWAYS_YES=
 #check sudo config file exist
 if [ ! -s /usr/local/etc/sudoers ]; then
@@ -48,6 +49,9 @@ fi
 chmod u+w /usr/local/etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers
 chmod u-w /usr/local/etc/sudoers
+
+#install sudo package
+yum -y install git
 
 ###finish
 

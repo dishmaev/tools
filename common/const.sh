@@ -3,7 +3,7 @@
 #define common consts
 
 #default project, user, keys
-readonly COMMON_CONST_PROJECT_NAME='MYPROJ' #project name
+readonly COMMON_CONST_PROJECT_NAME='CHANGEME' #project name
 readonly COMMON_CONST_SSHKEYID=id_idax_rsa #ssh keyID, also key file name
 readonly COMMON_CONST_GPGKEYID=507650DE33C7BA92EDD1569DF4F5A67BE44EEED4 #gpg keyID
 readonly COMMON_CONST_SCRIPT_USER=toolsuser #default username for connect to hosts, run scripts, etc.
@@ -28,7 +28,7 @@ readonly COMMON_CONST_LINUX_RPM='rpm'
 #boolean
 readonly COMMON_CONST_FALSE=0 #false
 readonly COMMON_CONST_TRUE=1 #true
-readonly COMMON_CONST_BOOL_VALUES='0 1' #boolean value for check command value
+readonly COMMON_CONST_BOOL_VALUES="$COMMON_CONST_FALSE $COMMON_CONST_TRUE" #boolean value for check command value
 
 #exit values
 readonly COMMON_CONST_EXIT_ERROR=1
@@ -66,7 +66,7 @@ readonly COMMON_CONST_PHOTON_VMTEMPLATE='ptn' # VMware Photon
 
 readonly COMMON_CONST_DEBIANMINI_VMTEMPLATE='dbn' # Debian without gui
 
-readonly COMMON_CONST_DEBIANGUI_VMTEMPLATE='dbngui' # Debian
+readonly COMMON_CONST_DEBIANGUI_VMTEMPLATE='dbnosb' # Debian from www.osboxes.org
 
 readonly COMMON_CONST_ORACLELINUX_VMTEMPLATE='orl' #Oracle linux
 #readonly COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download

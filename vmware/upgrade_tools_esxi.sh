@@ -53,8 +53,8 @@ if ! isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/data/version"; then
   echo 1 > "$COMMON_CONST_SCRIPT_DIRNAME/data/version"
 fi
 #remove known_hosts file to prevent future script errors
-if isFileExistAndRead "~/.ssh/known_hosts"; then
-  rm ~/.ssh/known_hosts
+if isFileExistAndRead "$HOME/.ssh/known_hosts"; then
+  rm $HOME/.ssh/known_hosts
 fi
 
 for CUR_HOST in $PRM_HOSTS_POOL; do

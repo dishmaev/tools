@@ -26,7 +26,7 @@ echoHelp $# 0 '' "" "While tested only on APT-based Linux. Vagrant url https://w
 
 ###check body dependencies
 
-checkDependencies 'wget'
+checkDependencies 'wget dpkg'
 
 ###check required files
 
