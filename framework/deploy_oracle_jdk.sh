@@ -29,7 +29,7 @@ echoHelp $# 0 '' "" "While tested only on APT-based Linux. Oracle JDK url http:/
 
 ###check body dependencies
 
-checkDependencies 'wget apt-key grep debconf-set-selections'
+checkDependencies 'wget apt-key grep debconf-set-selections dirmngr'
 
 ###check required files
 

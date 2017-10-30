@@ -58,9 +58,9 @@ if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
   if ! isRetValOK; then exitError; fi
 fi
 #for prevent Gtk-Message: Failed to load module "canberra-gtk-module"
-#if [ $(apt list --installed | grep -qF "libcanberra-gtk-module2") ]; then
+if ! apt list --installed | grep -qF "libcanberra-gtk-module"; then
   sudo apt -y install libcanberra-gtk-module
-#fi
+fi
 if ! isRetValOK; then exitError; fi
 #if gcc not exist, install it
 if ! isCommandExist 'gcc'; then
@@ -69,7 +69,7 @@ if ! isCommandExist 'gcc'; then
 fi
 #if gdb not exist, install it
 if ! isCommandExist 'gdb'; then
-  sudo apt install gdb
+  sudo apt -y install gdb
   if ! isRetValOK; then exitError; fi
 fi
 

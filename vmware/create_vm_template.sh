@@ -55,7 +55,7 @@ fi
 ###check body dependencies
 
 #checkDependencies 'dep1 dep2 dep3'
-checkDependencies 'ssh scp xz p7zip ssh-copy-id'
+checkDependencies 'ssh scp xz p7zip ssh-copy-id dirmngr'
 
 ###check required files
 
