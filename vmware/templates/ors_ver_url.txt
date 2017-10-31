@@ -1,0 +1,2 @@
+#version list in descending order, top item - default version
+11.3::http://download.oracle.com/otn/solaris/11_3/sol-11_3-vbox.ova

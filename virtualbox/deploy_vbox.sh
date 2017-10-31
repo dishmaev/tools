@@ -30,7 +30,7 @@ echoHelp $# 0 '' "" "While tested only on APT-based Linux. VBoxManage url https:
 
 ###check body dependencies
 
-checkDependencies 'wget apt dpkg apt-key'
+checkDependencies 'wget apt dpkg apt-key dirmngr'
 
 ###check required files
 

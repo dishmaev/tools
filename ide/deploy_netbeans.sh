@@ -56,6 +56,8 @@ ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$ORIG_FILE_NAME
 if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
   wget -O $ORIG_FILE_PATH $FILE_URL
   if ! isRetValOK; then exitError; fi
+  chmod u+x $ORIG_FILE_PATH
+  if ! isRetValOK; then exitError; fi
 fi
 #for prevent Gtk-Message: Failed to load module "canberra-gtk-module"
 if ! apt list --installed | grep -qF "libcanberra-gtk-module"; then
@@ -73,5 +75,16 @@ if ! isCommandExist 'gdb'; then
   if ! isRetValOK; then exitError; fi
 fi
 
+echo 'Important! When install NetBeans, in the appropriate dialog set JDK full path directory, for JDK 8 default is /usr/lib/jvm/java-8-oracle'
+
+$ORIG_FILE_PATH
+
 doneFinalStage
+
+echo ''
+echo 'Now start IDE and make some final things:'
+echo '-Tools->Options->Appearance->Look & Feel set Metal instead GTK+, because last one is distort tab names'
+echo '-If you need change default project directory, in file ~/.netbeans/8.2/config/Preferences/org/netbeans/modules/projectui.properties set projectsFolder=/Users/<your username>/<MyProjectsFolder>'
+echo '-If you want to use IDE with alternative interface language, in file ~/netbeans-8.2/etc/netbeans.conf add value "-J-Duser.language=en -J-Duser.region=US" for setting netbeans_default_options'
+
 exitOK

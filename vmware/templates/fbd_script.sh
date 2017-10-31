@@ -35,11 +35,14 @@ fi
 cp $HOME/.ssh/authorized_keys /home/${1}/.ssh/
 chown $1 /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
-#install sudo & git packages
+#install standard packages
 export ASSUME_ALWAYS_YES=yes
 pkg install sudo
 pkg install git
 export ASSUME_ALWAYS_YES=
+#check standard packages version
+sudo --version
+git --version
 #check sudo config file exist
 if [ ! -s /usr/local/etc/sudoers ]; then
   echo "Error: file /usr/local/etc/sudoers not found or empty"
@@ -49,9 +52,6 @@ fi
 chmod u+w /usr/local/etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /usr/local/etc/sudoers
 chmod u-w /usr/local/etc/sudoers
-
-#install sudo package
-yum -y install git
 
 ###finish
 

@@ -16,6 +16,7 @@ OVA_FILE_NAME='' # ova package name
 OVA_FILE_PATH='' # ova package name with local path
 FILE_URL='' # url for download
 RET_VAL='' #child return value
+INPUT_VAL='' #read input value
 ORIG_FILE_NAME='' #original file name
 ORIG_FILE_PATH='' #original file name with local path
 DISK_FILE_PATH='' #vmdk file name with local esxi host path
@@ -75,12 +76,12 @@ if [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_PHOTON_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'changeme'\n\
 -reboot, check that ssh and vm tools are working"
-elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANGUI_VMTEMPLATE" ]; then
+elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANOSB_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'osboxes.org'\n\
 -rm /etc/apt/trusted.gpg.d/*\n\
 -apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
--add string 'deb http://deb.debian.org/debian/ stretch main' to /etc/apt/sources.list\n\
+-echo 'deb http://deb.debian.org/debian/ stretch main' >> /etc/apt/sources.list\n\
 -apt update\n\
 -apt -y install open-vm-tools\n\
 -apt -y install openssh-server\n\
@@ -100,6 +101,11 @@ elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANMINI_VMTEMPLATE" ]; then
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_ORACLELINUX_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is ''\n\
+-set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
+-yum -y install open-vm-tools\n\
+-reboot, check that ssh and vm tools are working"
+elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_ORACLESOLARIS_VMTEMPLATE" ]; then
+  PAUSE_MESSAGE="Manually must be:\n\
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
 -yum -y install open-vm-tools\n\
 -reboot, check that ssh and vm tools are working"
@@ -143,31 +149,35 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
     $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
         --noSSLVerify -n=$PRM_VMTEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
     if ! isRetValOK; then exitError; fi
-#dbngui
-  elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANGUI_VMTEMPLATE" ]; then
+#dbnosb
+  elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANOSB_VMTEMPLATE" ]; then
     if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
       exitError "file '$ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/debian/"
     fi
-    TMP_FILE_NAME2=$PRM_VMTEMPLATE-${CUR_VMVER}.vmdk
-    RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r '$COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz}' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+    TMP_FILE_NAME=$PRM_VMTEMPLATE-${CUR_VMVER}.vmdk
+    TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$TMP_FILE_NAME
     #check exist base vmdk disk on esxi host in the images directory
+    RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r '$TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
     if ! isTrue "$RET_VAL"; then #put if not exist
-      TMP_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/${TMP_FILE_NAME2}.xz
-      if ! isFileExistAndRead "$TMP_FILE_PATH"; then
-        TMP_FILE_PATH2=$COMMON_CONST_DOWNLOAD_PATH/$TMP_FILE_NAME2
+      TMP_FILE_PATH2=$COMMON_CONST_DOWNLOAD_PATH/$TMP_FILE_NAME
+      if ! isFileExistAndRead "${TMP_FILE_PATH2}.xz"; then
         echo "Unpack archive $ORIG_FILE_PATH"
         p7zip -f -c -d "$ORIG_FILE_PATH" > "$TMP_FILE_PATH2"
+        if ! isRetValOK; then exitError; fi
         echo "Pack archive ${TMP_FILE_PATH2}.xz"
         xz -2fz $TMP_FILE_PATH2
+        if ! isRetValOK; then exitError; fi
+        if ! isFileExistAndRead "${TMP_FILE_PATH2}.xz"; then
+          exitError
+        fi
       fi
-      scp "$TMP_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz
+      scp "${TMP_FILE_PATH2}.xz" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:${TMP_FILE_PATH}.xz
+      if ! isRetValOK; then exitError; fi
+      # unpack xz archive with vmdk disk
+      echo "Unpack archive ${TMP_FILE_PATH}.xz on $PRM_HOST host"
+      $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "xz -dc '${TMP_FILE_PATH}.xz' > $TMP_FILE_PATH"
       if ! isRetValOK; then exitError; fi
     fi
-    # unpack xz archive with vmdk disk
-    TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTEMPLATE.vmdk
-    echo "Unpack archive $COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz on $PRM_HOST host"
-    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "xz -dc '$COMMON_CONST_ESXI_IMAGES_PATH/${TMP_FILE_NAME2}.xz' > $TMP_FILE_PATH"
-    if ! isRetValOK; then exitError; fi
     #make vm template directory, copy vmdk disk
     $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "mkdir $DISK_DIR_PATH; cp $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VMTEMPLATE}.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
     if ! isRetValOK; then exitError; fi
@@ -207,10 +217,9 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
     #check vagrant deploy
     RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$RET_VAL"
     echo "$RET_VAL"
-
     #create temporary directory
     TMP_DIRNAME=$(mktemp -d) || exitChildError "$TMP_DIRNAME"
-    TMP_FILE_PATH=$TMP_DIRNAME/$PRM_VMTEMPLATE.ova
+    TMP_FILE_PATH=$TMP_DIRNAME/${PRM_VMTEMPLATE}.ova
     CURRENT_DIRNAME=$PWD
     cd $TMP_DIRNAME
     #add vm box file
@@ -223,7 +232,7 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
     vagrant halt
     if ! isRetValOK; then exitError; fi
     #export ova
-    vboxmanage export --ovf10 --options manifest $PRM_VMTEMPLATE -o ${PRM_VMTEMPLATE}_tmp.ova
+    vboxmanage export --ovf10 --manifest --options manifest $PRM_VMTEMPLATE -o ${PRM_VMTEMPLATE}_tmp.ova
     if ! isRetValOK; then exitError; fi
     #destroy and remove
     vagrant destroy -f
@@ -240,11 +249,54 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
     scp "$TMP_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VMTEMPLATE}.ova
     if ! isRetValOK; then exitError; fi
     #remove temporary directory
-    rm -fR $TMP_DIRNAME
-    if ! isRetValOK; then exitError; fi
     cd $CURRENT_DIRNAME
     if ! isRetValOK; then exitError; fi
+    rm -fR $TMP_DIRNAME
+    if ! isRetValOK; then exitError; fi
 
+    #register template vm
+    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+        --noSSLVerify -n=$PRM_VMTEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VMTEMPLATE}.ova vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
+    if ! isRetValOK; then exitError; fi
+#ors
+  elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_ORACLESOLARIS_VMTEMPLATE" ]; then
+    if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
+      exitError "file '$ORIG_FILE_PATH' not found, need manually download url http://www.oracle.com/technetwork/server-storage/solaris11/downloads/vm-templates-2245495.html/"
+    fi
+    #check virtual box deploy
+    RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$RET_VAL"
+    echo "$RET_VAL"
+    #create temporary directory
+    TMP_DIRNAME=$(mktemp -d) || exitChildError "$TMP_DIRNAME"
+    TMP_FILE_PATH=$TMP_DIRNAME/${PRM_VMTEMPLATE}.ova
+    CURRENT_DIRNAME=$PWD
+    cd $TMP_DIRNAME
+    #import primary ova
+    vboxmanage import $ORIG_FILE_PATH --vsys 0 --vmname $PRM_VMTEMPLATE
+    if ! isRetValOK; then exitError; fi
+    #power on
+    vboxmanage startvm $PRM_VMTEMPLATE
+    if ! isRetValOK; then exitError; fi
+    read -r -p "Pause: Manually open Virtual Box, install OS on VM $PRM_VMTEMPLATE, and shutdown it. When you are done, press Enter for resume procedure " INPUT_VAL
+    #export
+    vboxmanage export --ovf10 --manifest --options manifest $PRM_VMTEMPLATE -o ${PRM_VMTEMPLATE}_tmp.ova
+    if ! isRetValOK; then exitError; fi
+    #unregister
+    vboxmanage unregistervm $PRM_VMTEMPLATE --delete
+    if ! isRetValOK; then exitError; fi
+    #fix any format error
+    ovftool --lax ${PRM_VMTEMPLATE}_tmp.ova $PRM_VMTEMPLATE.vmx
+    if ! isRetValOK; then exitError; fi
+    #make target vm template ova package
+    ovftool $PRM_VMTEMPLATE.vmx $TMP_FILE_PATH
+    if ! isRetValOK; then exitError; fi
+    #put base ova package on esxi host
+    scp "$TMP_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VMTEMPLATE}.ova
+    #remove temporary directory
+    cd $CURRENT_DIRNAME
+    if ! isRetValOK; then exitError; fi
+    rm -fR $TMP_DIRNAME
+    if ! isRetValOK; then exitError; fi
     #register template vm
     $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
         --noSSLVerify -n=$PRM_VMTEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VMTEMPLATE}.ova vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
@@ -255,17 +307,17 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
       wget -O $ORIG_FILE_PATH $FILE_URL
       if ! isRetValOK; then exitError; fi
     fi
+    TMP_FILE_NAME=$PRM_VMTEMPLATE-${CUR_VMVER}.vmdk
+    TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$TMP_FILE_NAME
     #check exist base vmdk disk on esxi host in the images directory
-    RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+    RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r '$TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
     if ! isTrue "$RET_VAL"; then #put if not exist
       scp "$ORIG_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME
       if ! isRetValOK; then exitError; fi
+      echo "Unpack archive $ORIG_FILE_NAME on $PRM_HOST host"
+      $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "xz -dc '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' > $TMP_FILE_PATH"
+      if ! isRetValOK; then exitError; fi
     fi
-    # unpack xz archive with vmdk disk
-    TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$PRM_VMTEMPLATE.vmdk
-    echo "Unpack archive $ORIG_FILE_NAME on $PRM_HOST host"
-    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "xz -dc '$COMMON_CONST_ESXI_IMAGES_PATH/$ORIG_FILE_NAME' > $TMP_FILE_PATH"
-    if ! isRetValOK; then exitError; fi
     #make vm template directory, copy vmdk disk
     $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "mkdir $DISK_DIR_PATH; cp $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VMTEMPLATE}.vmx $DISK_DIR_PATH/; vmkfstools -i $TMP_FILE_PATH -d thin $DISK_FILE_PATH"
     if ! isRetValOK; then exitError; fi
@@ -285,7 +337,6 @@ if ! isFileExistAndRead "$OVA_FILE_PATH"; then
   then #can't make ova package
     exitError
   fi
-  if ! isRetValOK; then exitError; fi
 fi
 #put vm ova packages on esxi host
 scp "$OVA_FILE_PATH" $COMMON_CONST_SCRIPT_USER@$PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME

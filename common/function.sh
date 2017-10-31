@@ -289,7 +289,7 @@ checkTriggerTemplateVM(){
   local VAR_RESULT=''
   local VAR_LOG=''
   if ! isAutoYesMode; then
-    read -r -p "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+    read -r -p "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type. When you are done, press Enter for resume procedure " VAR_INPUT
   fi
   if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/templates/${1}_script.sh";then
     VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"

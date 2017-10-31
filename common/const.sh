@@ -66,17 +66,20 @@ readonly COMMON_CONST_PHOTON_VMTEMPLATE='ptn' # VMware Photon
 
 readonly COMMON_CONST_DEBIANMINI_VMTEMPLATE='dbn' # Debian without gui
 
-readonly COMMON_CONST_DEBIANGUI_VMTEMPLATE='dbnosb' # Debian from www.osboxes.org
+readonly COMMON_CONST_DEBIANOSB_VMTEMPLATE='dbnosb' # Debian from www.osboxes.org
 
 readonly COMMON_CONST_ORACLELINUX_VMTEMPLATE='orl' #Oracle linux
 #readonly COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
+
+readonly COMMON_CONST_ORACLESOLARIS_VMTEMPLATE='ors' #Oracle Solaris
 
 readonly COMMON_CONST_FREEBSD_VMTEMPLATE='fbd' # FreeBSD
 
 readonly COMMON_CONST_VMTEMPLATES_POOL="$COMMON_CONST_PHOTON_VMTEMPLATE \
 $COMMON_CONST_DEBIANMINI_VMTEMPLATE \
-$COMMON_CONST_DEBIANGUI_VMTEMPLATE \
+$COMMON_CONST_DEBIANOSB_VMTEMPLATE \
 $COMMON_CONST_ORACLELINUX_VMTEMPLATE \
+$COMMON_CONST_ORACLESOLARIS_VMTEMPLATE \
 $COMMON_CONST_FREEBSD_VMTEMPLATE" # available vm templates pool
 
 readonly COMMON_CONST_DEFAULT_VMVERSION='default' # default vm version name
