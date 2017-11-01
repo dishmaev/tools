@@ -1,2 +1,2 @@
 #version list in descending order, top item - default version
-7.4::http://yum.oracle.com/boxes/oraclelinux/ol74/ol74.box
+7.4::http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso

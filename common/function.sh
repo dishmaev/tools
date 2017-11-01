@@ -181,13 +181,13 @@ powerOffVM()
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
-  $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.off $1; fi"
+  $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
-    #check running
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
-    if isEmpty "$VAR_RESULT"; then break; fi
+    #check status
+    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+    if isTrue "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
@@ -465,7 +465,7 @@ exitOK(){
 exitError(){
   if isEmpty "$2"
   then
-    echo -n "Error: ${1:-$COMMON_CONST_ERROR_MES_UNKNOWN}"
+    echo -n "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}"
     echo ". See '$COMMON_CONST_SCRIPT_FILENAME --help'"
   else
     echo "$1"
@@ -582,9 +582,21 @@ checkParmsCount(){
   fi
 }
 #$1 esxi host
+put_vmtools_to_esxi(){
+  checkParmsCount $# 1 'put_vmtools_to_esxi'
+  local VAR_TMP_DIRNAME
+  VAR_TMP_DIRNAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIRNAME"
+  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIRNAME
+  if ! isRetValOK; then exitError; fi
+  $SCP_CLIENT -r $VAR_TMP_DIRNAME/* $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
+  if ! isRetValOK; then exitError; fi
+  rm -fR $TMP_DIRNAME
+  if ! isRetValOK; then exitError; fi
+}
+#$1 esxi host
 put_ovftool_to_esxi(){
   checkParmsCount $# 1 'put_ovftool_to_esxi'
-  scp -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_TOOLS_PATH
+  $SCP_CLIENT -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_TOOLS_PATH/
   if ! isRetValOK; then exitError; fi
   $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
   if ! isRetValOK; then exitError; fi
@@ -592,7 +604,7 @@ put_ovftool_to_esxi(){
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
-  scp -r $COMMON_CONST_SCRIPT_DIRNAME/templates $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_TEMPLATES_PATH
+  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/templates $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
 }
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH

@@ -24,7 +24,7 @@ PRM_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
 ###check body dependencies
 
-checkDependencies 'ssh'
+#checkDependencies 'ssh'
 
 ###start prompt
 

@@ -22,7 +22,7 @@ PRM_MACS_POOL=${1:-$COMMON_CONST_ESXI_MACS_POOL}
 
 ###check body dependencies
 
-checkDependencies 'ssh wakeonlan'
+checkDependencies 'wakeonlan'
 
 ###start prompt
 

@@ -1,0 +1,2 @@
+#version list in descending order, top item - default version
+7.4::http://yum.oracle.com/boxes/oraclelinux/ol74/ol74.box

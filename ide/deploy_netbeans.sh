@@ -28,7 +28,6 @@ echoHelp $# 0 '' "" "While tested only on APT-based Linux. Oracle JDK url https:
 ###check body dependencies
 
 #checkDependencies 'dep1 dep2 dep3'
-checkDependencies 'ssh'
 
 ###check required files
 

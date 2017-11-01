@@ -11,34 +11,43 @@ echo "VM $3 OS version:" $4
 ###body
 
 #set hostname
-hostnamectl set-hostname $3
+svccfg -s system/identity:node setprop config/nodename="$3"
+svccfg -s system/identity:node setprop config/loopback="$3"
+#svcadm refresh system/identity:node
+#svcadm restart system/identity:node
 #add user
-useradd --create-home $1;
+useradd -m $1;
 groupadd sudo;
-usermod -aG sudo $1;
+usermod -G +sudo $1;
 #set user password
-echo $2 > pass1
-cp pass1 pass2
-cat pass1 >> pass2
-cat pass2 | passwd $1
-rm pass1 pass2
+echo '#!/usr/bin/expect --
+set USER [lindex $argv 0]
+set PASS [lindex $argv 1]
+spawn passwd $USER
+expect "assword:"
+send "$PASS\r"
+expect "assword:"
+send "$PASS\r"
+expect eof' > ors_script_chpwd.sh
+chmod u+x ors_script_chpwd.sh
+./ors_script_chpwd.sh $1 $2
 #check new user home directory exist
-if [ ! -d /home/${1} ]; then
-  echo "Error: directory /home/${1} not found"
+if [ ! -d /export/home/${1} ]; then
+  echo "Error: directory /export/home/${1} not found"
   exit 1
 fi
 #create .ssh subdirectory
-mkdir -m u=rwx,g=,o= /home/${1}/.ssh
-chown ${1}:users /home/${1}/.ssh
+mkdir -m u=rwx,g=,o= /export/home/${1}/.ssh
+chown ${1}:staff /export/home/${1}/.ssh
 #check source ssh key file exist
 if [ ! -s $HOME/.ssh/authorized_keys ]; then
   echo "Error: file $HOME/.ssh/authorized_keys not found or empty"
   exit 1
 fi
 #copy ssh key file to target directory
-cp $HOME/.ssh/authorized_keys /home/${1}/.ssh/
-chown ${1}:${1} /home/${1}/.ssh/authorized_keys
-chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
+cp $HOME/.ssh/authorized_keys /export/home/${1}/.ssh/
+chown ${1}:staff /export/home/${1}/.ssh/authorized_keys
+chmod u=rw,g=,o= /export/home/${1}/.ssh/authorized_keys
 #check sudo config file exist
 if [ ! -s /etc/sudoers ]; then
   echo "Error: file /etc/sudoers not found or empty"
@@ -50,7 +59,7 @@ echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 
 #install standard packages
-yum -y install git
+pkg install developer/versioning/git
 #check standard packages version
 sudo --version
 git --version

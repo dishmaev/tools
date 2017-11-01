@@ -44,7 +44,7 @@ fi
 
 ###check body dependencies
 
-checkDependencies 'ssh'
+#checkDependencies 'ssh'
 
 ###check required files
 

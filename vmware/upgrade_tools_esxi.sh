@@ -26,7 +26,7 @@ echoHelp $# 1 "[hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]" \
       "'$COMMON_CONST_ESXI_HOSTS_POOL'" \
       "Required allowing ssh access on the remote esxi host, \
 details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. \
-Required OVF Tool https://www.vmware.com/support/developer/ovf/"
+Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required $COMMON_CONST_VMTOOLS_FILE https://my.vmware.com/web/vmware/details?productId=614&downloadGroup=VMTOOLS10110"
 
 ###check commands
 
@@ -34,13 +34,14 @@ PRM_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
 ###check body dependencies
 
-checkDependencies 'ovftool ssh scp'
+checkDependencies 'ovftool ssh'
 checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
 
 ###check required files
 
 checkRequiredFiles "$HOME/.ssh/$COMMON_CONST_SSHKEYID"
 checkRequiredFiles "$HOME/.ssh/$COMMON_CONST_SSHKEYID.pub"
+checkRequiredFiles "$COMMON_CONST_LOCAL_VMTOOLS_PATH"
 
 ###start prompt
 
@@ -70,15 +71,17 @@ for CUR_HOST in $PRM_HOSTS_POOL; do
   RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
   if ! isTrue "$RET_VAL"
   then #first install
-    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_HOST "mkdir $COMMON_CONST_ESXI_TOOLS_PATH; mkdir $COMMON_CONST_ESXI_PATCHES_PATH; mkdir $COMMON_CONST_ESXI_IMAGES_PATH"
+    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_HOST "mkdir $COMMON_CONST_ESXI_TOOLS_PATH; mkdir $COMMON_CONST_ESXI_PATCHES_PATH; mkdir $COMMON_CONST_ESXI_IMAGES_PATH; mkdir $COMMON_CONST_ESXI_VMTOOLS_PATH"
     if ! isRetValOK; then exitError; fi
     #copy tools
-    scp -r $COMMON_CONST_SCRIPT_DIRNAME/data $COMMON_CONST_SCRIPT_USER@$CUR_HOST:$COMMON_CONST_ESXI_TOOLS_PATH
+    $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/data $COMMON_CONST_SCRIPT_USER@$CUR_HOST:$COMMON_CONST_ESXI_TOOLS_PATH
     if ! isRetValOK; then exitError; fi
     #put templates
     put_template_tools_to_esxi "$CUR_HOST"
     #put ofvtool
     put_ovftool_to_esxi "$CUR_HOST"
+    #put vmtools
+    put_vmtools_to_esxi "$CUR_HOST"
   else
     #get remote tools version
     REMOTE_TOOLS_VER=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_HOST "cat $COMMON_CONST_ESXI_DATA_PATH/version") || exitChildError "$REMOTE_TOOLS_VER"
@@ -92,7 +95,7 @@ for CUR_HOST in $PRM_HOSTS_POOL; do
       #put new version templates
       put_template_tools_to_esxi "$CUR_HOST"
       #put new version tag
-      scp -r $COMMON_CONST_SCRIPT_DIRNAME/data/version $COMMON_CONST_SCRIPT_USER@$CUR_HOST:$COMMON_CONST_ESXI_TOOLS_PATH/data/
+      $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/data/version $COMMON_CONST_SCRIPT_USER@$CUR_HOST:$COMMON_CONST_ESXI_TOOLS_PATH/data/
       if ! isRetValOK; then exitError; fi
     fi
     if isNewLocalVersion "$LOCAL_OVFTOOLS_VER" "$REMOTE_OVFTOOLS_VER"

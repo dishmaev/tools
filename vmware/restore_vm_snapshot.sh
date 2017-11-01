@@ -41,7 +41,7 @@ checkCommandExist 'removeChildren' "$PRM_REMOVECHILD" "$COMMON_CONST_BOOL_VALUES
 
 ###check body dependencies
 
-checkDependencies 'ssh'
+#checkDependencies 'ssh'
 
 ###check required files
 
