@@ -40,7 +40,7 @@ checkDirectoryForNotExist "$TARGET_DIRNAME" 'target '
 checkDependencies 'mktemp reprepro createrepo'
 
 #check availability gpg sec key
-checkGpgSecKeyExist $COMMON_CONST_GPGKEYID
+checkGpgSecKeyExist $COMMON_CONST_GPG_KEYID
 
 ###check required files
 
@@ -81,13 +81,13 @@ doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Create keys, config files, symlinks'
 
-gpg -q --export --armor --output $TARGET_DIRNAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPGKEYID
-cat $COMMON_CONST_SCRIPT_DIRNAME/distributions | sed -e "s#@COMMON_CONST_GPGKEYID@#$COMMON_CONST_GPGKEYID#" > $TARGET_DIRNAME/linux/apt/conf/distributions
+gpg -q --export --armor --output $TARGET_DIRNAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPG_KEYID
+cat $COMMON_CONST_SCRIPT_DIRNAME/distributions | sed -e "s#@COMMON_CONST_GPG_KEYID@#$COMMON_CONST_GPG_KEYID#" > $TARGET_DIRNAME/linux/apt/conf/distributions
 
 if [ ! -f ~/$CONST_RPMCFG_FILENAME ]
 then
   echo '%_signature gpg' > ~/$CONST_RPMCFG_FILENAME
-  echo '%_gpg_name' $COMMON_CONST_GPGKEYID >> ~/$CONST_RPMCFG_FILENAME
+  echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
 else
   VAR_SG=$(grep '%_signature gpg' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_SG"
   if [ "$VAR_SG" = "" ]
@@ -97,7 +97,7 @@ else
   VAR_GN=$(grep '%_gpg_name' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_GN"
   if [ "$VAR_GN" = "" ]
   then
-    echo '%_gpg_name' $COMMON_CONST_GPGKEYID >> ~/$CONST_RPMCFG_FILENAME
+    echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
   fi
 fi
 doneStage

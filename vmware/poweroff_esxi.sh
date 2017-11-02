@@ -34,7 +34,7 @@ startPrompt
 
 for CUR_HOST in $PRM_HOSTS_POOL; do
   echo "Target esxi host:" $CUR_HOST
-  RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_HOST "echo $COMMON_CONST_TRUE;poweroff") || exitChildError "$RET_VAL"
+  RET_VAL=$($SSH_CLIENT $CUR_HOST "echo $COMMON_CONST_TRUE;poweroff") || exitChildError "$RET_VAL"
   if ! isTrue "$RET_VAL"; then exitError; fi
 done
 

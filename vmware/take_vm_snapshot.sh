@@ -24,7 +24,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 6 '<vmName> <snapshotName> [snapshotDescription] [host=$COMMON_CONST_ESXI_HOST] [includeMemory=0] [quiesced=0]' \
       "myvm snapshot1 'my description' $COMMON_CONST_ESXI_HOST 0 0" \
-      "Required allowing SSH access on the remote host. Available standard snapshotName: $COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+      "Required allowing SSH access on the remote host. Available standard snapshotName: $COMMON_CONST_PROJECTNAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 
 ###check commands
 
@@ -36,7 +36,7 @@ PRM_INCLUDEMEMORY=${5:-$COMMON_CONST_FALSE}
 PRM_QUIESCED=${6:-$COMMON_CONST_FALSE}
 
 checkCommandExist 'vmName' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" "$COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" "$COMMON_CONST_PROJECTNAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 checkCommandExist 'includeMemory' "$PRM_INCLUDEMEMORY" "$COMMON_CONST_BOOL_VALUES"
 checkCommandExist 'quiesced' "$PRM_QUIESCED" "$COMMON_CONST_BOOL_VALUES"
 
@@ -64,7 +64,7 @@ if isSnapshotVMExist "$VM_ID" "$PRM_SNAPSHOTNAME" "$PRM_HOST"; then
   exitError "snapshot $PRM_SNAPSHOTNAME already exist for VM $PRM_VMNAME on $PRM_HOST host"
 fi
 
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.create $VM_ID $PRM_SNAPSHOTNAME \"$PRM_SNAPSHOTDESCRIPTION\" $PRM_INCLUDEMEMORY $PRM_QUIESCED"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.create $VM_ID $PRM_SNAPSHOTNAME \"$PRM_SNAPSHOTDESCRIPTION\" $PRM_INCLUDEMEMORY $PRM_QUIESCED"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

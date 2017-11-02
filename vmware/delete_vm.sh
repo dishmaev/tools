@@ -52,7 +52,7 @@ fi
 powerOffVM "$VM_ID" "$PRM_HOST"
 if ! isRetValOK; then exitError; fi
 #delete vm
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/destroy $VM_ID"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/destroy $VM_ID"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

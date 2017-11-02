@@ -52,7 +52,7 @@ startPrompt
 
 ###body
 
-#get vmtype current version
+#get vm template current version
 CUR_VMVER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
 OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
 
@@ -60,14 +60,14 @@ OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
 RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$RET_VAL"
 echo "$RET_VAL"
 #check required ova package on remote esxi host
-RET_VAL=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+RET_VAL=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"; then
   exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec 'create_vm_template.sh $PRM_VMTEMPLATE' previously"
 fi
 #check vm name
 if isEmpty "$PRM_VMNAME"; then
   #get vm number
-  CUR_NUM=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt ]; \
+  CUR_NUM=$($SSH_CLIENT $PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt ]; \
   then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt; fi; \
   echo \$((\$(cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt)+1)) > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt; \
   cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt") || exitChildError "$CUR_NUM"
@@ -80,14 +80,14 @@ if isVMExist "$VM_NAME" "$PRM_HOST"; then
   exitError "VM with name $VM_NAME already exist on $PRM_HOST host"
 fi
 #create new vm on remote esxi host
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
+$SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOREVM -dm=thin --acceptAllEulas \
     --noSSLVerify -n=$VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME vi://$COMMON_CONST_SCRIPT_USER@$PRM_HOST" < $COMMON_CONST_OVFTOOL_PASS_FILE
 if ! isRetValOK; then exitError; fi
 #take base template snapshot
 RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$OVA_FILE_NAME" $PRM_HOST) || exitChildError "$RET_VAL"
 #set autostart new vm
 VM_ID=$(getVMIDByVMName "$VM_NAME" "$PRM_HOST") || exitChildError "$VM_ID"
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VM_ID powerOn 120 1 systemDefault 120 systemDefault"
+$SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VM_ID powerOn 120 1 systemDefault 120 systemDefault"
 if ! isRetValOK; then exitError; fi
 #power on new vm
 powerOnVM "$VM_ID" "$PRM_HOST"

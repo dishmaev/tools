@@ -64,7 +64,7 @@ then
   exitError "snapshot $PRM_SNAPSHOTNAME not found for VM $PRM_VMNAME on $PRM_HOST host"
 fi
 
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.remove $VM_ID $SS_ID $PRM_REMOVECHILD"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.remove $VM_ID $SS_ID $PRM_REMOVECHILD"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

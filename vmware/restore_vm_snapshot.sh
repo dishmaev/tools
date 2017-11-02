@@ -23,10 +23,10 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 "<vmName> <snapshotName=\$COMMON_CONST_PROJECT_NAME | \
+echoHelp $# 4 "<vmName> <snapshotName=\$COMMON_CONST_PROJECTNAME | \
 \$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME> [host=\$COMMON_CONST_ESXI_HOST] [removeChildren=1]" \
-"myvm $COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_HOST 1" \
-"Required allowing SSH access on the remote host. Available standard snapshotName: $COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+"myvm $COMMON_CONST_PROJECTNAME $COMMON_CONST_ESXI_HOST 1" \
+"Required allowing SSH access on the remote host. Available standard snapshotName: $COMMON_CONST_PROJECTNAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 
 ###check commands
 
@@ -36,7 +36,7 @@ PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_REMOVECHILD=${4:-$COMMON_CONST_TRUE}
 
 checkCommandExist 'vmName' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" "$COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" "$COMMON_CONST_PROJECTNAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 checkCommandExist 'removeChildren' "$PRM_REMOVECHILD" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
@@ -71,13 +71,13 @@ if isTrue "$PRM_REMOVECHILD"; then
   CHILD_SNAPSHOTS_POOL=$(getChildSnapshotsPool "$VM_ID" "$PRM_SNAPSHOTNAME" "$SS_ID" "$PRM_HOST") || exitChildError "$CHILD_SNAPSHOTS_POOL"
   for CUR_CHILD_ID in $CHILD_SNAPSHOTS_POOL; do
     echo "Delete child snapshot:" $CUR_CHILD_ID
-    $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.remove $VM_ID $CUR_CHILD_ID 1"
+    $SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.remove $VM_ID $CUR_CHILD_ID 1"
     if ! isRetValOK; then exitError; fi
   done
 fi
 
 #revert SS_ID snapshot
-$SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vim-cmd vmsvc/snapshot.revert $VM_ID $SS_ID 1"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.revert $VM_ID $SS_ID 1"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

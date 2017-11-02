@@ -21,7 +21,7 @@ getChildSnapshotsPool(){
   local VAR_SS_LIST=''
   local VAR_SS_LIST2=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  VAR_SS_LIST=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$4 "vim-cmd vmsvc/snapshot.get $1 | \
+  VAR_SS_LIST=$($SSH_CLIENT $4 "vim-cmd vmsvc/snapshot.get $1 | \
   egrep -- '--Snapshot Name|--Snapshot Id' | awk '{ORS=NR%2?FS:RS; print \$4\":\"(length(\$1)-8)/2}' | \
   awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
   for VAR_CUR_STR in $VAR_SS_LIST; do
@@ -58,7 +58,7 @@ getVMSnapshotIDByName(){
   local VAR_CUR_STR=''
   local VAR_CUR_SSNAME=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$3 "vim-cmd vmsvc/snapshot.get $1 | \
+  VAR_RESULT=$($SSH_CLIENT $3 "vim-cmd vmsvc/snapshot.get $1 | \
   egrep -- '--Snapshot Name|--Snapshot Id' | awk '{ORS=NR%2?FS:RS; print \$4\":\"(length(\$1)-8)/2}' | \
   awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
   if ! isEmpty "$VAR_RESULT"; then
@@ -80,11 +80,11 @@ getVMSnapshotIDByName(){
 getVMSnapshotCount(){
   checkParmsCount $# 2 'getVMSnapshotCount'
   local VAR_RESULT=''
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/snapshot.get $1 | egrep -- '--\|-CHILD|^\|-ROOT' | wc -l") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/snapshot.get $1 | egrep -- '--\|-CHILD|^\|-ROOT' | wc -l") || exitChildError "$VAR_RESULT"
   VAR_RESULT=${VAR_RESULT:-"0"}
   echo "$VAR_RESULT"
 }
-#$1 vm type, $2 vm version
+#$1 vm template, $2 vm version
 getVMUrl() {
   checkParmsCount $# 2 'getVMUrl'
   local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
@@ -94,11 +94,11 @@ getVMUrl() {
   fi
   VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2::" | awk -F:: '{print $2}')
   if isEmpty "$VAR_RESULT"; then
-    exitError "missing url for vm type $1 version $2 in file $CONST_FILE_PATH"
+    exitError "missing url for VM template $1 version $2 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
-#$1 vm type
+#$1 vm template
 getAvailableVMVersions(){
   checkParmsCount $# 1 'getAvailableVMVersions'
   local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
@@ -118,11 +118,11 @@ getAvailableVMVersions(){
     exitError "VM template $1 not found"
   fi
   if isEmpty "$VAR_RESULT"; then
-    exitError "cannot found any version for vm type $1 in file $CONST_FILE_PATH"
+    exitError "cannot found any version for VM template $1 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
-#$1 vm type
+#$1 vm template
 getDefaultVMVersion(){
   checkParmsCount $# 1 'getDefaultVMVersion'
   local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
@@ -143,7 +143,7 @@ getDefaultVMVersion(){
     exitError "VM template $1 not found"
   fi
   if isEmpty "$VAR_RESULT"; then
-    exitError "missing default version for vm type $1 in file $CONST_FILE_PATH"
+    exitError "missing default version for VM template $1 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
@@ -154,12 +154,12 @@ powerOnVM()
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
-  $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
+  $SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
@@ -181,22 +181,22 @@ powerOffVM()
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
-  $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; fi"
+  $SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then  #still running, force kill vm
         echo "Failed standard power off the VMID $1 on $2 host, use force power off."
-        $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "esxcli vm process kill --type force --world-id $VAR_RESULT"
+        $SSH_CLIENT $PRM_HOST "esxcli vm process kill --type force --world-id $VAR_RESULT"
         if ! isRetValOK; then exitError; fi
         sleep $COMMON_CONST_ESXI_SLEEP_LONG
-        VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
+        VAR_RESULT=$($SSH_CLIENT $PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         if ! isEmpty "$VAR_RESULT"; then
           exitError "failed force power off the VMID $1 on $2 host"
         fi
@@ -219,7 +219,7 @@ getIpAddressByVMName()
   VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
   while true
   do
-    VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/get.guest $VAR_VMID | grep 'ipAddress = \"' | \
+    VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/get.guest $VAR_VMID | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
     if ! isEmpty "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
@@ -247,7 +247,7 @@ getVmsPool(){
     for VAR_CUR_OS in $1
     do
       local VAR_RESULT
-      VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+      VAR_RESULT=$($SSH_CLIENT $CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
         awk '{print \$1\":\"\$5}' | grep ':'$VAR_CUR_OS | awk -F: '{print \$1\":$VAR_CUR_ESXI\"}'") || exitChildError "$VAR_RESULT"
       echo "$VAR_RESULT"
     done
@@ -257,7 +257,7 @@ getVmsPool(){
 getVMIDByVMName() {
   checkParmsCount $# 2 'getVMIDByVMName'
   local VAR_RESULT
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
 | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"\$2\":\"}' | grep ':'$1':' | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
@@ -265,7 +265,7 @@ getVMIDByVMName() {
 getVMNameByVMID() {
   checkParmsCount $# 2 'getVMNamebyVMID'
   local VAR_RESULT
-  VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
+  VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
 | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"substr(\$0,8,80)}' | grep $1':' | awk -F: '{print \$2}'") || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
@@ -306,7 +306,7 @@ checkTriggerTemplateVM(){
     if ! isRetValOK; then exitError; fi
     $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/templates/${1}_script.sh root@$VAR_VMIP:
     if ! isRetValOK; then exitError; fi
-    SSH_PWD=$(cat $COMMON_CONST_SSH_PASS_FILE) || exitChildError "$VAR_VMIP"
+    SSH_PWD=$(cat $COMMON_CONST_SSH_USERPASS) || exitChildError "$VAR_VMIP"
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VMIP "chmod u+x ${1}_script.sh;./${1}_script.sh $COMMON_CONST_SCRIPT_USER $SSH_PWD $1 $3; \
 if [ -f ${1}_script.result ]; then cat ${1}_script.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_script.log ]; then cat ${1}_script.log; fi") || exitChildError "$VAR_LOG"
@@ -588,7 +588,7 @@ put_vmtools_to_esxi(){
   VAR_TMP_DIRNAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIRNAME"
   tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIRNAME
   if ! isRetValOK; then exitError; fi
-  $SCP_CLIENT -r $VAR_TMP_DIRNAME/* $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
+  $SCP_CLIENT -r $VAR_TMP_DIRNAME/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
   if ! isRetValOK; then exitError; fi
   rm -fR $TMP_DIRNAME
   if ! isRetValOK; then exitError; fi
@@ -596,15 +596,15 @@ put_vmtools_to_esxi(){
 #$1 esxi host
 put_ovftool_to_esxi(){
   checkParmsCount $# 1 'put_ovftool_to_esxi'
-  $SCP_CLIENT -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_TOOLS_PATH/
+  $SCP_CLIENT -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $1:$COMMON_CONST_ESXI_TOOLS_PATH/
   if ! isRetValOK; then exitError; fi
-  $SSH_CLIENT $COMMON_CONST_SCRIPT_USER@$1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
+  $SSH_CLIENT $1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
   if ! isRetValOK; then exitError; fi
 }
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
-  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/templates $COMMON_CONST_SCRIPT_USER@$1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
+  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/templates $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
 }
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH
