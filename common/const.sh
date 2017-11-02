@@ -22,8 +22,8 @@ readonly COMMON_CONST_TOOLTIP='-y mean non-interactively with yes answer and try
 readonly COMMON_CONST_TOOLSREPO="git@github.com:$COMMON_CONST_GIT_USER/tools.git" #for add tools submodule
 readonly COMMON_CONST_DOWNLOAD_PATH="$HOME/Downloads/$COMMON_CONST_GIT_USER-tools" #local directory to save downloads
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
-readonly COMMON_CONST_OVFTOOL_PASS_FILE=$COMMON_CONST_SCRIPT_DIRNAME/../common/ovftoolpwd #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
-readonly COMMON_CONST_SSH_PASS_FILE=$COMMON_CONST_SCRIPT_DIRNAME/../common/sshpwd #default password
+readonly COMMON_CONST_OVFTOOL_PASS_FILE=$COMMON_CONST_SCRIPT_DIRNAME/../common/ovftoolpwd.txt #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
+readonly COMMON_CONST_SSH_PASS_FILE=$COMMON_CONST_SCRIPT_DIRNAME/../common/sshpwd.txt #default password
 readonly COMMON_CONST_VMTOOLS_FILE='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE" #vmware tools local directory
 readonly COMMON_CONST_LINUX_APT='apt'

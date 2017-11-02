@@ -59,10 +59,11 @@ echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 
 #install standard packages
-pkg install developer/versioning/git
+#pkg install developer/versioning/git
+
 #check standard packages version
 sudo --version
-git --version
+#git --version
 
 ###finish
 

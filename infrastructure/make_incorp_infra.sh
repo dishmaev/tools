@@ -2,7 +2,7 @@
 ## with incorp ci+issues tracker, gitflow repo, distrib repos
 
 #- make distrib repos, if now exist
-#- deploy incorp gitlab+runners, mail server on esxi
+#- deploy incorp gitlab+runners, mailServer+DNSserver on esxi, vms some templates
 #- sign in/up on gitlab
 #- new empty git repo on gitlab, with issues tracker
 #- make gitflow repo with tools

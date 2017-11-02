@@ -75,7 +75,7 @@ DISC_FILE_PATH="$DISK_DIR_PATH/$PRM_VMTEMPLATE.vmdk"
 if [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_PHOTON_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'changeme'\n\
--reboot, check that ssh and vm tools are working"
+-check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANOSB_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'osboxes.org'\n\

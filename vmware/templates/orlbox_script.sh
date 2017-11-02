@@ -50,10 +50,9 @@ echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 
 #install standard packages
-yum -y install git
+
 #check standard packages version
 sudo --version
-git --version
 
 ###finish
 

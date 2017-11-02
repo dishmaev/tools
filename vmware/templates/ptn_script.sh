@@ -42,10 +42,8 @@ chown ${1}:users /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
 #install standard packages
 tdnf -y install sudo
-tdnf -y install git
 #check standard packages version
 sudo --version
-git --version
 #check sudo config file exist
 if [ ! -s /etc/sudoers ]; then
   echo "Error: file /etc/sudoers not found or empty"

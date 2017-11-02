@@ -11,6 +11,7 @@ echo "VM $3 OS version:" $4
 ###body
 
 #set hostname
+hostname "${3}"
 echo "hostname \"${3}\"" >> /etc/rc.conf
 #add user
 pw useradd -m -d /home/$1 -n $1
@@ -38,11 +39,9 @@ chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
 #install standard packages
 export ASSUME_ALWAYS_YES=yes
 pkg install sudo
-pkg install git
 export ASSUME_ALWAYS_YES=
 #check standard packages version
 sudo --version
-git --version
 #check sudo config file exist
 if [ ! -s /usr/local/etc/sudoers ]; then
   echo "Error: file /usr/local/etc/sudoers not found or empty"
