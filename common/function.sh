@@ -359,7 +359,7 @@ checkDirectoryForNotExist() {
 checkFileForNotExist() {
   checkParmsCount $# 2 'checkFileForNotExist'
   if isFileExistAndRead "$1"; then
-    exitError "$file $1 already exist"
+    exitError "file $1 already exist"
   fi
 }
 #$1 keyID

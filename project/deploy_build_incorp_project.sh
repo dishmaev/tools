@@ -9,6 +9,7 @@ targetDescription "Deploy build file for incorp project $COMMON_CONST_PROJECTNAM
 
 ##private vars
 PRM_FILENAME='' #build file name
+PRM_SUITE='' #suite
 PRM_SCRIPTVERSION='' #version script for deploy VM
 
 ###check autoyes
@@ -17,8 +18,8 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<fileName> [suite=$COMMON_CONST_DEVELOP_SUITE] [scriptVersion=$COMMON_CONST_DEFAULT_VERSION]'\
-"myfile $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VERSION"\
+echoHelp $# 3 '<fileName> [suite=$COMMON_CONST_DEVELOP_SUITE] [scriptVersion=$COMMON_CONST_DEFAULT_VERSION]' \
+"myfile $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VERSION" \
 "Available suites: $COMMON_CONST_SUITES_POOL"
 
 ###check commands

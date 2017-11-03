@@ -25,6 +25,7 @@ CHILD_SNAPSHOTS_POOL='' #SS_ID child snapshots_pool, IDs with space delimiter
 SCRIPT_FILENAME='' #create script file name
 REMOTE_SCRIPT_FILENAME='' #create script file name on remote vm
 CONFIG_FILENAME='' #vm config file name
+CONFIG_FILEPATH='' #vm config file path
 
 ###check autoyes
 
@@ -32,7 +33,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4  '<vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmType=$COMMON_CONST_VMWARE_VMTYPE] [scriptVersion=$COMMON_CONST_DEFAULT_VERSION]' \
+echoHelp $# 4 '<vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmType=$COMMON_CONST_VMWARE_VMTYPE] [scriptVersion=$COMMON_CONST_DEFAULT_VERSION]' \
 "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_VMWARE_VMTYPE $COMMON_CONST_DEFAULT_VERSION" \
 "Available VM templates: $COMMON_CONST_VMTEMPLATES_POOL. Available suites: $COMMON_CONST_SUITES_POOL. Available VM types: $COMMON_CONST_VMTYPES_POOL"
 
@@ -58,7 +59,8 @@ SCRIPT_FILENAME=${PRM_VMTEMPLATE}_${PRM_SCRIPTVERSION}_create
 checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/triggers/${SCRIPT_FILENAME}.sh"
 
 CONFIG_FILENAME=${PRM_SUITE}_${PRM_SCRIPTVERSION}
-checkFileForNotExist "$COMMON_CONST_SCRIPT_DIRNAME/data/${CONFIG_FILENAME}.txt" 'config '
+CONFIG_FILEPATH=$COMMON_CONST_SCRIPT_DIRNAME/data/${CONFIG_FILENAME}.txt
+checkFileForNotExist "$CONFIG_FILEPATH" 'config '
 
 #checkRequiredFiles "file1 file2 file3"
 
@@ -107,9 +109,9 @@ if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMWARE_VMTYPE" ]; then
   RET_VAL=$($SSH_CLIENT $VM_IP "chmod u+x ${REMOTE_SCRIPT_FILENAME}.sh;./${REMOTE_SCRIPT_FILENAME}.sh $REMOTE_SCRIPT_FILENAME; \
 if [ -f ${REMOTE_SCRIPT_FILENAME}.result ]; then cat ${REMOTE_SCRIPT_FILENAME}.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$RET_VAL"
   RET_LOG=$($SSH_CLIENT $VM_IP "if [ -f ${REMOTE_SCRIPT_FILENAME}.log ]; then cat ${REMOTE_SCRIPT_FILENAME}.log; fi") || exitChildError "$RET_LOG"
-  if ! isEmpty "$VAR_LOG"; then echo "$VAR_LOG"; fi
+  if ! isEmpty "$RET_LOG"; then echo "$RET_LOG"; fi
   RET_LOG=$($SSH_CLIENT $VM_IP "if [ -f ${REMOTE_SCRIPT_FILENAME}.err ]; then cat ${REMOTE_SCRIPT_FILENAME}.err; fi") || exitChildError "$RET_LOG"
-  if ! isEmpty "$VAR_LOG"; then echo "$VAR_LOG"; fi
+  if ! isEmpty "$RET_LOG"; then echo "$RET_LOG"; fi
   if ! isTrue "$RET_VAL"; then
     exitError "failed execute ${REMOTE_SCRIPT_FILENAME}.sh on VM $VM_NAME ip $VM_IP on $ESXI_HOST host"
   fi
@@ -118,10 +120,11 @@ if [ -f ${REMOTE_SCRIPT_FILENAME}.result ]; then cat ${REMOTE_SCRIPT_FILENAME}.r
   RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_PROJECTNAME "$PRM_SCRIPTVERSION" $ESXI_HOST) || exitChildError "$RET_VAL"
   echo "$RET_VAL"
   #save vm config file
+  echo "Save config file $CONFIG_FILEPATH"
   echo $PRM_VMTYPE$COMMON_CONST_DATA_TXT_SEPARATOR\
 $PRM_VMTEMPLATE$COMMON_CONST_DATA_TXT_SEPARATOR\
 $VM_NAME$COMMON_CONST_DATA_TXT_SEPARATOR$ESXI_HOST > \
-$COMMON_CONST_SCRIPT_DIRNAME/data/${CONFIG_FILENAME}.txt
+$CONFIG_FILEPATH
 fi
 
 doneFinalStage

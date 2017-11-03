@@ -14,6 +14,8 @@ readonly CONST_REPOS_DIRNAME=repos #repos directory name
 ##private vars
 PRM_SOURCE_DIRNAME='' #source directory name
 TARGET_DIRNAME='' #target directory name
+CUR_SG=''
+CUR_GN=''
 
 ###check autoyes
 
@@ -89,13 +91,13 @@ then
   echo '%_signature gpg' > ~/$CONST_RPMCFG_FILENAME
   echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
 else
-  VAR_SG=$(grep '%_signature gpg' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_SG"
-  if [ "$VAR_SG" = "" ]
+  CUR_SG=$(grep '%_signature gpg' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$CUR_SG"
+  if [ "$CUR_SG" = "" ]
   then
     echo '%_signature gpg' >> ~/$CONST_RPMCFG_FILENAME
   fi
-  VAR_GN=$(grep '%_gpg_name' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_GN"
-  if [ "$VAR_GN" = "" ]
+  CUR_GN=$(grep '%_gpg_name' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$CUR_GN"
+  if [ "$CUR_GN" = "" ]
   then
     echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
   fi
