@@ -58,12 +58,12 @@ OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
 echo "Checking exist tools on $PRM_HOST host"
 RET_VAL=$($SSH_CLIENT $PRM_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"; then
-  exitError "not found $COMMON_CONST_ESXI_TOOLS_PATH on $PRM_HOST host. Exec '$COMMON_CONST_ROOT_DIR/vmware/create_vm_template.sh $PRM_VMTEMPLATE $PRM_HOST' previously"
+  exitError "not found $COMMON_CONST_ESXI_TOOLS_PATH on $PRM_HOST host. Exec 'upgrade_tools_esxi.sh $PRM_HOST' previously"
 fi
 #check required ova package on remote esxi host
 RET_VAL=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"; then
-  exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec '$COMMON_CONST_ROOT_DIR/vmware/create_vm_template.sh $PRM_VMTEMPLATE $PRM_HOST' previously"
+  exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec 'create_vm_template.sh $PRM_VMTEMPLATE $PRM_HOST' previously"
 fi
 #check vm name
 if [ "$PRM_VMNAME"="$COMMON_CONST_DEFAULT_VMNAME" ]; then

@@ -18,7 +18,7 @@ readonly COMMON_CONST_SCRIPT_FILENAME=$(basename "$0") #script file name
 readonly COMMON_CONST_SCRIPT_DIRNAME=$(dirname "$0") #script directory name
 readonly COMMON_CONST_TOOLTIP='-y mean non-interactively with yes answer and try install missing dependencies' #simple autoyes tooltip
 readonly COMMON_CONST_TOOLSREPO="git@github.com:$COMMON_CONST_GIT_USERNAME/tools.git" #for add tools submodule
-readonly COMMON_CONST_DOWNLOAD_PATH="$HOME/Downloads/$COMMON_CONST_GIT_USERNAME-tools" #local directory to save downloads
+readonly COMMON_CONST_DOWNLOAD_PATH="$COMMON_CONST_ROOT_DIR/downloads" #local directory to save downloads
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
 readonly COMMON_CONST_OVFTOOL_PASS_FILE=$COMMON_CONST_ROOT_DIR/common/ovftoolpwd.txt #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly COMMON_CONST_VMTOOLS_FILE='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
