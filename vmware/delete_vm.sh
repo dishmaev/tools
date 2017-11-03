@@ -44,13 +44,12 @@ startPrompt
 
 VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
 #check vm name
-if isEmpty "$VM_ID"
-then
+if isEmpty "$VM_ID"; then
   exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
 fi
-#try standard power off if vm running
-powerOffVM "$VM_ID" "$PRM_HOST"
-if ! isRetValOK; then exitError; fi
+#power off
+RET_VAL=$(powerOffVM "$VM_ID" "$PRM_HOST") || exitChildError "$RET_VAL"
+echoResult "$RET_VAL"
 #delete vm
 $SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/destroy $VM_ID"
 if ! isRetValOK; then exitError; fi

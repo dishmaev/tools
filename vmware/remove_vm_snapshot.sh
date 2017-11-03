@@ -12,6 +12,7 @@ PRM_VMNAME='' #vm name
 PRM_SNAPSHOTNAME='' #snapshotName
 PRM_HOST='' #host
 PRM_REMOVECHILD='' #remove child target snapshot
+RET_VAL='' #child return value
 VM_ID='' #VMID target virtual machine
 SS_ID='' #snapshot ID
 
@@ -50,20 +51,20 @@ startPrompt
 
 ###body
 
-VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
 #check vm name
-if isEmpty "$VM_ID"
-then
+VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
+if isEmpty "$VM_ID"; then
   exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
 fi
-
-SS_ID=$(getVMSnapshotIDByName "$VM_ID" "$PRM_SNAPSHOTNAME" "$PRM_HOST") || exitChildError "$SS_ID"
 #check snapshotName
-if isEmpty "$SS_ID"
-then
+SS_ID=$(getVMSnapshotIDByName "$VM_ID" "$PRM_SNAPSHOTNAME" "$PRM_HOST") || exitChildError "$SS_ID"
+if isEmpty "$SS_ID"; then
   exitError "snapshot $PRM_SNAPSHOTNAME not found for VM $PRM_VMNAME on $PRM_HOST host"
 fi
-
+#power off
+RET_VAL=$(powerOffVM "$VM_ID" "$PRM_HOST") || exitChildError "$RET_VAL"
+echoResult "$RET_VAL"
+#remove vm
 $SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.remove $VM_ID $SS_ID $PRM_REMOVECHILD"
 if ! isRetValOK; then exitError; fi
 

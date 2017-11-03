@@ -155,6 +155,7 @@ powerOnVM()
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  echo "Required power on VMID $1 on $2 host"
   $SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
@@ -182,6 +183,7 @@ powerOffVM()
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  echo "Required power off VMID $1 on $2 host"
   $SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; fi"
   if ! isRetValOK; then exitError; fi
   while true; do
@@ -291,7 +293,8 @@ checkTriggerTemplateVM(){
   fi
   if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/triggers/${1}_create.sh";then
     VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
-    powerOnVM "$VAR_VMID" "$2"
+    VAR_RESULT=$(powerOnVM "$VAR_VMID" "$2") || exitChildError "$VAR_RESULT"
+    echoResult "$VAR_RESULT"
     if ! isAutoYesMode; then
       if ! isEmpty "$4"; then
         echo "$4"
@@ -309,9 +312,9 @@ checkTriggerTemplateVM(){
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VMIP "chmod u+x ${1}_create.sh;./${1}_create.sh $COMMON_CONST_SCRIPT_USER $SSH_PWD $1 $3; \
 if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
-    if ! isEmpty "$VAR_LOG"; then echo "$VAR_LOG"; fi
+    if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
     VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
-    if ! isEmpty "$VAR_LOG"; then echo "$VAR_LOG"; fi
+    if ! isEmpty "$VAR_LOG"; then echo "Stderr:\n$VAR_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
       exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VMIP on $2 host"
     fi
@@ -320,7 +323,8 @@ if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CON
     else
       sleep $COMMON_CONST_ESXI_SLEEP_LONG
     fi
-    powerOffVM "$VAR_VMID" "$2"
+    VAR_RESULT=$(powerOffVM "$VAR_VMID" "$2") || exitChildError "$VAR_RESULT"
+    echoResult "$VAR_RESULT"
   fi
 }
 #$1 title, $2 value, $3 allowed values
@@ -618,6 +622,13 @@ put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
   $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/templates $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
+}
+#$1 return result
+echoResult(){
+  checkParmsCount $# 1 'echoResult'
+  if ! isEmpty "$1"; then
+    echo "$1"
+  fi
 }
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH
 isNewLocalVersion() {

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Delete VM from incorp project $COMMON_CONST_PROJECTNAME"
+targetDescription "Delete VM on incorp project $COMMON_CONST_PROJECTNAME"
 
 ##private consts
 
@@ -18,7 +18,6 @@ VM_TEMPLATE='' #vm template
 VM_NAME='' #vm name
 ESXI_HOST='' #esxi host
 VM_ID='' #vm id
-SS_ID='' #snapshot id
 
 ###check autoyes
 
@@ -61,14 +60,8 @@ VM_NAME=$(echo $RET_VAL | awk -F:: '{print $3}')
 
 if [ "$VM_TYPE" = "$COMMON_CONST_VMWARE_VMTYPE" ]; then
   ESXI_HOST=$(echo $RET_VAL | awk -F:: '{print $4}')
-  VM_ID=$(getVMIDByVMName "$VM_NAME" "$ESXI_HOST") || exitChildError "$VM_ID"
-  if ! isEmpty "$VM_ID"; then
-    echo "VM $VM_NAME exist on $ESXI_HOST host, need remove project snapshot"
-    powerOffVM "$VM_ID" "$ESXI_HOST"
-    SS_ID=$(getVMSnapshotIDByName "$VM_ID" "$COMMON_CONST_PROJECTNAME" "$ESXI_HOST") || exitChildError "$SS_ID"
-    RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/remove_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_PROJECTNAME $ESXI_HOST) || exitChildError "$RET_VAL"
-    echo "$RET_VAL"
-  fi
+  RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/remove_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_PROJECTNAME $ESXI_HOST) || exitChildError "$RET_VAL"
+  echo "$RET_VAL"
   echo "Remove config file $CONFIG_FILEPATH"
   rm $CONFIG_FILEPATH
   if ! isRetValOK; then exitError; fi

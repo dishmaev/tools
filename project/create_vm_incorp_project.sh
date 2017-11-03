@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Create VM for incorp project $COMMON_CONST_PROJECTNAME"
+targetDescription "Create VM on incorp project $COMMON_CONST_PROJECTNAME"
 
 ##private consts
 
@@ -23,6 +23,7 @@ VM_IP='' #vm ip address
 SS_ID='' #snapshot id
 CHILD_SNAPSHOTS_POOL='' #SS_ID child snapshots_pool, IDs with space delimiter
 SCRIPT_FILENAME='' #create script file name
+SCRIPT_FILEPATH='' #create script file path
 REMOTE_SCRIPT_FILENAME='' #create script file name on remote vm
 CONFIG_FILENAME='' #vm config file name
 CONFIG_FILEPATH='' #vm config file path
@@ -56,13 +57,14 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPTVERSION" ''
 ###check required files
 
 SCRIPT_FILENAME=${PRM_VMTEMPLATE}_${PRM_SCRIPTVERSION}_create
-checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/triggers/${SCRIPT_FILENAME}.sh"
+SCRIPT_FILEPATH=$COMMON_CONST_SCRIPT_DIRNAME/triggers/${SCRIPT_FILENAME}.sh
+
+checkRequiredFiles "$SCRIPT_FILEPATH"
 
 CONFIG_FILENAME=${PRM_SUITE}_${PRM_SCRIPTVERSION}
 CONFIG_FILEPATH=$COMMON_CONST_SCRIPT_DIRNAME/data/${CONFIG_FILENAME}.txt
-checkFileForNotExist "$CONFIG_FILEPATH" 'config '
 
-#checkRequiredFiles "file1 file2 file3"
+checkFileForNotExist "$CONFIG_FILEPATH" 'config '
 
 ###start prompt
 
@@ -84,9 +86,9 @@ if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMWARE_VMTYPE" ]; then
     CHILD_SNAPSHOTS_POOL=$(getChildSnapshotsPool "$VM_ID" "$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME" "$SS_ID" "$ESXI_HOST") || exitChildError "$CHILD_SNAPSHOTS_POOL"
     if isEmpty "$CHILD_SNAPSHOTS_POOL"; then
       FOUND=$COMMON_CONST_TRUE
+      break
     fi
   done
-  #create new vm required type
   if ! isTrue "$FOUND"; then
     echo "Not found, required new VM"
     ESXI_HOST=$COMMON_CONST_ESXI_HOST
@@ -95,27 +97,31 @@ if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMWARE_VMTYPE" ]; then
     VM_NAME=$(echo "$RET_VAL" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VM_NAME"
     VM_ID=$(echo "$RET_VAL" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VM_ID"
     if isEmpty "$VM_NAME" || isEmpty "$VM_ID"; then exitError; fi
+    echo "New VM name: $VM_NAME"
+  else
+    echo "Current VM name: $VM_NAME"
+    RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/restore_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $ESXI_HOST) || exitChildError "$RET_VAL"
+    echo "$RET_VAL"
   fi
-  echo "Current VM name: $VM_NAME"
-  RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/restore_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $ESXI_HOST) || exitChildError "$RET_VAL"
-  echo "$RET_VAL"
-  powerOnVM "$VM_ID" "$ESXI_HOST"
+  RET_VAL=$(powerOnVM "$VM_ID" "$ESXI_HOST") || exitChildError "$RET_VAL"
+  echoResult "$RET_VAL"
   VM_IP=$(getIpAddressByVMName "$VM_NAME" "$ESXI_HOST") || exitChildError "$VM_IP"
   #copy create script on vm
   REMOTE_SCRIPT_FILENAME=${COMMON_CONST_PROJECTNAME}_$SCRIPT_FILENAME
-  $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/triggers/${SCRIPT_FILENAME}.sh $VM_IP:${REMOTE_SCRIPT_FILENAME}.sh
+  $SCP_CLIENT $SCRIPT_FILEPATH $VM_IP:${REMOTE_SCRIPT_FILENAME}.sh
   if ! isRetValOK; then exitError; fi
   echo "Start ${REMOTE_SCRIPT_FILENAME}.sh executing on VM $VM_NAME ip $VM_IP on $ESXI_HOST host"
   RET_VAL=$($SSH_CLIENT $VM_IP "chmod u+x ${REMOTE_SCRIPT_FILENAME}.sh;./${REMOTE_SCRIPT_FILENAME}.sh $REMOTE_SCRIPT_FILENAME; \
 if [ -f ${REMOTE_SCRIPT_FILENAME}.result ]; then cat ${REMOTE_SCRIPT_FILENAME}.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$RET_VAL"
   RET_LOG=$($SSH_CLIENT $VM_IP "if [ -f ${REMOTE_SCRIPT_FILENAME}.log ]; then cat ${REMOTE_SCRIPT_FILENAME}.log; fi") || exitChildError "$RET_LOG"
-  if ! isEmpty "$RET_LOG"; then echo "$RET_LOG"; fi
+  if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
   RET_LOG=$($SSH_CLIENT $VM_IP "if [ -f ${REMOTE_SCRIPT_FILENAME}.err ]; then cat ${REMOTE_SCRIPT_FILENAME}.err; fi") || exitChildError "$RET_LOG"
-  if ! isEmpty "$RET_LOG"; then echo "$RET_LOG"; fi
+  if ! isEmpty "$RET_LOG"; then echo "Stderr:\n$RET_LOG"; fi
   if ! isTrue "$RET_VAL"; then
     exitError "failed execute ${REMOTE_SCRIPT_FILENAME}.sh on VM $VM_NAME ip $VM_IP on $ESXI_HOST host"
   fi
-  powerOffVM "$VM_ID" "$ESXI_HOST"
+  RET_VAL=$(powerOffVM "$VM_ID" "$ESXI_HOST") || exitChildError "$RET_VAL"
+  echoResult "$RET_VAL"
   #take project snapshot
   RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_PROJECTNAME "$PRM_SCRIPTVERSION" $ESXI_HOST) || exitChildError "$RET_VAL"
   echo "$RET_VAL"
