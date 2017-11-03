@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Put gpg secret key to remote host'
+targetDescription 'Put gpg secret key to remote host'
 
 ##private vars
 PRM_HOST='' #host

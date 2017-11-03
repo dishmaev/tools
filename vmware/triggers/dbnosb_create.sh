@@ -1,11 +1,11 @@
 #!/bin/sh
 
-#$1 $COMMON_CONST_SCRIPT_USER, $2 password for user, $3 vm hostname, $4 vm OS version
+#$1 $COMMON_CONST_SCRIPT_USER, $2 password for user, $3 vm name, $4 vm OS version
 
 if [ "$#" != "4" ]; then exit 1; fi
-if [ -f ${3}_script.result ]; then rm ${3}_script.result; fi
-exec 1>${3}_script.log
-exec 2>${3}_script.err
+if [ -f ${3}_create.result ]; then rm ${3}_create.result; fi
+exec 1>${3}_create.log
+exec 2>${3}_create.err
 echo "VM $3 OS version:" $4
 
 ###body
@@ -54,4 +54,4 @@ chmod u-w /etc/sudoers
 
 ###finish
 
-echo 1 > ${3}_script.result
+echo 1 > ${3}_create.result

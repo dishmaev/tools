@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Make gitflow branch model for remote repository, with tools submodule in develop branch'
+targetDescription 'Make gitflow branch model for remote repository, with tools submodule in develop branch'
 
 ##private consts
 readonly CONST_STAGE_COUNT=5 #stage count

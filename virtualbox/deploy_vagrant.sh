@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Deploy Vagrant on the system'
+targetDescription 'Deploy Vagrant on the system'
 
 ##private consts
 FILE_URL='https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.deb' #url for download

@@ -3,20 +3,15 @@
 #define common consts
 
 #default project, user, keys
-readonly COMMON_CONST_PASSWORD_DIR=/home/dmitry/Projects/tools/common #set correct password directory path before using this tools
+readonly COMMON_CONST_ROOT_DIR=/home/dmitry/Projects/tools #set correct path before using this tools
 
-readonly COMMON_CONST_PROJECTNAME='CHANGEME' #project name
+readonly COMMON_CONST_PROJECTNAME='MYPROJ' #project name
 readonly COMMON_CONST_SSH_KEYID=id_idax_rsa #ssh keyID, also key file name in ~/.ssh/
 readonly COMMON_CONST_SCRIPT_USER=toolsuser #default username for connect to hosts, run scripts, etc.
-readonly COMMON_CONST_SSH_USERPASS=$COMMON_CONST_PASSWORD_DIR/sshpwd.txt #file with default password for $COMMON_CONST_SCRIPT_USER
+readonly COMMON_CONST_SSH_USERPASS=$COMMON_CONST_ROOT_DIR/common/sshpwd.txt #file with default password for $COMMON_CONST_SCRIPT_USER
 readonly COMMON_CONST_GPG_KEYID=507650DE33C7BA92EDD1569DF4F5A67BE44EEED4 #gpg keyID
 readonly COMMON_CONST_GIT_USERNAME='dishmaev' #default git user
 readonly COMMON_CONST_GIT_USEREMAIL='idax@rambler.ru' #default git email
-
-#aliases
-readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$COMMON_CONST_SCRIPT_USER"
-readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$COMMON_CONST_SCRIPT_USER"
-readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${COMMON_CONST_SSH_KEYID}.pub"
 
 #base tool infrastructure
 readonly COMMON_CONST_SCRIPT_FILENAME=$(basename "$0") #script file name
@@ -25,11 +20,19 @@ readonly COMMON_CONST_TOOLTIP='-y mean non-interactively with yes answer and try
 readonly COMMON_CONST_TOOLSREPO="git@github.com:$COMMON_CONST_GIT_USERNAME/tools.git" #for add tools submodule
 readonly COMMON_CONST_DOWNLOAD_PATH="$HOME/Downloads/$COMMON_CONST_GIT_USERNAME-tools" #local directory to save downloads
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
-readonly COMMON_CONST_OVFTOOL_PASS_FILE=$COMMON_CONST_PASSWORD_DIR/ovftoolpwd.txt #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
+readonly COMMON_CONST_OVFTOOL_PASS_FILE=$COMMON_CONST_ROOT_DIR/common/ovftoolpwd.txt #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly COMMON_CONST_VMTOOLS_FILE='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE" #vmware tools local directory
 readonly COMMON_CONST_LINUX_APT='apt'
 readonly COMMON_CONST_LINUX_RPM='rpm'
+readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
+readonly COMMON_CONST_DEFAULT_VMNAME='autogen' # default vm name
+readonly COMMON_CONST_DATA_TXT_SEPARATOR='::' #default separator for data files
+
+#aliases
+readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$COMMON_CONST_SCRIPT_USER"
+readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$COMMON_CONST_SCRIPT_USER"
+readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${COMMON_CONST_SSH_KEYID}.pub"
 
 #boolean
 readonly COMMON_CONST_FALSE=0 #false
@@ -40,6 +43,51 @@ readonly COMMON_CONST_BOOL_VALUES="$COMMON_CONST_FALSE $COMMON_CONST_TRUE" #bool
 readonly COMMON_CONST_EXIT_ERROR=1
 readonly COMMON_CONST_EXIT_SUCCESS=0
 readonly COMMON_CONST_ERROR_MESS_UNKNOWN='some problem occured while execute last command, details above in output'
+
+#incorp infrastructure
+readonly COMMON_CONST_INCORP_MAILSERVER_HOST='mail'
+readonly COMMON_CONST_INCORP_CISERVER_HOST='ci'
+readonly COMMON_CONST_INCORP_RUNNERSERVER_PREFIX_HOST="${COMMON_CONST_INCORP_CISERVER_HOST}runner"
+
+#vm templates
+readonly COMMON_CONST_PHOTON_VMTEMPLATE='ptn' # VMware Photon
+readonly COMMON_CONST_DEBIANMINI_VMTEMPLATE='dbn' # Debian without gui from iso image
+readonly COMMON_CONST_DEBIANOSB_VMTEMPLATE='dbnosb' # Debian from www.osboxes.org
+readonly COMMON_CONST_ORACLELINUXMINI_VMTEMPLATE='orl' #Oracle linux without gui from iso image
+readonly COMMON_CONST_ORACLELINUXBOX_VMTEMPLATE='orlbox' #Oracle linux from box package for Virtual Box
+readonly COMMON_CONST_ORACLESOLARISMINI_VMTEMPLATE='ors' #Oracle Solaris without gui from iso image
+readonly COMMON_CONST_ORACLESOLARISBOX_VMTEMPLATE='orsbox' #Oracle Solaris from ova package for Virtual Box
+readonly COMMON_CONST_FREEBSD_VMTEMPLATE='fbd' # FreeBSD
+
+readonly COMMON_CONST_VMTEMPLATES_POOL="\
+$COMMON_CONST_PHOTON_VMTEMPLATE \
+$COMMON_CONST_DEBIANMINI_VMTEMPLATE \
+$COMMON_CONST_DEBIANOSB_VMTEMPLATE \
+$COMMON_CONST_ORACLELINUXMINI_VMTEMPLATE \
+$COMMON_CONST_ORACLELINUXBOX_VMTEMPLATE \
+$COMMON_CONST_ORACLESOLARISMINI_VMTEMPLATE \
+$COMMON_CONST_ORACLESOLARISBOX_VMTEMPLATE \
+$COMMON_CONST_FREEBSD_VMTEMPLATE" # available vm templates pool
+
+#vm types
+readonly COMMON_CONST_VMWARE_VMTYPE='ex' #Vmware
+readonly COMMON_CONST_DOCKER_VMTYPE='dc' #Docker
+readonly COMMON_CONST_VAGRANT_VMTYPE='vg' #Vagrant
+
+readonly COMMON_CONST_VMTYPES_POOL="\
+$COMMON_CONST_VMWARE_VMTYPE \
+$COMMON_CONST_DOCKER_VMTYPE \
+$COMMON_CONST_VAGRANT_VMTYPE"
+
+#suites
+readonly COMMON_CONST_RELEASE_SUITE='rel' #release
+readonly COMMON_CONST_TEST_SUITE='tst' #test
+readonly COMMON_CONST_DEVELOP_SUITE='dev' #develop
+
+readonly COMMON_CONST_SUITES_POOL="\
+$COMMON_CONST_DEVELOP_SUITE \
+$COMMON_CONST_TEST_SUITE \
+$COMMON_CONST_RELEASE_SUITE"
 
 #ci
 #readonly COMMON_CONST_GITLABCE_APT_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh'
@@ -67,34 +115,5 @@ readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapsh
 #readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter
 #readonly COMMON_CONST_ESXI_LINUX_RPM_VMTYPES_POOL='oracleLinux64Guest other3xLinux64Guest' #RPM-based Linux vm types pool, list with space delimiter
 #readonly COMMON_CONST_ESXI_FREEBSD_VMTYPES_POOL='freebsd64Guest' #FreeBSD vm types pool, list with space delimiter
-
-#templates
-readonly COMMON_CONST_PHOTON_VMTEMPLATE='ptn' # VMware Photon
-
-readonly COMMON_CONST_DEBIANMINI_VMTEMPLATE='dbn' # Debian without gui from iso image
-
-readonly COMMON_CONST_DEBIANOSB_VMTEMPLATE='dbnosb' # Debian from www.osboxes.org
-
-readonly COMMON_CONST_ORACLELINUXMINI_VMTEMPLATE='orl' #Oracle linux without gui from iso image
-
-readonly COMMON_CONST_ORACLELINUXBOX_VMTEMPLATE='orlbox' #Oracle linux from box package for Virtual Box
-#readonly COMMON_CONST_LINUX_RPM_ISO_URL='http://ftp.icm.edu.pl/pub/Linux/dist/oracle-linux/OL7/u4/x86_64/OracleLinux-R7-U4-Server-x86_64-dvd.iso' #RPM-based Linux ISO url for download
-
-readonly COMMON_CONST_ORACLESOLARISMINI_VMTEMPLATE='ors' #Oracle Solaris without gui from iso image
-
-readonly COMMON_CONST_ORACLESOLARISBOX_VMTEMPLATE='orsbox' #Oracle Solaris from ova package for Virtual Box
-
-readonly COMMON_CONST_FREEBSD_VMTEMPLATE='fbd' # FreeBSD
-
-readonly COMMON_CONST_VMTEMPLATES_POOL="$COMMON_CONST_PHOTON_VMTEMPLATE \
-$COMMON_CONST_DEBIANMINI_VMTEMPLATE \
-$COMMON_CONST_DEBIANOSB_VMTEMPLATE \
-$COMMON_CONST_ORACLELINUXMINI_VMTEMPLATE \
-$COMMON_CONST_ORACLELINUXBOX_VMTEMPLATE \
-$COMMON_CONST_ORACLESOLARISMINI_VMTEMPLATE \
-$COMMON_CONST_ORACLESOLARISBOX_VMTEMPLATE \
-$COMMON_CONST_FREEBSD_VMTEMPLATE" # available vm templates pool
-
-readonly COMMON_CONST_DEFAULT_VMVERSION='default' # default vm version name
 
 #virtualbox

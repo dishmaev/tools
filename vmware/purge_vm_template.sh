@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Purge VM template on esxi hosts pool'
+targetDescription 'Purge VM template on esxi hosts pool'
 
 ##private consts
 
@@ -22,19 +22,19 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VMVERSION] [hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]' \
-    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_DEFAULT_VMVERSION '$COMMON_CONST_ESXI_HOSTS_POOL'" \
+echoHelp $# 3 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VERSION] [hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]' \
+    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_DEFAULT_VERSION '$COMMON_CONST_ESXI_HOSTS_POOL'" \
     "Available VM templates: $COMMON_CONST_VMTEMPLATES_POOL"
 
 ###check commands
 
 PRM_VMTEMPLATE=$1
-PRM_VMVERSION=${2:-$COMMON_CONST_DEFAULT_VMVERSION}
+PRM_VMVERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
 PRM_HOSTS_POOL=${3:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
 checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VMTEMPLATES_POOL"
 
-if [ "$PRM_VMVERSION" = "$COMMON_CONST_DEFAULT_VMVERSION" ]; then
+if [ "$PRM_VMVERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   CUR_VMVER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
 else
   CUR_VMVER=$(getAvailableVMVersions "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
@@ -59,7 +59,7 @@ startPrompt
 OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
 
 for CUR_HOST in $PRM_HOSTS_POOL; do
-  echo "Target esxi host:" $CUR_HOST
+  echo "Esxi host:" $CUR_HOST
   RET_VAL=$($SSH_CLIENT $CUR_HOST "if [ -f $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then rm $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME; fi; echo $COMMON_CONST_TRUE") || exitChildError "$RET_VAL"
   if ! isTrue "$RET_VAL"; then exitError; fi
 done

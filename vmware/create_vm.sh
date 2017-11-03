@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Create new VM on remote esxi host'
+targetDescription 'Create new VM on remote esxi host'
 
 ##private consts
 
@@ -15,7 +15,6 @@ RET_VAL='' #child return value
 CUR_VMVER='' #current vp version
 CUR_NUM='' #current number of vm
 VM_NAME='' #new vm name
-VM_IP='' #new vm ip address
 VM_ID='' #vm VMID
 OVA_FILE_NAME='' # ova package name
 
@@ -25,15 +24,15 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<vmTemplate> [vmName] [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
-    "$COMMON_CONST_PHOTON_VMTEMPLATE my${COMMON_CONST_PHOTON_VMTEMPLATE} $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
+echoHelp $# 4 '<vmTemplate> [host=$COMMON_CONST_ESXI_HOST] [vmName=$COMMON_CONST_DEFAULT_VMNAME] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
+    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_ESXI_HOST $COMMON_CONST_DEFAULT_VMNAME $COMMON_CONST_ESXI_DATASTORE_VM" \
     "Available VM templates: $COMMON_CONST_VMTEMPLATES_POOL"
 
 ###check commands
 
 PRM_VMTEMPLATE=$1
-PRM_VMNAME=$2
-PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
+PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
+PRM_VMNAME=${3:-$COMMON_CONST_DEFAULT_VMNAME}
 PRM_DATASTOREVM=${4:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
 checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VMTEMPLATES_POOL"
@@ -55,17 +54,19 @@ startPrompt
 #get vm template current version
 CUR_VMVER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
 OVA_FILE_NAME="${PRM_VMTEMPLATE}-${CUR_VMVER}.ova"
-
-#update tools
-RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$RET_VAL"
-echo "$RET_VAL"
+#check tools exist
+echo "Checking exist tools on $PRM_HOST host"
+RET_VAL=$($SSH_CLIENT $PRM_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
+if ! isTrue "$RET_VAL"; then
+  exitError "not found $COMMON_CONST_ESXI_TOOLS_PATH on $PRM_HOST host. Exec '$COMMON_CONST_ROOT_DIR/vmware/create_vm_template.sh $PRM_VMTEMPLATE $PRM_HOST' previously"
+fi
 #check required ova package on remote esxi host
 RET_VAL=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
 if ! isTrue "$RET_VAL"; then
-  exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec 'create_vm_template.sh $PRM_VMTEMPLATE' previously"
+  exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$OVA_FILE_NAME on $PRM_HOST host. Exec '$COMMON_CONST_ROOT_DIR/vmware/create_vm_template.sh $PRM_VMTEMPLATE $PRM_HOST' previously"
 fi
 #check vm name
-if isEmpty "$PRM_VMNAME"; then
+if [ "$PRM_VMNAME"="$COMMON_CONST_DEFAULT_VMNAME" ]; then
   #get vm number
   CUR_NUM=$($SSH_CLIENT $PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt ]; \
   then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VMTEMPLATE}.txt; fi; \
@@ -85,14 +86,12 @@ $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_DATASTOR
 if ! isRetValOK; then exitError; fi
 #take base template snapshot
 RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/take_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$OVA_FILE_NAME" $PRM_HOST) || exitChildError "$RET_VAL"
+echo "$RET_VAL"
 #set autostart new vm
 VM_ID=$(getVMIDByVMName "$VM_NAME" "$PRM_HOST") || exitChildError "$VM_ID"
 $SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VM_ID powerOn 120 1 systemDefault 120 systemDefault"
 if ! isRetValOK; then exitError; fi
-#power on new vm
-powerOnVM "$VM_ID" "$PRM_HOST"
-#get ip address of new vm
-VM_IP=$(getIpAddressByVMName "$VM_NAME" "$PRM_HOST") || exitChildError "$VM_IP"
-echo 'vmname:ip' $VM_NAME:$VM_IP
+#echo result
+echo 'vmname:host:vmid' $VM_NAME:$PRM_HOST:$VM_ID
 doneFinalStage
 exitOK

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Create VM template on remote esxi host'
+targetDescription 'Create VM template on remote esxi host'
 
 ##private consts
 
@@ -32,20 +32,20 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VMVERSION] [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
-    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_DEFAULT_VMVERSION $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
+echoHelp $# 4 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VERSION] [host=$COMMON_CONST_ESXI_HOST] [dataStoreVm=$COMMON_CONST_ESXI_DATASTORE_VM]' \
+    "$COMMON_CONST_PHOTON_VMTEMPLATE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_DATASTORE_VM" \
     "Available VM templates: $COMMON_CONST_VMTEMPLATES_POOL"
 
 ###check commands
 
 PRM_VMTEMPLATE=$1
-PRM_VMVERSION=${2:-$COMMON_CONST_DEFAULT_VMVERSION}
+PRM_VMVERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
 PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_DATASTOREVM=${4:-$COMMON_CONST_ESXI_DATASTORE_VM}
 
 checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VMTEMPLATES_POOL"
 
-if [ "$PRM_VMVERSION" = "$COMMON_CONST_DEFAULT_VMVERSION" ]; then
+if [ "$PRM_VMVERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   CUR_VMVER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
 else
   CUR_VMVER=$(getAvailableVMVersions "$PRM_VMTEMPLATE") || exitChildError "$CUR_VMVER"
@@ -74,6 +74,7 @@ DISC_FILE_PATH="$DISK_DIR_PATH/$PRM_VMTEMPLATE.vmdk"
 #set paused text
 if [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_PHOTON_VMTEMPLATE" ]; then
   PAUSE_MESSAGE="Manually must be:\n\
+-clear default notes from general information\n\
 -set root not empty password by 'passwd', default is 'changeme'\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_DEBIANOSB_VMTEMPLATE" ]; then
@@ -135,6 +136,7 @@ elif [ "$PRM_VMTEMPLATE" = "$COMMON_CONST_FREEBSD_VMTEMPLATE" ]; then
 fi
 
 #update tools
+echo "Checking tools version on $PRM_HOST host"
 RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$RET_VAL"
 echo "$RET_VAL"
 #check required ova package on remote esxi host

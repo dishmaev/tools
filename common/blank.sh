@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'My short operation script description'
+targetDescription 'My short operation script description'
 
 ##private consts
 

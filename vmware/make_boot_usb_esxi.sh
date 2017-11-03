@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Make bootable usb with esxi installation'
+targetDescription 'Make bootable usb with esxi installation'
 
 ##private consts
 SYSLINUX_MBR_FILE='/usr/lib/syslinux/mbr/mbr.bin'

@@ -1,11 +1,11 @@
 #!/bin/sh
 
-#$1 $COMMON_CONST_SCRIPT_USER, $2 password for user, $3 vm hostname, $4 vm OS version
+#$1 $COMMON_CONST_SCRIPT_USER, $2 password for user, $3 vm name, $4 vm OS version
 
 if [ "$#" != "4" ]; then exit 1; fi
-if [ -f ${3}_script.result ]; then rm ${3}_script.result; fi
-exec 1>${3}_script.log
-exec 2>${3}_script.err
+if [ -f ${3}_create.result ]; then rm ${3}_create.result; fi
+exec 1>${3}_create.log
+exec 2>${3}_create.err
 echo "VM $3 OS version:" $4
 
 ###body
@@ -28,9 +28,9 @@ expect "assword:"
 send "$PASS\r"
 expect "assword:"
 send "$PASS\r"
-expect eof' > ors_script_chpwd.sh
-chmod u+x ors_script_chpwd.sh
-./ors_script_chpwd.sh $1 $2
+expect eof' > ors_create_chpwd.sh
+chmod u+x ors_create_chpwd.sh
+./ors_create_chpwd.sh $1 $2
 #check new user home directory exist
 if [ ! -d /export/home/${1} ]; then
   echo "Error: directory /export/home/${1} not found"
@@ -67,4 +67,4 @@ sudo --version
 
 ###finish
 
-echo 1 > ${3}_script.result
+echo 1 > ${3}_create.result

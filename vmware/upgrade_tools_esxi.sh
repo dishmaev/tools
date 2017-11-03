@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Upgrade tools on esxi hosts pool'
+targetDescription 'Upgrade tools on esxi hosts pool'
 
 ##private consts
 CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$COMMON_CONST_SCRIPT_USER"
@@ -60,7 +60,7 @@ if isFileExistAndRead "$HOME/.ssh/known_hosts"; then
 fi
 
 for CUR_HOST in $PRM_HOSTS_POOL; do
-  echo "Target esxi host:" $CUR_HOST
+  echo "esxi host:" $CUR_HOST
   #check default user ssh key exist
   RET_VAL=$($SSH_CLIENT $CUR_HOST "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; echo $COMMON_CONST_TRUE" < $HOME/.ssh/$COMMON_CONST_SSH_KEYID.pub) || exitChildError "$RET_VAL"
   if ! isTrue "$RET_VAL"; then exitError; fi
@@ -73,10 +73,14 @@ for CUR_HOST in $PRM_HOSTS_POOL; do
   if ! isTrue "$RET_VAL"
   then #first install
     echo "New tools install on $CUR_HOST host"
-    $SSH_CLIENT $CUR_HOST "mkdir $COMMON_CONST_ESXI_TOOLS_PATH; mkdir $COMMON_CONST_ESXI_PATCHES_PATH; mkdir $COMMON_CONST_ESXI_IMAGES_PATH; mkdir $COMMON_CONST_ESXI_VMTOOLS_PATH"
+    $SSH_CLIENT $CUR_HOST "mkdir $COMMON_CONST_ESXI_TOOLS_PATH; \
+mkdir $COMMON_CONST_ESXI_PATCHES_PATH; \
+mkdir $COMMON_CONST_ESXI_IMAGES_PATH;
+mkdir $COMMON_CONST_ESXI_VMTOOLS_PATH;
+mkdir $COMMON_CONST_ESXI_DATA_PATH"
     if ! isRetValOK; then exitError; fi
-    #copy tools
-    $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/data $CUR_HOST:$COMMON_CONST_ESXI_TOOLS_PATH
+    #copy version tag
+    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/data/$CONST_TOOLSVER_FILENAME $CUR_HOST:$COMMON_CONST_ESXI_DATA_PATH/
     if ! isRetValOK; then exitError; fi
     #put templates
     put_template_tools_to_esxi "$CUR_HOST"
@@ -98,7 +102,7 @@ for CUR_HOST in $PRM_HOSTS_POOL; do
       #put new version templates
       put_template_tools_to_esxi "$CUR_HOST"
       #put new version tag
-      $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/data/$CONST_TOOLSVER_FILENAME $CUR_HOST:$COMMON_CONST_ESXI_TOOLS_PATH/data/
+      $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/data/$CONST_TOOLSVER_FILENAME $CUR_HOST:$COMMON_CONST_ESXI_DATA_PATH/
       if ! isRetValOK; then exitError; fi
     else
       echo "Newest template tools version on $CUR_HOST host, skip upgrade"

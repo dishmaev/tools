@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Power on esxi hosts pool'
+targetDescription 'Power on esxi hosts pool'
 
 ##private vars
 PRM_MACS_POOL='' # esxi MACs pool
@@ -31,7 +31,7 @@ startPrompt
 ###body
 
 for CUR_MAC in $PRM_MACS_POOL; do
-  echo "Target MAC host:" $CUR_MAC
+  echo "MAC host:" $CUR_MAC
   wakeonlan $CUR_MAC
   if ! isRetValOK; then exitError; fi
 done

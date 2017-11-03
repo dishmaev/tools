@@ -6,6 +6,7 @@
 AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
+DESCRIPTION='' #description
 
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
@@ -87,12 +88,12 @@ getVMSnapshotCount(){
 #$1 vm template, $2 vm version
 getVMUrl() {
   checkParmsCount $# 2 'getVMUrl'
-  local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
+  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
   fi
-  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2::" | awk -F:: '{print $2}')
+  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2$COMMON_CONST_DATA_TXT_SEPARATOR" | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $2}')
   if isEmpty "$VAR_RESULT"; then
     exitError "missing url for VM template $1 version $2 in file $CONST_FILE_PATH"
   fi
@@ -101,7 +102,7 @@ getVMUrl() {
 #$1 vm template
 getAvailableVMVersions(){
   checkParmsCount $# 1 'getAvailableVMVersions'
-  local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
+  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
   local VAR_FOUND=$COMMON_CONST_FALSE
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
@@ -109,7 +110,7 @@ getAvailableVMVersions(){
   fi
   for VAR_CUR_VMTEMPLATE in $COMMON_CONST_VMTEMPLATES_POOL; do
     if [ "$1" = "$VAR_CUR_VMTEMPLATE" ]; then
-      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F:: '{print $1}'| awk '{ORS=FS} 1')
+      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $1}'| awk '{ORS=FS} 1')
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -125,7 +126,7 @@ getAvailableVMVersions(){
 #$1 vm template
 getDefaultVMVersion(){
   checkParmsCount $# 1 'getDefaultVMVersion'
-  local CONST_FILE_PATH="./../vmware/templates/${1}_ver_url.txt"
+  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
   local VAR_CUR_VMTEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -236,22 +237,19 @@ getIpAddressByVMName()
   done
   echo "$VAR_RESULT"
 }
-#$1 pool, list with space delimiter. Return value format 'vmid:host'
+#$1 vm template, list with space delimiter. Return value format 'vmname:host:vmid'
 getVmsPool(){
   checkParmsCount $# 1 'getVmsPool'
   local VAR_CUR_ESXI=''
-  local VAR_CUR_OS=''
   local VAR_RESULT=''
   for VAR_CUR_ESXI in $COMMON_CONST_ESXI_HOSTS_POOL
   do
-    for VAR_CUR_OS in $1
-    do
-      local VAR_RESULT
-      VAR_RESULT=$($SSH_CLIENT $CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
-        awk '{print \$1\":\"\$5}' | grep ':'$VAR_CUR_OS | awk -F: '{print \$1\":$VAR_CUR_ESXI\"}'") || exitChildError "$VAR_RESULT"
-      echo "$VAR_RESULT"
-    done
+    local VAR_RESULT1
+    VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+awk '{print \$1\":\"\$2}' | grep ':'$1'-' | awk -F: '{print \$2\":$VAR_CUR_ESXI:\"\$1}'") || exitChildError "$VAR_RESULT1"
+    VAR_RESULT=$VAR_RESULT$VAR_RESULT1
   done
+  echo "$VAR_RESULT"
 }
 #$1 vm name, $2 esxi host
 getVMIDByVMName() {
@@ -291,7 +289,7 @@ checkTriggerTemplateVM(){
   if ! isAutoYesMode; then
     read -r -p "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type. When you are done, press Enter for resume procedure " VAR_INPUT
   fi
-  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/templates/${1}_script.sh";then
+  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/triggers/${1}_create.sh";then
     VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
     powerOnVM "$VAR_VMID" "$2"
     if ! isAutoYesMode; then
@@ -304,17 +302,18 @@ checkTriggerTemplateVM(){
     echo "VM ${1} ip address: $VAR_VMIP"
     $SSH_COPY_ID root@$VAR_VMIP
     if ! isRetValOK; then exitError; fi
-    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/templates/${1}_script.sh root@$VAR_VMIP:
+    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/triggers/${1}_create.sh root@$VAR_VMIP:
     if ! isRetValOK; then exitError; fi
     SSH_PWD=$(cat $COMMON_CONST_SSH_USERPASS) || exitChildError "$VAR_VMIP"
-    VAR_RESULT=$($SSH_CLIENT root@$VAR_VMIP "chmod u+x ${1}_script.sh;./${1}_script.sh $COMMON_CONST_SCRIPT_USER $SSH_PWD $1 $3; \
-if [ -f ${1}_script.result ]; then cat ${1}_script.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
-    VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_script.log ]; then cat ${1}_script.log; fi") || exitChildError "$VAR_LOG"
-    echo "$VAR_LOG"
-    VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_script.err ]; then cat ${1}_script.err; fi") || exitChildError "$VAR_LOG"
-    echo "$VAR_LOG"
+    echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VMIP on $2 host"
+    VAR_RESULT=$($SSH_CLIENT root@$VAR_VMIP "chmod u+x ${1}_create.sh;./${1}_create.sh $COMMON_CONST_SCRIPT_USER $SSH_PWD $1 $3; \
+if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+    VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
+    if ! isEmpty "$VAR_LOG"; then echo "$VAR_LOG"; fi
+    VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
+    if ! isEmpty "$VAR_LOG"; then echo "$VAR_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
-      exitError "failed execute ${1}_script.sh on template VM ${1} ip $VAR_VMIP on $2 host"
+      exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VMIP on $2 host"
     fi
     if ! isAutoYesMode; then
       read -r -p "Pause 3 of 3: Manually reboot and last check template VM ${1} ip $VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
@@ -348,7 +347,7 @@ checkDirectoryForExist() {
     exitError "$2directory $1 missing or not exist"
   fi
 }
-
+#$1 directory name, $2 error message prefix
 checkDirectoryForNotExist() {
   checkParmsCount $# 2 'checkDirectoryForNotExist'
   if ! isEmpty "$1" && [ -d "$1" ]
@@ -356,7 +355,14 @@ checkDirectoryForNotExist() {
     exitError "$2directory $1 already exist"
   fi
 }
-
+#$1 file name, $2 error message prefix
+checkFileForNotExist() {
+  checkParmsCount $# 2 'checkFileForNotExist'
+  if isFileExistAndRead "$1"; then
+    exitError "$file $1 already exist"
+  fi
+}
+#$1 keyID
 checkGpgSecKeyExist() {
   checkParmsCount $# 1 'checkGpgSecKeyExist'
   checkDependencies 'gpg grep'
@@ -425,9 +431,10 @@ checkLinuxAptOrRpm(){
   fi
 }
 
-showDescription(){
-  checkParmsCount $# 1 'showDescription'
-  echo $1
+targetDescription(){
+  checkParmsCount $# 1 'targetDescription'
+  DESCRIPTION=$1
+#  echo "Target: $1"
 }
 #$1 total stage, $2 stage description
 beginStage(){
@@ -451,7 +458,7 @@ doneFinalStage(){
   then
     doneStage
   fi
-  echo 'Success!'
+  echo "Success target!"
 }
 #[$1] message
 exitOK(){
@@ -459,6 +466,7 @@ exitOK(){
   then
     echo $1
   fi
+  echo "End session $$ with $COMMON_CONST_EXIT_SUCCESS (Ok)"
   exit $COMMON_CONST_EXIT_SUCCESS
 }
 #[$1] message, [$2] child error
@@ -470,6 +478,7 @@ exitError(){
   else
     echo "$1"
   fi
+  echo "Stop session $$ with $COMMON_CONST_EXIT_ERROR (Error)"
   exit $COMMON_CONST_EXIT_ERROR
 }
 #$1 message
@@ -500,7 +509,9 @@ echoHelp(){
       PRM_TOOLTIP=$COMMON_CONST_TOOLTIP
     fi
     echo "Tooltip: $PRM_TOOLTIP"
-    exitOK
+    exit $COMMON_CONST_EXIT_SUCCESS
+  else
+    echo 'Start session' $$
   fi
 }
 
@@ -537,19 +548,20 @@ startPrompt(){
       exitOK 'Good bye!'
     fi
   fi
-  echo 'Start'
 }
 
 checkAutoYes() {
   checkParmsCount $# 1 'checkAutoYes'
-  if [ "$1" = "-y" ]
-  then
+  if [ "$1" = "-y" ]; then
+    echo "Target: $DESCRIPTION"
     AUTO_YES=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
-  elif [ "$1" = "--help" ]
-  then
+  elif [ "$1" = "--help" ]; then
+    echo "$DESCRIPTION"
     NEED_HELP=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
+  else
+    echo "Target: $DESCRIPTION"
   fi
 }
 #$1 url string

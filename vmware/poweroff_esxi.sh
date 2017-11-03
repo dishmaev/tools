@@ -3,7 +3,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-showDescription 'Power off esxi hosts pool'
+targetDescription 'Power off esxi hosts pool'
 
 ##private vars
 PRM_HOSTS_POOL='' # esxi hosts pool
@@ -33,7 +33,7 @@ startPrompt
 ###body
 
 for CUR_HOST in $PRM_HOSTS_POOL; do
-  echo "Target esxi host:" $CUR_HOST
+  echo "Esxi host:" $CUR_HOST
   RET_VAL=$($SSH_CLIENT $CUR_HOST "echo $COMMON_CONST_TRUE;poweroff") || exitChildError "$RET_VAL"
   if ! isTrue "$RET_VAL"; then exitError; fi
 done
