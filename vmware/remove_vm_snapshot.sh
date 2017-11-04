@@ -8,10 +8,10 @@ targetDescription 'Remove target VM snapshot on esxi host'
 
 
 ##private vars
-PRM_VMNAME='' #vm name
-PRM_SNAPSHOTNAME='' #snapshotName
+PRM_VM_NAME='' #vm name
+PRM_SNAPSHOT_NAME='' #snapshotName
 PRM_HOST='' #host
-PRM_REMOVECHILD='' #remove child target snapshot
+PRM_REMOVE_CHILD=$COMMON_CONST_TRUE #remove child target snapshot
 VAR_RESULT='' #child return value
 VAR_VM_ID='' #VMID target virtual machine
 VAR_SS_ID='' #snapshot ID
@@ -28,14 +28,15 @@ echoHelp $# 4 '<vmName> <snapshotName> [host=$COMMON_CONST_ESXI_HOST] [removeChi
 
 ###check commands
 
-PRM_VMNAME=$1
-PRM_SNAPSHOTNAME=$2
+PRM_VM_NAME=$1
+PRM_SNAPSHOT_NAME=$2
 PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
-PRM_REMOVECHILD=${4:-$COMMON_CONST_TRUE}
+PRM_REMOVE_CHILD=${4:-$COMMON_CONST_TRUE}
 
-checkCommandExist 'vmName' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOTNAME" ''
-checkCommandExist 'removeChildren' "$PRM_REMOVECHILD" "$COMMON_CONST_BOOL_VALUES"
+checkCommandExist 'vmName' "$PRM_VM_NAME" ''
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" ''
+checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
+checkCommandExist 'removeChildren' "$PRM_REMOVE_CHILD" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
 
@@ -52,20 +53,20 @@ startPrompt
 ###body
 
 #check vm name
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
-  exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
+  exitError "VM $PRM_VM_NAME not found on $PRM_HOST host"
 fi
 #check snapshotName
-VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$PRM_SNAPSHOTNAME" "$PRM_HOST") || exitChildError "$VAR_SS_ID"
+VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_HOST") || exitChildError "$VAR_SS_ID"
 if isEmpty "$VAR_SS_ID"; then
-  exitError "snapshot $PRM_SNAPSHOTNAME not found for VM $PRM_VMNAME on $PRM_HOST host"
+  exitError "snapshot $PRM_SNAPSHOT_NAME not found for VM $PRM_VM_NAME on $PRM_HOST host"
 fi
 #power off
 VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #remove vm
-$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_SS_ID $PRM_REMOVECHILD"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_SS_ID $PRM_REMOVE_CHILD"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

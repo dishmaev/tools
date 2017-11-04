@@ -9,7 +9,7 @@ targetDescription 'Purge VM template on esxi hosts pool'
 
 ##private vars
 PRM_VMTEMPLATE='' #vm template
-PRM_VMVERSION='' #vm version
+PRM_VM_TEMPLATE_VERSION='' #vm template version
 PRM_HOSTS_POOL='' # esxi hosts pool
 VAR_RESULT='' #child return value
 VAR_HOST='' #current esxi host
@@ -22,24 +22,26 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VERSION] [hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]' \
+echoHelp $# 3 '<vmTemplate> [vmTemplateVersion=$COMMON_CONST_DEFAULT_VERSION] [hostsPool=$COMMON_CONST_ESXI_HOSTS_POOL]' \
     "$COMMON_CONST_PHOTON_VM_TEMPLATE $COMMON_CONST_DEFAULT_VERSION '$COMMON_CONST_ESXI_HOSTS_POOL'" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
 
 PRM_VMTEMPLATE=$1
-PRM_VMVERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_VM_TEMPLATE_VERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
 PRM_HOSTS_POOL=${3:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
 checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
+checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" ''
+checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
 
-if [ "$PRM_VMVERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
+if [ "$PRM_VM_TEMPLATE_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   VAR_VM_VER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$VAR_VM_VER"
 else
   VAR_VM_VER=$(getAvailableVMVersions "$PRM_VMTEMPLATE") || exitChildError "$VAR_VM_VER"
-  checkCommandExist 'vmVersion' "$PRM_VMVERSION" "$VAR_VM_VER"
-  VAR_VM_VER=$PRM_VMVERSION
+  checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" "$VAR_VM_VER"
+  VAR_VM_VER=$PRM_VM_TEMPLATE_VERSION
 fi
 
 ###check body dependencies

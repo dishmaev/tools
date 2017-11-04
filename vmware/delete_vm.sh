@@ -2,13 +2,10 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Delete VM on remote esxi host'
-
 ##private consts
 
 
 ##private vars
-PRM_VMNAME='' #vm name
 PRM_HOST='' #host
 VAR_RESULT='' #child return value
 VAR_VM_ID='' #VMID target virtual machine
@@ -23,10 +20,11 @@ echoHelp $# 2 '<vmName> [host=$COMMON_CONST_ESXI_HOST]' "myvm $COMMON_CONST_ESXI
 
 ###check commands
 
-PRM_VMNAME=$1
+PRM_VM_NAME=$1
 PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 
-checkCommandExist 'vmName' "$PRM_VMNAME" ''
+checkCommandExist 'vmName' "$PRM_VM_NAME" ''
+checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 
 ###check body dependencies
 
@@ -42,11 +40,15 @@ startPrompt
 
 ###body
 
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
+checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 #check vm name
+
 if isEmpty "$VAR_VM_ID"; then
-  exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
+  exitError "VM $PRM_VM_NAME not found on $PRM_HOST host"
+  checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 fi
+
 #power off
 VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"

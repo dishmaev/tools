@@ -20,6 +20,8 @@ echoHelp $# 1 '[MACsPool=$COMMON_CONST_ESXI_MACS_POOL]' "'$COMMON_CONST_ESXI_MAC
 
 PRM_MACS_POOL=${1:-$COMMON_CONST_ESXI_MACS_POOL}
 
+checkCommandExist 'MACsPool' "$PRM_MACS_POOL" ''
+
 ###check body dependencies
 
 checkDependencies 'wakeonlan'

@@ -8,10 +8,10 @@ targetDescription "Create VM on incorp project $COMMON_CONST_PROJECT_NAME"
 
 
 ##private vars
-PRM_VMTEMPLATE='' #vm template
+PRM_VM_TEMPLATE='' #vm template
 PRM_SUITE='' #suite
-PRM_VMTYPE='' #vm name
-PRM_SCRIPTVERSION='' #version script for create VM
+PRM_VM_TYPE='' #vm name
+PRM_SCRIPT_VERSION='' #version script for create VM
 PRM_OVERRIDE_CONFIG=$COMMON_CONST_FALSE #override config if exist
 VAR_RESULT='' #child return value
 VAR_VMS_POOL='' #vms pool
@@ -40,15 +40,15 @@ echoHelp $# 4 '<vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmType=$COMMON_
 
 ###check commands
 
-PRM_VMTEMPLATE=$1
+PRM_VM_TEMPLATE=$1
 PRM_SUITE=${2:-$COMMON_CONST_DEVELOP_SUITE}
-PRM_VMTYPE=${3:-$COMMON_CONST_VMWARE_VM_TYPE}
-PRM_SCRIPTVERSION=${4:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_VM_TYPE=${3:-$COMMON_CONST_VMWARE_VM_TYPE}
+PRM_SCRIPT_VERSION=${4:-$COMMON_CONST_DEFAULT_VERSION}
 
-checkCommandExist 'vmTemplate' "$PRM_VMTEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
+checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
 checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
-checkCommandExist 'vmType' "$PRM_VMTYPE" "$COMMON_CONST_VMTYPES_POOL"
-checkCommandExist 'scriptVersion' "$PRM_SCRIPTVERSION" ''
+checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VMTYPES_POOL"
+checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 
 ###check body dependencies
 
@@ -56,12 +56,12 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPTVERSION" ''
 
 ###check required files
 
-VAR_SCRIPT_FILE_NAME=${PRM_VMTEMPLATE}_${PRM_SCRIPTVERSION}_create
+VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_SCRIPT_VERSION}_create
 VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/triggers/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
-VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPTVERSION}
+VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPT_VERSION}
 VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 
 checkFileForNotExist "$VAR_CONFIG_FILE_PATH" 'config '
@@ -70,9 +70,9 @@ checkFileForNotExist "$VAR_CONFIG_FILE_PATH" 'config '
 
 startPrompt
 
-if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
+if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echo "Try to find a free VM"
-  VAR_VMS_POOL=$(getVmsPool "$PRM_VMTEMPLATE") || exitChildError "$VAR_VMS_POOL"
+  VAR_VMS_POOL=$(getVmsPool "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
   for CUR_VM in $VAR_VMS_POOL; do
     VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}')
     VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}')
@@ -92,7 +92,7 @@ if [ "$PRM_VMTYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   if ! isTrue "$VAR_FOUND"; then
     echo "Not found, required new VM"
     VAR_HOST=$COMMON_CONST_ESXI_HOST
-    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/create_vm.sh -y $PRM_VMTEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/create_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
     echo "$VAR_RESULT"
     VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
@@ -123,12 +123,12 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FI
   VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #take project snapshot
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_PROJECT_NAME "$PRM_SCRIPTVERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_PROJECT_NAME "$PRM_SCRIPT_VERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
   #save vm config file
   echo "Save config file $VAR_CONFIG_FILE_PATH"
-  echo $PRM_VMTYPE$COMMON_CONST_DATA_TXT_SEPARATOR\
-$PRM_VMTEMPLATE$COMMON_CONST_DATA_TXT_SEPARATOR\
+  echo $PRM_VM_TYPE$COMMON_CONST_DATA_TXT_SEPARATOR\
+$PRM_VM_TEMPLATE$COMMON_CONST_DATA_TXT_SEPARATOR\
 $VAR_VM_NAME$COMMON_CONST_DATA_TXT_SEPARATOR$VAR_HOST > \
 $VAR_CONFIG_FILE_PATH
 fi

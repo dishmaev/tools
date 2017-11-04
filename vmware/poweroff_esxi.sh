@@ -22,6 +22,8 @@ echoHelp $# 1 '[hostsPool=$COMMON_CONST_ESXI_HOSTS_POOL]' "'$COMMON_CONST_ESXI_H
 
 PRM_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
+checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
+
 ###check body dependencies
 
 #checkDependencies 'ssh'

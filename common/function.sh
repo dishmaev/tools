@@ -7,6 +7,7 @@ AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
 TARGET_DESCRIPTION='' #target description
+COMMAND_VALUE='' #value of commands
 
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
@@ -273,13 +274,18 @@ getVMNameByVMID() {
 #$1 title, $2 value, [$3] allow values
 checkCommandExist() {
   checkParmsCount $# 3 'checkCommandExist'
+  local VAR_CHAR='\n'
   if isEmpty "$2"
   then
-    exitError "command $1 missing"
+    exitError "option $1 missing"
   elif ! isEmpty "$3"
   then
     checkCommandValue "$1" "$2" "$3"
   fi
+  if isEmpty "$COMMAND_VALUE"; then
+    VAR_CHAR=''
+  fi
+  COMMAND_VALUE="$COMMAND_VALUE${VAR_CHAR}Option ${1}=${2}"
 }
 #$1 vm name , $2 esxi host, $3 vm OS version, $4 pause message
 checkTriggerTemplateVM(){
@@ -342,7 +348,7 @@ checkCommandValue() {
   done
   if ! isTrue "$VAR_FOUND"
   then
-    exitError "command $1 value $2 invalid. Allowed values: $3"
+    exitError "option $1 value $2 invalid. Allowed values: $3"
   fi
 }
 #$1 directory name, $2 error message prefix
@@ -492,11 +498,11 @@ exitChildError(){
     exitError "$1" "$COMMON_CONST_EXIT_ERROR"
   fi
 }
-#$1 command count, $2 must be count, $3 usage message, $4 sample message, $5 add tooltip message
+#$1 options count, $2 must be count, $3 usage message, $4 sample message, $5 add tooltip message
 echoHelp(){
   checkParmsCount $# 5 'echoHelp'
   if [ $1 -gt $2 ]; then
-    exitError 'too many command'
+    exitError 'too many options'
   fi
   if isTrue "$NEED_HELP"; then
     echo "Usage: $COMMON_CONST_SCRIPT_FILE_NAME [-y] $3"
@@ -516,6 +522,7 @@ echoHelp(){
 
 startPrompt(){
   checkParmsCount $# 0 'startPrompt'
+  echoResult "$COMMAND_VALUE"
   if ! isAutoYesMode
   then
     local VAR_INPUT=''

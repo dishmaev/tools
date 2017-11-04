@@ -33,6 +33,8 @@ Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required $COMMO
 
 PRM_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
+checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
+
 ###check body dependencies
 
 checkDependencies 'ovftool ssh'

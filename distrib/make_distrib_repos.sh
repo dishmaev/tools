@@ -25,12 +25,14 @@ checkAutoYes "$1" || shift
 
 if [ $# -eq 0 ] || [ $# -gt 2 ]
 then
-  echoHelp $# 1 '<source directory>' '.' 'Required gpg secret keyID'
+  echoHelp $# 1 '<sourceDirectory>' '.' "Required gpg secret keyID $COMMON_CONST_GPG_KEYID"
 fi
 
 ###check commands
 
 PRM_SOURCE_DIR_NAME=$1
+
+checkCommandExist 'sourceDirectory' "$PRM_SOURCE_DIR_NAME" ''
 
 checkDirectoryForExist "$PRM_SOURCE_DIR_NAME" 'source '
 

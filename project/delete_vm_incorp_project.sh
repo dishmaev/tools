@@ -9,7 +9,7 @@ targetDescription "Delete VM on incorp project $COMMON_CONST_PROJECT_NAME"
 
 ##private vars
 PRM_SUITE='' #suite
-PRM_SCRIPTVERSION='' #version script for create VM
+PRM_SCRIPT_VERSION='' #version script for create VM
 VAR_RESULT='' #child return value
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
@@ -32,10 +32,10 @@ echoHelp $# 2 '[suite=$COMMON_CONST_DEVELOP_SUITE] [scriptVersion=$COMMON_CONST_
 ###check commands
 
 PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
-PRM_SCRIPTVERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_SCRIPT_VERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
 
 checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
-checkCommandExist 'scriptVersion' "$PRM_SCRIPTVERSION" ''
+checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 
 ###check body dependencies
 
@@ -43,7 +43,7 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPTVERSION" ''
 
 ###check required files
 
-VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPTVERSION}
+VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPT_VERSION}
 VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
 
