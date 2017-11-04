@@ -7,8 +7,8 @@ targetDescription 'Power off esxi hosts pool'
 
 ##private vars
 PRM_HOSTS_POOL='' # esxi hosts pool
-CUR_HOST='' #current esxi host
-RET_VAL='' #child return value
+VAR_HOST='' #current esxi host
+VAR_RESULT='' #child return value
 
 ###check autoyes
 
@@ -32,10 +32,10 @@ startPrompt
 
 ###body
 
-for CUR_HOST in $PRM_HOSTS_POOL; do
-  echo "Esxi host:" $CUR_HOST
-  RET_VAL=$($SSH_CLIENT $CUR_HOST "echo $COMMON_CONST_TRUE;poweroff") || exitChildError "$RET_VAL"
-  if ! isTrue "$RET_VAL"; then exitError; fi
+for VAR_HOST in $PRM_HOSTS_POOL; do
+  echo "Esxi host:" $VAR_HOST
+  VAR_RESULT=$($SSH_CLIENT $VAR_HOST "echo $COMMON_CONST_TRUE;poweroff") || exitChildError "$VAR_RESULT"
+  if ! isTrue "$VAR_RESULT"; then exitError; fi
 done
 
 doneFinalStage

@@ -6,7 +6,7 @@
 AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 STAGE_NUM=0 #stage counter
-DESCRIPTION='' #description
+TARGET_DESCRIPTION='' #target description
 
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
@@ -104,12 +104,13 @@ getAvailableVMVersions(){
   checkParmsCount $# 1 'getAvailableVMVersions'
   local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
+  local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
   fi
-  for VAR_CUR_VMTEMPLATE in $COMMON_CONST_VMTEMPLATES_POOL; do
-    if [ "$1" = "$VAR_CUR_VMTEMPLATE" ]; then
+  for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
+    if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
       VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $1}'| awk '{ORS=FS} 1')
       VAR_FOUND=$COMMON_CONST_TRUE
       break
@@ -128,13 +129,13 @@ getDefaultVMVersion(){
   checkParmsCount $# 1 'getDefaultVMVersion'
   local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
-  local VAR_CUR_VMTEMPLATE=''
+  local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
   fi
-  for VAR_CUR_VMTEMPLATE in $COMMON_CONST_VMTEMPLATES_POOL; do
-    if [ "$1" = "$VAR_CUR_VMTEMPLATE" ]; then
+  for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
+    if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
       VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F: '{print $1}')
       VAR_FOUND=$COMMON_CONST_TRUE
       break
@@ -218,11 +219,11 @@ getIpAddressByVMName()
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
-  local VAR_VMID=''
-  VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
+  local VAR_VM_ID=''
+  VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   while true
   do
-    VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/get.guest $VAR_VMID | grep 'ipAddress = \"' | \
+    VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/get.guest $VAR_VM_ID | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
     if ! isEmpty "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
@@ -283,17 +284,17 @@ checkCommandExist() {
 #$1 vm name , $2 esxi host, $3 vm OS version, $4 pause message
 checkTriggerTemplateVM(){
   checkParmsCount $# 4 'checkTriggerTemplateVM'
-  local VAR_VMID=''
-  local VAR_VMIP=''
+  local VAR_VM_ID=''
+  local VAR_VM_IP=''
   local VAR_INPUT=''
   local VAR_RESULT=''
   local VAR_LOG=''
   if ! isAutoYesMode; then
     read -r -p "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type. When you are done, press Enter for resume procedure " VAR_INPUT
   fi
-  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIRNAME/triggers/${1}_create.sh";then
-    VAR_VMID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VMID"
-    VAR_RESULT=$(powerOnVM "$VAR_VMID" "$2") || exitChildError "$VAR_RESULT"
+  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIR_NAME/triggers/${1}_create.sh";then
+    VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
+    VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     if ! isAutoYesMode; then
       if ! isEmpty "$4"; then
@@ -301,44 +302,45 @@ checkTriggerTemplateVM(){
       fi
       read -r -p "Pause 2 of 3: Manually make changes on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     fi
-    VAR_VMIP=$(getIpAddressByVMName "$1" "$2") || exitChildError "$VAR_VMIP"
-    echo "VM ${1} ip address: $VAR_VMIP"
-    $SSH_COPY_ID root@$VAR_VMIP
+    VAR_VM_IP=$(getIpAddressByVMName "$1" "$2") || exitChildError "$VAR_VM_IP"
+    echo "VM ${1} ip address: $VAR_VM_IP"
+    $SSH_COPY_ID root@$VAR_VM_IP
     if ! isRetValOK; then exitError; fi
-    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIRNAME/triggers/${1}_create.sh root@$VAR_VMIP:
+    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIR_NAME/triggers/${1}_create.sh root@$VAR_VM_IP:
     if ! isRetValOK; then exitError; fi
-    SSH_PWD=$(cat $COMMON_CONST_SSH_USERPASS) || exitChildError "$VAR_VMIP"
-    echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VMIP on $2 host"
-    VAR_RESULT=$($SSH_CLIENT root@$VAR_VMIP "chmod u+x ${1}_create.sh;./${1}_create.sh $COMMON_CONST_SCRIPT_USER $SSH_PWD $1 $3; \
+    SSH_PWD=$(cat $COMMON_CONST_SSH_USER_PASS) || exitChildError "$VAR_VM_IP"
+    echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
+    VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $COMMON_CONST_SSH_USER_NAME $SSH_PWD $1 $3; \
 if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
-    VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
+    VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
-    VAR_LOG=$($SSH_CLIENT root@$VAR_VMIP "if [ -f ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
+    VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echo "Stderr:\n$VAR_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
-      exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VMIP on $2 host"
+      exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP on $2 host"
     fi
     if ! isAutoYesMode; then
-      read -r -p "Pause 3 of 3: Manually reboot and last check template VM ${1} ip $VAR_VMIP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      read -r -p "Pause 3 of 3: Manually reboot and last check template VM ${1} ip $VAR_VM_IP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     else
       sleep $COMMON_CONST_ESXI_SLEEP_LONG
     fi
-    VAR_RESULT=$(powerOffVM "$VAR_VMID" "$2") || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   fi
 }
 #$1 title, $2 value, $3 allowed values
 checkCommandValue() {
   checkParmsCount $# 3 'checkCommandValue'
+  local VAR_COMMAND=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  for CUR_COMM in $3
+  for VAR_COMMAND in $3
   do
-    if [ "$CUR_COMM" = "$2" ]
+    if [ "$VAR_COMMAND" = "$2" ]
     then
       VAR_FOUND=$COMMON_CONST_TRUE
     fi
   done
-  if ! isTrue $VAR_FOUND
+  if ! isTrue "$VAR_FOUND"
   then
     exitError "command $1 value $2 invalid. Allowed values: $3"
   fi
@@ -378,36 +380,32 @@ checkGpgSecKeyExist() {
 
 checkDependencies(){
   checkParmsCount $# 1 'checkDependencies'
-  for CUR_DEP in $1
+  local VAR_DEPENDENCE=''
+  for VAR_DEPENDENCE in $1
   do
-    if ! isCommandExist $CUR_DEP
+    if ! isCommandExist $VAR_DEPENDENCE
     then
-      if isAutoYesMode
+      if isLinuxOS
       then
-        if isLinuxOS
+        local VAR_LINUX_BASED
+        VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+        if isAPTLinux "$VAR_LINUX_BASED"
         then
-          local VAR_LINUX_BASED
-          VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-          if isAPTLinux "$VAR_LINUX_BASED"
-          then
-            sudo apt -y install $CUR_DEP
-          elif isRPMLinux "$VAR_LINUX_BASED"
-          then
-            sudo yum -y install $CUR_DEP
-          fi
-        elif isFreeBSDOS
+          sudo apt -y install $VAR_DEPENDENCE
+        elif isRPMLinux "$VAR_LINUX_BASED"
         then
-          setenv ASSUME_ALWAYS_YES yes
-          pkg install $CUR_DEP
-          setenv ASSUME_ALWAYS_YES
+          sudo yum -y install $VAR_DEPENDENCE
         fi
-        #repeat check for availability dependence
-        if ! isCommandExist $CUR_DEP
-        then
-          exitError "dependence $CUR_DEP not found"
-        fi
-      else
-        exitError "dependence $CUR_DEP not found"
+      elif isFreeBSDOS
+      then
+        setenv ASSUME_ALWAYS_YES yes
+        pkg install $VAR_DEPENDENCE
+        setenv ASSUME_ALWAYS_YES
+      fi
+      #repeat check for availability dependence
+      if ! isCommandExist $VAR_DEPENDENCE
+      then
+        exitError "dependence $VAR_DEPENDENCE not found"
       fi
     fi
   done
@@ -415,11 +413,12 @@ checkDependencies(){
 
 checkRequiredFiles() {
   checkParmsCount $# 1 'checkRequiredFiles'
-  for CUR_FILE in $1
+  local VAR_FILE=''
+  for VAR_FILE in $1
   do
-    if ! isFileExistAndRead $CUR_FILE
+    if ! isFileExistAndRead $VAR_FILE
     then
-      exitError "file $CUR_FILE not found"
+      exitError "file $VAR_FILE not found"
     fi
   done
 }
@@ -437,18 +436,18 @@ checkLinuxAptOrRpm(){
 
 targetDescription(){
   checkParmsCount $# 1 'targetDescription'
-  DESCRIPTION=$1
-#  echo "Target: $1"
+  TARGET_DESCRIPTION=$1
 }
 #$1 total stage, $2 stage description
 beginStage(){
   checkParmsCount $# 2 'beginStage'
-  STAGE_NUM=$((STAGE_NUM+1))
-  if [ $STAGE_NUM -gt $1 ]
+  local VAR_STAGE_NUM=0
+  VAR_STAGE_NUM=$((STAGE_NUM+1))
+  if [ $VAR_STAGE_NUM -gt $1 ]
   then
     exitError 'too many stages'
   fi
-  echo -n "Stage $STAGE_NUM of $1: $2..."
+  echo -n "Stage $VAR_STAGE_NUM of $1: $2..."
 }
 
 doneStage(){
@@ -458,7 +457,8 @@ doneStage(){
 
 doneFinalStage(){
   checkParmsCount $# 0 'doneFinalStage'
-  if [ $STAGE_NUM -gt 0 ]
+  local VAR_STAGE_NUM=0
+  if [ $VAR_STAGE_NUM -gt 0 ]
   then
     doneStage
   fi
@@ -466,8 +466,7 @@ doneFinalStage(){
 }
 #[$1] message
 exitOK(){
-  if ! isEmpty "$1"
-  then
+  if ! isEmpty "$1"; then
     echo $1
   fi
   echo "End session $$ with $COMMON_CONST_EXIT_SUCCESS (Ok)"
@@ -475,10 +474,9 @@ exitOK(){
 }
 #[$1] message, [$2] child error
 exitError(){
-  if isEmpty "$2"
-  then
+  if isEmpty "$2"; then
     echo -n "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}"
-    echo ". See '$COMMON_CONST_SCRIPT_FILENAME --help'"
+    echo ". See '$COMMON_CONST_SCRIPT_FILE_NAME --help'"
   else
     echo "$1"
   fi
@@ -488,8 +486,7 @@ exitError(){
 #$1 message
 exitChildError(){
   checkParmsCount $# 1 'exitChildError'
-  if isEmpty "$1"
-  then
+  if isEmpty "$1"; then
     exitError
   else
     exitError "$1" "$COMMON_CONST_EXIT_ERROR"
@@ -498,24 +495,22 @@ exitChildError(){
 #$1 command count, $2 must be count, $3 usage message, $4 sample message, $5 add tooltip message
 echoHelp(){
   checkParmsCount $# 5 'echoHelp'
-  if [ $1 -gt $2 ]
-  then
+  if [ $1 -gt $2 ]; then
     exitError 'too many command'
   fi
-  if isTrue $NEED_HELP
-  then
-    echo "Usage: $COMMON_CONST_SCRIPT_FILENAME [-y] $3"
-    echo "Sample: $COMMON_CONST_SCRIPT_FILENAME $4"
+  if isTrue "$NEED_HELP"; then
+    echo "Usage: $COMMON_CONST_SCRIPT_FILE_NAME [-y] $3"
+    echo "Sample: $COMMON_CONST_SCRIPT_FILE_NAME $4"
     if ! isEmpty "$5"
     then
-      PRM_TOOLTIP="$COMMON_CONST_TOOLTIP. $5"
+      PRM_TOOLTIP="$COMMON_CONST_TOOL_TIP. $5"
     else
-      PRM_TOOLTIP=$COMMON_CONST_TOOLTIP
+      PRM_TOOLTIP=$COMMON_CONST_TOOL_TIP
     fi
     echo "Tooltip: $PRM_TOOLTIP"
     exit $COMMON_CONST_EXIT_SUCCESS
   else
-    echo 'Start session' $$
+    echo "Start session $$"
   fi
 }
 
@@ -553,19 +548,17 @@ startPrompt(){
     fi
   fi
 }
-
+#$1 parameter
 checkAutoYes() {
   checkParmsCount $# 1 'checkAutoYes'
+  echo "Target: $(getFileNameWithoutExt "$COMMON_CONST_SCRIPT_FILE_NAME")"
   if [ "$1" = "-y" ]; then
-    echo "Target: $DESCRIPTION"
     AUTO_YES=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
   elif [ "$1" = "--help" ]; then
-    echo "$DESCRIPTION"
+    echo "Description: $TARGET_DESCRIPTION"
     NEED_HELP=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
-  else
-    echo "Target: $DESCRIPTION"
   fi
 }
 #$1 url string
@@ -600,13 +593,13 @@ checkParmsCount(){
 #$1 esxi host
 put_vmtools_to_esxi(){
   checkParmsCount $# 1 'put_vmtools_to_esxi'
-  local VAR_TMP_DIRNAME
-  VAR_TMP_DIRNAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIRNAME"
-  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIRNAME
+  local VAR_TMP_DIR_NAME
+  VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
+  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIR_NAME
   if ! isRetValOK; then exitError; fi
-  $SCP_CLIENT -r $VAR_TMP_DIRNAME/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
+  $SCP_CLIENT -r $VAR_TMP_DIR_NAME/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
   if ! isRetValOK; then exitError; fi
-  rm -fR $TMP_DIRNAME
+  rm -fR $VAR_TMP_DIR_NAME
   if ! isRetValOK; then exitError; fi
 }
 #$1 esxi host
@@ -620,7 +613,7 @@ put_ovftool_to_esxi(){
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
-  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIRNAME/templates $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
+  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIR_NAME/templates $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
 }
 #$1 return result
@@ -744,7 +737,7 @@ isVMExist(){
 isSnapshotVMExist(){
   checkParmsCount $# 3 'isSnapshotVMExist'
   local VAR_RESULT=''
-  local VAR_VMID=''
+  local VAR_VM_ID=''
   VAR_RESULT=$(getVMSnapshotIDByName "$1" "$2" "$3") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
 }

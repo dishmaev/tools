@@ -7,9 +7,9 @@ targetDescription 'Put gpg secret key to remote host'
 ##private vars
 PRM_HOST='' #host
 PRM_KEYID='' #keyid
-TMP_FILEPATH='' #temporary file full path
-TMP_FILENAME='' #temporary file name
-RET_VAL='' #child return value
+VAR_TMP_FILE_NAME='' #temporary file name
+VAR_TMP_FILE_PATH='' #temporary file full path
+VAR_RESULT='' #child return value
 
 ###check autoyes
 
@@ -41,17 +41,17 @@ startPrompt
 ###body
 
 #check gpg exist on remote host
-RET_VAL=$($SSH_CLIENT $PRM_HOST "if [ -x $(command -v gpg) ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$RET_VAL"
-if ! isTrue "$RET_VAL"; then
+VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -x $(command -v gpg) ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
+if ! isTrue "$VAR_RESULT"; then
   exitError "not found gpg on $PRM_HOST host"
 fi
 
-TMP_FILEPATH=$(mktemp -u) || exitChildError "$TMP_FILEPATH"
-TMP_FILENAME=$(basename $TMP_FILEPATH) || exitChildError "$TMP_FILENAME"
-gpg -q --export-secret-keys --output $TMP_FILEPATH $PRM_KEYID
-$SCP_CLIENT $TMP_FILEPATH $PRM_HOST:
-$SSH_CLIENT $PRM_HOST "gpg --import" $TMP_FILENAME ";rm" $TMP_FILENAME
-rm $TMP_FILEPATH
+VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
+VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
+gpg -q --export-secret-keys --output $VAR_TMP_FILE_PATH $PRM_KEYID
+$SCP_CLIENT $VAR_TMP_FILE_PATH $PRM_HOST:
+$SSH_CLIENT $PRM_HOST "gpg --import" $VAR_TMP_FILE_NAME ";rm" $VAR_TMP_FILE_NAME
+rm $VAR_TMP_FILE_PATH
 
 doneFinalStage
 exitOK

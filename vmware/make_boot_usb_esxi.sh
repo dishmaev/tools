@@ -11,8 +11,8 @@ SYSLINUX_MODULE_BIOS_DIR='/usr/lib/syslinux/modules/bios'
 ##private vars
 PRM_DEVICE='' #usb device, not
 PRM_FILEISO='' #iso image file with esxi installation
-TMP_USBDIRNAME='' #temporary usb directory name
-TMP_ISODIRNAME='' #temporary iso directory name
+VAR_TMP_USB_DIR_NAME='' #temporary usb directory name
+VAR_TMP_ISO_DIR_NAME='' #temporary iso directory name
 
 ###check autoyes
 
@@ -83,30 +83,30 @@ sudo sync
 
 sudo mkfs.vfat -F 32 -n USB $PRM_DEVICE\1
 
-TMP_USBDIRNAME=$(mktemp -d) || exitChildError "$TMP_USBDIRNAME"
-TMP_ISODIRNAME=$(mktemp -d) || exitChildError "$TMP_ISODIRNAME"
+VAR_TMP_USB_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_USB_DIR_NAME"
+VAR_TMP_ISO_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_ISO_DIR_NAME"
 
-echo "TMP_ISODIRNAME $TMP_ISODIRNAME"
-echo "TMP_USBDIRNAME $TMP_USBDIRNAME"
+echo "VAR_TMP_ISO_DIR_NAME $VAR_TMP_ISO_DIR_NAME"
+echo "VAR_TMP_USB_DIR_NAME $VAR_TMP_USB_DIR_NAME"
 
-sudo mount $PRM_DEVICE\1 $TMP_USBDIRNAME -o rw,uid=$USER
-sudo mount -r -o loop $PRM_FILEISO $TMP_ISODIRNAME
+sudo mount $PRM_DEVICE\1 $VAR_TMP_USB_DIR_NAME -o rw,uid=$USER
+sudo mount -r -o loop $PRM_FILEISO $VAR_TMP_ISO_DIR_NAME
 sleep 3
 
-cp -r $TMP_ISODIRNAME/* $TMP_USBDIRNAME/
-cat $TMP_USBDIRNAME/isolinux.cfg | sed -e "s#APPEND -c boot.cfg#APPEND -c boot.cfg -p 1#" > $TMP_USBDIRNAME/syslinux.cfg
-rm $TMP_USBDIRNAME/isolinux.cfg
-cp $SYSLINUX_MODULE_BIOS_DIR/* $TMP_USBDIRNAME
+cp -r $VAR_TMP_ISO_DIR_NAME/* $VAR_TMP_USB_DIR_NAME/
+cat $VAR_TMP_USB_DIR_NAME/isolinux.cfg | sed -e "s#APPEND -c boot.cfg#APPEND -c boot.cfg -p 1#" > $VAR_TMP_USB_DIR_NAME/syslinux.cfg
+rm $VAR_TMP_USB_DIR_NAME/isolinux.cfg
+cp $SYSLINUX_MODULE_BIOS_DIR/* $VAR_TMP_USB_DIR_NAME
 
 sudo sync
 
-sudo umount $TMP_USBDIRNAME
-sudo umount $TMP_ISODIRNAME
+sudo umount $VAR_TMP_USB_DIR_NAME
+sudo umount $VAR_TMP_ISO_DIR_NAME
 
 sleep 3
 
-rmdir $TMP_USBDIRNAME
-rmdir $TMP_ISODIRNAME
+rmdir $VAR_TMP_USB_DIR_NAME
+rmdir $VAR_TMP_ISO_DIR_NAME
 
 doneFinalStage
 exitOK

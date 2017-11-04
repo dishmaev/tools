@@ -10,8 +10,8 @@ targetDescription 'Delete VM on remote esxi host'
 ##private vars
 PRM_VMNAME='' #vm name
 PRM_HOST='' #host
-RET_VAL='' #child return value
-VM_ID='' #VMID target virtual machine
+VAR_RESULT='' #child return value
+VAR_VM_ID='' #VMID target virtual machine
 
 ###check autoyes
 
@@ -42,16 +42,16 @@ startPrompt
 
 ###body
 
-VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VM_ID"
+VAR_VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 #check vm name
-if isEmpty "$VM_ID"; then
+if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VMNAME not found on $PRM_HOST host"
 fi
 #power off
-RET_VAL=$(powerOffVM "$VM_ID" "$PRM_HOST") || exitChildError "$RET_VAL"
-echoResult "$RET_VAL"
+VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
+echoResult "$VAR_RESULT"
 #delete vm
-$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/destroy $VM_ID"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/destroy $VAR_VM_ID"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

@@ -6,7 +6,7 @@ targetDescription 'Power on esxi hosts pool'
 
 ##private vars
 PRM_MACS_POOL='' # esxi MACs pool
-CUR_MAC='' #MAC
+VAR_MAC='' #MAC
 
 ###check autoyes
 
@@ -30,9 +30,9 @@ startPrompt
 
 ###body
 
-for CUR_MAC in $PRM_MACS_POOL; do
-  echo "MAC host:" $CUR_MAC
-  wakeonlan $CUR_MAC
+for VAR_MAC in $PRM_MACS_POOL; do
+  echo "MAC host:" $VAR_MAC
+  wakeonlan $VAR_MAC
   if ! isRetValOK; then exitError; fi
 done
 

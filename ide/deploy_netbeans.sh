@@ -2,15 +2,15 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy NetBeans on the system'
+targetDescription 'Deploy NetBeans on the local OS'
 
 ##private consts
-FILE_URL='http://download.netbeans.org/netbeans/8.2/final/bundles/netbeans-8.2-javase-linux.sh' #url for download
+CONST_FILE_URL='http://download.netbeans.org/netbeans/8.2/final/bundles/netbeans-8.2-javase-linux.sh' #url for download
 
 ##private vars
-LINUX_BASED='' #for checking supported OS
-ORIG_FILE_NAME='' #original file name
-ORIG_FILE_PATH='' #original file name with local path
+VAR_LINUX_BASED='' #for checking supported OS
+VAR_ORIG_FILE_NAME='' #original file name
+VAR_ORIG_FILE_PATH='' #original file name with local path
 
 
 ###check autoyes
@@ -47,15 +47,15 @@ fi
 
 #check supported OS
 if ! isLinuxOS; then exitError 'not supported OS'; fi
-LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$LINUX_BASED"
-if ! isAPTLinux $LINUX_BASED; then exitError 'not supported OS'; fi
+VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
 
-ORIG_FILE_NAME=$(getFileNameFromUrlString "$FILE_URL")
-ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$ORIG_FILE_NAME
-if ! isFileExistAndRead "$ORIG_FILE_PATH"; then
-  wget -O $ORIG_FILE_PATH $FILE_URL
+VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_FILE_URL")
+VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
+  wget -O $VAR_ORIG_FILE_PATH $CONST_FILE_URL
   if ! isRetValOK; then exitError; fi
-  chmod u+x $ORIG_FILE_PATH
+  chmod u+x $VAR_ORIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
 fi
 #for prevent Gtk-Message: Failed to load module "canberra-gtk-module"
@@ -76,7 +76,7 @@ fi
 
 echo 'Important! When install NetBeans, in the appropriate dialog set JDK full path directory, for JDK 8 default is /usr/lib/jvm/java-8-oracle'
 
-$ORIG_FILE_PATH
+$VAR_ORIG_FILE_PATH
 
 doneFinalStage
 

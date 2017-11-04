@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Delete VM on incorp project $COMMON_CONST_PROJECTNAME"
+targetDescription "Delete VM on incorp project $COMMON_CONST_PROJECT_NAME"
 
 ##private consts
 
@@ -10,14 +10,14 @@ targetDescription "Delete VM on incorp project $COMMON_CONST_PROJECTNAME"
 ##private vars
 PRM_SUITE='' #suite
 PRM_SCRIPTVERSION='' #version script for create VM
-RET_VAL='' #child return value
-CONFIG_FILENAME='' #vm config file name
-CONFIG_FILEPATH='' #vm config file path
-VM_TYPE='' #vm type
-VM_TEMPLATE='' #vm template
-VM_NAME='' #vm name
-ESXI_HOST='' #esxi host
-VM_ID='' #vm id
+VAR_RESULT='' #child return value
+VAR_CONFIG_FILE_NAME='' #vm config file name
+VAR_CONFIG_FILE_PATH='' #vm config file path
+VAR_VM_TYPE='' #vm type
+VAR_VM_TEMPLATE='' #vm template
+VAR_VM_NAME='' #vm name
+VAR_HOST='' #esxi host
+VAR_VM_ID='' #vm id
 
 ###check autoyes
 
@@ -43,9 +43,9 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPTVERSION" ''
 
 ###check required files
 
-CONFIG_FILENAME=${PRM_SUITE}_${PRM_SCRIPTVERSION}
-CONFIG_FILEPATH=$COMMON_CONST_SCRIPT_DIRNAME/data/${CONFIG_FILENAME}.txt
-checkRequiredFiles "$CONFIG_FILEPATH"
+VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPTVERSION}
+VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
+checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
 
 ###start prompt
 
@@ -53,17 +53,17 @@ startPrompt
 
 ###body
 
-RET_VAL=$(cat $CONFIG_FILEPATH) || exitChildError "$RET_VAL"
-VM_TYPE=$(echo $RET_VAL | awk -F:: '{print $1}')
-VM_TEMPLATE=$(echo $RET_VAL | awk -F:: '{print $2}')
-VM_NAME=$(echo $RET_VAL | awk -F:: '{print $3}')
+VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
+VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F:: '{print $1}')
+VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F:: '{print $2}')
+VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}')
 
-if [ "$VM_TYPE" = "$COMMON_CONST_VMWARE_VMTYPE" ]; then
-  ESXI_HOST=$(echo $RET_VAL | awk -F:: '{print $4}')
-  RET_VAL=$($COMMON_CONST_SCRIPT_DIRNAME/../vmware/remove_vm_snapshot.sh -y $VM_NAME $COMMON_CONST_PROJECTNAME $ESXI_HOST) || exitChildError "$RET_VAL"
-  echo "$RET_VAL"
-  echo "Remove config file $CONFIG_FILEPATH"
-  rm $CONFIG_FILEPATH
+if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
+  VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}')
+  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/remove_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+  echo "$VAR_RESULT"
+  echo "Remove config file $VAR_CONFIG_FILE_PATH"
+  rm $VAR_CONFIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
 fi
 

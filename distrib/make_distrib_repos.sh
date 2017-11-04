@@ -12,10 +12,10 @@ readonly CONST_GPGKEY_FILENAME=linux_signing_key.pub #pub key file name
 readonly CONST_REPOS_DIRNAME=repos #repos directory name
 
 ##private vars
-PRM_SOURCE_DIRNAME='' #source directory name
-TARGET_DIRNAME='' #target directory name
-CUR_SG=''
-CUR_GN=''
+PRM_SOURCE_DIR_NAME='' #source directory name
+VAR_TARGET_DIR_NAME='' #target directory name
+VAR_SG=''
+VAR_GN=''
 
 ###check autoyes
 
@@ -30,12 +30,12 @@ fi
 
 ###check commands
 
-PRM_SOURCE_DIRNAME=$1
+PRM_SOURCE_DIR_NAME=$1
 
-checkDirectoryForExist "$PRM_SOURCE_DIRNAME" 'source '
+checkDirectoryForExist "$PRM_SOURCE_DIR_NAME" 'source '
 
-TARGET_DIRNAME=$PRM_SOURCE_DIRNAME/$CONST_REPOS_DIRNAME
-checkDirectoryForNotExist "$TARGET_DIRNAME" 'target '
+VAR_TARGET_DIR_NAME=$PRM_SOURCE_DIR_NAME/$CONST_REPOS_DIRNAME
+checkDirectoryForNotExist "$VAR_TARGET_DIR_NAME" 'target '
 
 ###check body dependencies
 
@@ -46,7 +46,7 @@ checkGpgSecKeyExist $COMMON_CONST_GPG_KEYID
 
 ###check required files
 
-checkRequiredFiles "$COMMON_CONST_SCRIPT_DIRNAME/distributions"
+checkRequiredFiles "$COMMON_CONST_SCRIPT_DIR_NAME/distributions"
 
 ###start prompt
 
@@ -55,49 +55,49 @@ startPrompt
 ###body
 #new stage
 beginStage $CONST_STAGE_COUNT 'Create base directories'
-mkdir $TARGET_DIRNAME
-mkdir $TARGET_DIRNAME/freebsd
-mkdir $TARGET_DIRNAME/windows
-mkdir $TARGET_DIRNAME/linux
+mkdir $VAR_TARGET_DIR_NAME
+mkdir $VAR_TARGET_DIR_NAME/freebsd
+mkdir $VAR_TARGET_DIR_NAME/windows
+mkdir $VAR_TARGET_DIR_NAME/linux
 
-mkdir $TARGET_DIRNAME/linux/apt
-mkdir $TARGET_DIRNAME/linux/apt/conf
+mkdir $VAR_TARGET_DIR_NAME/linux/apt
+mkdir $VAR_TARGET_DIR_NAME/linux/apt/conf
 
-mkdir $TARGET_DIRNAME/linux/rpm
-mkdir $TARGET_DIRNAME/linux/rpm/release
-mkdir $TARGET_DIRNAME/linux/rpm/release/RPMS
-mkdir $TARGET_DIRNAME/linux/rpm/release/RPMS/i386
-mkdir $TARGET_DIRNAME/linux/rpm/release/RPMS/x86_64
-mkdir $TARGET_DIRNAME/linux/rpm/release/RPMS/noarch
-mkdir $TARGET_DIRNAME/linux/rpm/test
-mkdir $TARGET_DIRNAME/linux/rpm/test/RPMS
-mkdir $TARGET_DIRNAME/linux/rpm/test/RPMS/i386
-mkdir $TARGET_DIRNAME/linux/rpm/test/RPMS/x86_64
-mkdir $TARGET_DIRNAME/linux/rpm/test/RPMS/noarch
-mkdir $TARGET_DIRNAME/linux/rpm/develop
-mkdir $TARGET_DIRNAME/linux/rpm/develop/RPMS
-mkdir $TARGET_DIRNAME/linux/rpm/develop/RPMS/i386
-mkdir $TARGET_DIRNAME/linux/rpm/develop/RPMS/x86_64
-mkdir $TARGET_DIRNAME/linux/rpm/develop/RPMS/noarch
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/x86_64
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/noarch
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/x86_64
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/noarch
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/x86_64
+mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/noarch
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Create keys, config files, symlinks'
 
-gpg -q --export --armor --output $TARGET_DIRNAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPG_KEYID
-cat $COMMON_CONST_SCRIPT_DIRNAME/distributions | sed -e "s#@COMMON_CONST_GPG_KEYID@#$COMMON_CONST_GPG_KEYID#" > $TARGET_DIRNAME/linux/apt/conf/distributions
+gpg -q --export --armor --output $VAR_TARGET_DIR_NAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPG_KEYID
+cat $COMMON_CONST_SCRIPT_DIR_NAME/distributions | sed -e "s#@COMMON_CONST_GPG_KEYID@#$COMMON_CONST_GPG_KEYID#" > $VAR_TARGET_DIR_NAME/linux/apt/conf/distributions
 
 if [ ! -f ~/$CONST_RPMCFG_FILENAME ]
 then
   echo '%_signature gpg' > ~/$CONST_RPMCFG_FILENAME
   echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
 else
-  CUR_SG=$(grep '%_signature gpg' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$CUR_SG"
-  if [ "$CUR_SG" = "" ]
+  VAR_SG=$(grep '%_signature gpg' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_SG"
+  if [ "$VAR_SG" = "" ]
   then
     echo '%_signature gpg' >> ~/$CONST_RPMCFG_FILENAME
   fi
-  CUR_GN=$(grep '%_gpg_name' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$CUR_GN"
-  if [ "$CUR_GN" = "" ]
+  VAR_GN=$(grep '%_gpg_name' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_GN"
+  if [ "$VAR_GN" = "" ]
   then
     echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
   fi
@@ -105,36 +105,36 @@ fi
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Run reprepro for initialize APT-based system packages repository structure'
-reprepro -b $TARGET_DIRNAME/linux/apt check
-reprepro -b $TARGET_DIRNAME/linux/apt export
-reprepro -b $TARGET_DIRNAME/linux/apt createsymlinks
+reprepro -b $VAR_TARGET_DIR_NAME/linux/apt check
+reprepro -b $VAR_TARGET_DIR_NAME/linux/apt export
+reprepro -b $VAR_TARGET_DIR_NAME/linux/apt createsymlinks
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Run createrepo for initialize RPM-based system packages repository structure'
-createrepo -q $TARGET_DIRNAME/linux/rpm/release/RPMS/i386
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/release/RPMS/i386/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/release/RPMS/x86_64
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/release/RPMS/x86_64/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/release/RPMS/noarch
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/release/RPMS/noarch/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/test/RPMS/i386
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/test/RPMS/i386/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/test/RPMS/x86_64
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/test/RPMS/x86_64/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/test/RPMS/noarch
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/test/RPMS/noarch/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/develop/RPMS/i386
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/develop/RPMS/i386/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/develop/RPMS/x86_64
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/develop/RPMS/x86_64/repodata/repomd.xml
-createrepo -q $TARGET_DIRNAME/linux/rpm/develop/RPMS/noarch
-gpg --detach-sign --armor $TARGET_DIRNAME/linux/rpm/develop/RPMS/noarch/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/x86_64
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/x86_64/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/noarch
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/noarch/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/x86_64
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/x86_64/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/noarch
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/noarch/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/x86_64
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/x86_64/repodata/repomd.xml
+createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/noarch
+gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/noarch/repodata/repomd.xml
 doneFinalStage
 
 echo ''
 echo 'Now publish keys for repository access:'
-echo '1)For Linux is' $TARGET_DIRNAME'/linux/'$CONST_GPGKEY_FILENAME
-echo '2)For FreeBSD is' $TARGET_DIRNAME'/freebsd/TO-DO'
-echo '3)For Windows is' $TARGET_DIRNAME'/windows/TO-DO'
+echo '1)For Linux is' $VAR_TARGET_DIR_NAME'/linux/'$CONST_GPGKEY_FILENAME
+echo '2)For FreeBSD is' $VAR_TARGET_DIR_NAME'/freebsd/TO-DO'
+echo '3)For Windows is' $VAR_TARGET_DIR_NAME'/windows/TO-DO'
 
 exitOK
