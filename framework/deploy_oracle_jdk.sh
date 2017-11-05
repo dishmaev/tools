@@ -5,10 +5,10 @@
 targetDescription 'Deploy Oracle JDK on the local OS'
 
 ##private consts
-CONST_ORACLE_JDK_DEB_REPO='deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
-CONST_ORACLE_JDK_DEB_SRC_REPO='deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
-CONST_ORACLE_JDK_DEB_KEY='hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886'
-CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
+readonly CONST_ORACLE_JDK_DEB_REPO='deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
+readonly CONST_ORACLE_JDK_DEB_SRC_REPO='deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
+readonly CONST_ORACLE_JDK_DEB_KEY='hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886'
+readonly CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
 
 
 ##private vars

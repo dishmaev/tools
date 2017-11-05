@@ -5,7 +5,7 @@
 targetDescription 'Deploy NetBeans on the local OS'
 
 ##private consts
-CONST_FILE_URL='http://download.netbeans.org/netbeans/8.2/final/bundles/netbeans-8.2-javase-linux.sh' #url for download
+readonly CONST_FILE_URL='http://download.netbeans.org/netbeans/8.2/final/bundles/netbeans-8.2-javase-linux.sh' #url for download
 
 ##private vars
 VAR_LINUX_BASED='' #for checking supported OS

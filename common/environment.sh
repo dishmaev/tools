@@ -2,28 +2,35 @@
 
 ##using files: consts.sh
 
+#default git user
+readonly ENV_GIT_USER_NAME=$(git config user.name)
+if isEmpty "$ENV_GIT_USER_NAME"; then checkNotEmptyEnvironment "ENV_GIT_USER_NAME"; fi
+#default git email
+readonly ENV_GIT_USER_EMAIL=$(git config user.email)
+if isEmpty "$ENV_GIT_USER_EMAIL"; then checkNotEmptyEnvironment "ENV_GIT_USER_EMAIL"; fi
+#default username for connect to hosts, run scripts, etc.
+readonly ENV_SSH_USER_NAME='toolsuser' #$(whoami)
+if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAME"; fi
+#file with default password for $ENV_SSH_USER_NAME
+readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$COMMON_CONST_ROOT_DIR'/common/sshpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
+if isEmpty "$ENV_SSH_USER_PASS"; then checkNotEmptyEnvironment "ENV_SSH_USER_PASS"; fi
+#ssh keyID, also key file name in ~/.ssh/
+readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa; if [ -r ~/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
+if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
+#for add tools submodule
+readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
+if isEmpty "$ENV_TOOLS_REPO"; then checkNotEmptyEnvironment "ENV_TOOLS_REPO"; fi
+#default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
+readonly ENV_OVFTOOL_USER_PASS=$(eval 'VAR_FILE_NAME='$COMMON_CONST_ROOT_DIR'/common/ovftoolpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
+if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_USER_PASS"; fi
+
 #aliases
-readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$COMMON_CONST_SSH_USER_NAME"
-readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$COMMON_CONST_SSH_USER_NAME"
-readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${COMMON_CONST_SSH_KEYID}.pub"
-
-#user name, user emailreadonly COMMON_CONST_GIT_USER_NAME='dishmaev' #default git user
-readonly GIT_USER_NAME=$(git config user.name) #default git user
-readonly GIT_USER_EMAIL=$(git config user.email) #default git email
-
+readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
+readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
+readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${ENV_SSH_KEYID}.pub"
 
 #check local directory to save downloads, make if not exist
 if [ ! -d "$COMMON_CONST_DOWNLOAD_PATH" ]; then
   mkdir "$COMMON_CONST_DOWNLOAD_PATH";
-  #git config --local user.name "'$COMMON_CONST_GIT_USER_NAME'"
-  #git config --local user.email "'$COMMON_CONST_GIT_USER_EMAIL'"
   #git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
 fi;
-
-if [ ! -f $COMMON_CONST_OVFTOOL_USER_PASS ]; then
-  echo 'changeme' > $COMMON_CONST_OVFTOOL_USER_PASS
-fi
-
-if [ ! -f $COMMON_CONST_SSH_USER_PASS ]; then
-  echo 'changeme' > $COMMON_CONST_SSH_USER_PASS
-fi

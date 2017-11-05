@@ -166,7 +166,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     fi
     #register template vm
     $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
-        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME vi://$COMMON_CONST_SSH_USER_NAME@$PRM_HOST" < $COMMON_CONST_OVFTOOL_USER_PASS
+        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
     if ! isRetValOK; then exitError; fi
 #dbnosb
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
@@ -296,7 +296,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
 
     #register template vm
     $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
-        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$COMMON_CONST_SSH_USER_NAME@$PRM_HOST" < $COMMON_CONST_OVFTOOL_USER_PASS
+        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
     if ! isRetValOK; then exitError; fi
 #ors
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
@@ -359,7 +359,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isRetValOK; then exitError; fi
     #register template vm
     $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
-        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$COMMON_CONST_SSH_USER_NAME@$PRM_HOST" < $COMMON_CONST_OVFTOOL_USER_PASS
+        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
     if ! isRetValOK; then exitError; fi
 #fbd
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
@@ -388,7 +388,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
   #execute trigger when exist
   checkTriggerTemplateVM "$PRM_VM_TEMPLATE" "$PRM_HOST" "$VAR_VM_VER" "$VAR_PAUSE_MESSAGE"
   #make ova package
-  ovftool --noSSLVerify "vi://$COMMON_CONST_SSH_USER_NAME@$PRM_HOST/$PRM_VM_TEMPLATE" $VAR_OVA_FILE_PATH < $COMMON_CONST_OVFTOOL_USER_PASS
+  ovftool --noSSLVerify "vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST/$PRM_VM_TEMPLATE" $VAR_OVA_FILE_PATH
   if ! isRetValOK; then exitError; fi
   #delete template vm
   VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/delete_vm.sh -y $PRM_VM_TEMPLATE $PRM_HOST) || exitChildError "$VAR_RESULT"

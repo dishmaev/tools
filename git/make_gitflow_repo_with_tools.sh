@@ -20,15 +20,15 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<sourceDirectory> <remoteRepository> [toolsRepository=$COMMON_CONST_TOOLS_REPO]' \
-      ". git@github.com:$GIT_USER_NAME/newrepo.git $COMMON_CONST_TOOLS_REPO" \
+echoHelp $# 3 '<sourceDirectory> <remoteRepository> [toolsRepository=$ENV_TOOLS_REPO]' \
+      ". git@github.com:$ENV_GIT_USER_NAME/newrepo.git $ENV_TOOLS_REPO" \
       "Remote repository possible empty, not initialized yet. Required git-flow package"
 
 ###check commands
 
 PRM_SOURCE_DIR_NAME=$1
 PRM_REMOTE_REPO=$2
-PRM_TOOLS_REPO=${3:-$COMMON_CONST_TOOLS_REPO}
+PRM_TOOLS_REPO=${3:-$ENV_TOOLS_REPO}
 
 checkCommandExist 'sourceDirectory' "$PRM_SOURCE_DIR_NAME" ''
 checkCommandExist 'remoteRepository' "$PRM_REMOTE_REPO" ''

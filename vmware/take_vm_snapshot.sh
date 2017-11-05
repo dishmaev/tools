@@ -14,6 +14,7 @@ PRM_HOST='' #host
 PRM_SNAPSHOT_DESCRIPTION='' #snapshotDescription
 PRM_INCLUDE_MEMORY=$COMMON_CONST_FALSE #includeMemory
 PRM_QUIESCED=$COMMON_CONST_FALSE #quiesced
+VAR_RESULT='' #child return value
 VAR_VM_ID='' #VMID target virtual machine
 
 ###check autoyes
@@ -56,8 +57,8 @@ startPrompt
 
 ###body
 
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 #check vm name
+VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VM_NAME not found on $PRM_HOST host"
 fi
@@ -65,7 +66,9 @@ fi
 if isSnapshotVMExist "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_HOST"; then
   exitError "snapshot $PRM_SNAPSHOT_NAME already exist for VM $PRM_VM_NAME on $PRM_HOST host"
 fi
-
+#power off
+VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
+echoResult "$VAR_RESULT"
 $SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.create $VAR_VM_ID $PRM_SNAPSHOT_NAME \"$PRM_SNAPSHOT_DESCRIPTION\" $PRM_INCLUDE_MEMORY $PRM_QUIESCED"
 if ! isRetValOK; then exitError; fi
 

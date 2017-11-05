@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#$1 $COMMON_CONST_SSH_USER_NAME, $2 password for user, $3 vm name, $4 vm OS version
+#$1 $ENV_SSH_USER_NAME, $2 password for user, $3 vm name, $4 vm OS version
 
 if [ "$#" != "4" ]; then exit 1; fi
 if [ -f ${3}_create.result ]; then rm ${3}_create.result; fi

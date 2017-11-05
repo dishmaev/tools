@@ -6,19 +6,14 @@
 readonly COMMON_CONST_ROOT_DIR=/home/dmitry/Projects/tools #set correct path before using this tools
 
 readonly COMMON_CONST_PROJECT_NAME='MYPROJ' #project name
-readonly COMMON_CONST_SSH_KEYID='id_idax_rsa' #ssh keyID, also key file name in ~/.ssh/
-readonly COMMON_CONST_SSH_USER_NAME='toolsuser' #default username for connect to hosts, run scripts, etc.
-readonly COMMON_CONST_SSH_USER_PASS=$COMMON_CONST_ROOT_DIR/common/sshpwd.txt #file with default password for $COMMON_CONST_SSH_USER_NAME
 readonly COMMON_CONST_GPG_KEYID='507650DE33C7BA92EDD1569DF4F5A67BE44EEED4' #gpg keyID
 
 #base tool infrastructure
 readonly COMMON_CONST_SCRIPT_FILE_NAME=$(basename "$0") #script file name
 readonly COMMON_CONST_SCRIPT_DIR_NAME=$(dirname "$0") #script directory name
 readonly COMMON_CONST_TOOL_TIP='-y batch mode with yes answer' #simple autoyes tooltip
-readonly COMMON_CONST_TOOLS_REPO=$(git config remote.origin.url) #for add tools submodule
 readonly COMMON_CONST_DOWNLOAD_PATH="$COMMON_CONST_ROOT_DIR/downloads" #local directory to save downloads
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
-readonly COMMON_CONST_OVFTOOL_USER_PASS=$COMMON_CONST_ROOT_DIR/common/ovftoolpwd.txt #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME" #vmware tools local directory
 readonly COMMON_CONST_LINUX_APT='apt'

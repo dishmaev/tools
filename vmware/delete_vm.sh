@@ -40,15 +40,12 @@ startPrompt
 
 ###body
 
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
-checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 #check vm name
-
+VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VM_NAME not found on $PRM_HOST host"
   checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 fi
-
 #power off
 VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"

@@ -5,11 +5,11 @@
 targetDescription 'Deploy VirtualBox on the local OS'
 
 ##private consts
-CONST_LIBVPX3_URL='http://archive.ubuntu.com/ubuntu/pool/main/libv/libvpx/libvpx3_1.5.0-2ubuntu1_amd64.deb' #url for download
-CONST_LIBSSL_URL='http://ftp.ru.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u6_amd64.deb' #url for download
-CONST_VBOX_VERSION='5.1'
-CONST_VBOX_REPO='deb http://download.virtualbox.org/virtualbox/debian yakkety contrib'
-CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
+readonly CONST_LIBVPX3_URL='http://archive.ubuntu.com/ubuntu/pool/main/libv/libvpx/libvpx3_1.5.0-2ubuntu1_amd64.deb' #url for download
+readonly CONST_LIBSSL_URL='http://ftp.ru.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u6_amd64.deb' #url for download
+readonly CONST_VBOX_VERSION='5.1'
+readonly CONST_VBOX_REPO='deb http://download.virtualbox.org/virtualbox/debian yakkety contrib'
+readonly CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
 
 ##private vars
 VAR_LINUX_BASED='' #for checking supported OS

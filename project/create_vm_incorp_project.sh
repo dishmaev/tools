@@ -120,8 +120,6 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FI
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
-  VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
   #take project snapshot
   VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_PROJECT_NAME "$PRM_SCRIPT_VERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"

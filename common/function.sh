@@ -3,11 +3,12 @@
 ##using files: consts.sh
 
 ##private vars
-AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
-NEED_HELP=$COMMON_CONST_FALSE #show help and exit
-STAGE_NUM=0 #stage counter
-TARGET_DESCRIPTION='' #target description
-COMMAND_VALUE='' #value of commands
+VAR_AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
+VAR_NEED_HELP=$COMMON_CONST_FALSE #show help and exit
+VAR_ENVIRONMENT_ERROR='' #result of check environment, ok if empty
+VAR_STAGE_NUM=0 #stage counter
+VAR_TARGET_DESCRIPTION='' #target description
+VAR_COMMAND_VALUE='' #value of commands
 
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
@@ -282,10 +283,10 @@ checkCommandExist() {
   then
     checkCommandValue "$1" "$2" "$3"
   fi
-  if isEmpty "$COMMAND_VALUE"; then
+  if isEmpty "$VAR_COMMAND_VALUE"; then
     VAR_CHAR=''
   fi
-  COMMAND_VALUE="$COMMAND_VALUE${VAR_CHAR}Option ${1}=${2}"
+  VAR_COMMAND_VALUE="$VAR_COMMAND_VALUE${VAR_CHAR}Option ${1}=${2}"
 }
 #$1 vm name , $2 esxi host, $3 vm OS version, $4 pause message
 checkTriggerTemplateVM(){
@@ -314,9 +315,8 @@ checkTriggerTemplateVM(){
     if ! isRetValOK; then exitError; fi
     $SCP_CLIENT $COMMON_CONST_SCRIPT_DIR_NAME/triggers/${1}_create.sh root@$VAR_VM_IP:
     if ! isRetValOK; then exitError; fi
-    SSH_PWD=$(cat $COMMON_CONST_SSH_USER_PASS) || exitChildError "$VAR_VM_IP"
     echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
-    VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $COMMON_CONST_SSH_USER_NAME $SSH_PWD $1 $3; \
+    VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
 if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
@@ -326,7 +326,7 @@ if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CON
       exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP on $2 host"
     fi
     if ! isAutoYesMode; then
-      read -r -p "Pause 3 of 3: Manually reboot and last check template VM ${1} ip $VAR_VM_IP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      read -r -p "Pause 3 of 3: Last check template VM ${1} ip $VAR_VM_IP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
     else
       sleep $COMMON_CONST_ESXI_SLEEP_LONG
     fi
@@ -439,16 +439,35 @@ checkLinuxAptOrRpm(){
     exitError "unknown Linux based package system"
   fi
 }
-
+#$1 env name, $2
+checkNotEmptyEnvironment(){
+  checkParmsCount $# 1 'checkNotEmptyEnvironment'
+  local VAR_ENV_VALUE=''
+  VAR_ENV_VALUE=$(eval echo \$${1})
+  if isEmpty "$VAR_ENV_VALUE"; then
+    setErrorEnvironment "set constant $1"
+  fi
+}
+#$1 message
+setErrorEnvironment()
+{
+  checkParmsCount $# 1 'setErrorEnvironment'
+  VAR_ENVIRONMENT_ERROR="$1 in $(basename $0)"
+}
+#$1 description
 targetDescription(){
   checkParmsCount $# 1 'targetDescription'
-  TARGET_DESCRIPTION=$1
+  if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
+    echo "Error environment: $VAR_ENVIRONMENT_ERROR"
+    exit $COMMON_CONST_EXIT_ERROR
+  fi
+  VAR_TARGET_DESCRIPTION=$1
 }
 #$1 total stage, $2 stage description
 beginStage(){
   checkParmsCount $# 2 'beginStage'
   local VAR_STAGE_NUM=0
-  VAR_STAGE_NUM=$((STAGE_NUM+1))
+  VAR_STAGE_NUM=$((VAR_STAGE_NUM+1))
   if [ $VAR_STAGE_NUM -gt $1 ]
   then
     exitError 'too many stages'
@@ -504,7 +523,7 @@ echoHelp(){
   if [ $1 -gt $2 ]; then
     exitError 'too many options'
   fi
-  if isTrue "$NEED_HELP"; then
+  if isTrue "$VAR_NEED_HELP"; then
     echo "Usage: $COMMON_CONST_SCRIPT_FILE_NAME [-y] $3"
     echo "Sample: $COMMON_CONST_SCRIPT_FILE_NAME $4"
     if ! isEmpty "$5"
@@ -522,7 +541,7 @@ echoHelp(){
 
 startPrompt(){
   checkParmsCount $# 0 'startPrompt'
-  echoResult "$COMMAND_VALUE"
+  echoResult "$VAR_COMMAND_VALUE"
   if ! isAutoYesMode
   then
     local VAR_INPUT=''
@@ -560,11 +579,11 @@ checkAutoYes() {
   checkParmsCount $# 1 'checkAutoYes'
   echo "Target: $(getFileNameWithoutExt "$COMMON_CONST_SCRIPT_FILE_NAME")"
   if [ "$1" = "-y" ]; then
-    AUTO_YES=$COMMON_CONST_TRUE
+    VAR_AUTO_YES=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
   elif [ "$1" = "--help" ]; then
-    echo "Description: $TARGET_DESCRIPTION"
-    NEED_HELP=$COMMON_CONST_TRUE
+    echo "Description: $VAR_TARGET_DESCRIPTION"
+    VAR_NEED_HELP=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
   fi
 }
@@ -693,7 +712,7 @@ isEmpty()
 
 isAutoYesMode(){
   checkParmsCount $# 0 'isAutoYesMode'
-  isTrue "$AUTO_YES"
+  isTrue "$VAR_AUTO_YES"
 }
 
 isCommandExist(){

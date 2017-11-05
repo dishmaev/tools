@@ -5,8 +5,8 @@
 targetDescription 'Upgrade tools on esxi hosts pool'
 
 ##private consts
-CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$COMMON_CONST_SSH_USER_NAME"
-CONST_TOOLSVER_FILENAME='toolsversion.txt'
+readonly CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
+readonly CONST_TOOLSVER_FILENAME='toolsversion.txt'
 
 ##private vars
 PRM_HOSTS_POOL='' # esxi hosts pool
@@ -42,8 +42,8 @@ checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
 
 ###check required files
 
-checkRequiredFiles "$HOME/.ssh/$COMMON_CONST_SSH_KEYID"
-checkRequiredFiles "$HOME/.ssh/$COMMON_CONST_SSH_KEYID.pub"
+checkRequiredFiles "$HOME/.ssh/$ENV_SSH_KEYID"
+checkRequiredFiles "$HOME/.ssh/$ENV_SSH_KEYID.pub"
 checkRequiredFiles "$COMMON_CONST_LOCAL_VMTOOLS_PATH"
 
 ###start prompt
@@ -64,7 +64,7 @@ fi
 for VAR_HOST in $PRM_HOSTS_POOL; do
   echo "esxi host:" $VAR_HOST
   #check default user ssh key exist
-  VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; echo $COMMON_CONST_TRUE" < $HOME/.ssh/$COMMON_CONST_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then exitError; fi
   #get local tools version
   VAR_LOCAL_TOOLS_VER=$(cat $COMMON_CONST_SCRIPT_DIR_NAME/data/$CONST_TOOLSVER_FILENAME)
