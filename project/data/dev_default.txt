@@ -1,1 +1,0 @@
-ex::ptn::ptn-2::esxi

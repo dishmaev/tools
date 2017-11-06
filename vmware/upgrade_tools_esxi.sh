@@ -64,7 +64,10 @@ fi
 for VAR_HOST in $PRM_HOSTS_POOL; do
   echo "esxi host:" $VAR_HOST
   #check default user ssh key exist
-  VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; \
+then mkdir $CONST_HV_SSHKEYS_DIRNAME; \
+cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
+echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then exitError; fi
   #get local tools version
   VAR_LOCAL_TOOLS_VER=$(cat $COMMON_CONST_SCRIPT_DIR_NAME/data/$CONST_TOOLSVER_FILENAME)

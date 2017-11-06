@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Create VM on incorp project $COMMON_CONST_PROJECT_NAME"
+targetDescription "Create VM on incorp project $ENV_PROJECT_NAME"
 
 ##private consts
 
@@ -57,7 +57,7 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 ###check required files
 
 VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_SCRIPT_VERSION}_create
-VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/triggers/${VAR_SCRIPT_FILE_NAME}.sh
+VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
@@ -107,7 +107,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
   #copy create script on vm
-  VAR_REMOTE_SCRIPT_FILE_NAME=${COMMON_CONST_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
+  VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
@@ -121,7 +121,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FI
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
   #take project snapshot
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_PROJECT_NAME "$PRM_SCRIPT_VERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_SCRIPT_VERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
   #save vm config file
   echo "Save config file $VAR_CONFIG_FILE_PATH"

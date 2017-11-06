@@ -24,10 +24,10 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 "<vmName> <snapshotName=\$COMMON_CONST_PROJECT_NAME | \
+echoHelp $# 4 "<vmName> <snapshotName=\$ENV_PROJECT_NAME | \
 \$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME> [host=\$COMMON_CONST_ESXI_HOST] [removeChildren=1]" \
-"myvm $COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_HOST 1" \
-"Required allowing SSH access on the remote host. Available standard snapshotName: $COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+"myvm $ENV_PROJECT_NAME $COMMON_CONST_ESXI_HOST 1" \
+"Required allowing SSH access on the remote host. Available standard snapshotName: $ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 
 ###check commands
 
@@ -37,7 +37,7 @@ PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_REMOVE_CHILD=${4:-$COMMON_CONST_TRUE}
 
 checkCommandExist 'vmName' "$PRM_VMNAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$COMMON_CONST_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'removeChildren' "$PRM_REMOVE_CHILD" "$COMMON_CONST_BOOL_VALUES"
 

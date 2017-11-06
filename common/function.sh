@@ -6,7 +6,7 @@
 VAR_AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
 VAR_NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 VAR_ENVIRONMENT_ERROR='' #result of check environment, ok if empty
-VAR_STAGE_NUM=0 #stage counter
+VAR_STAGE_NUM=0 #stage num
 VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 
@@ -159,8 +159,8 @@ powerOnVM()
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
   echo "Required power on VMID $1 on $2 host"
-  $SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; fi"
-  if ! isRetValOK; then exitError; fi
+  VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+  if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echo "$VAR_RESULT"; fi
   while true; do
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
@@ -187,8 +187,8 @@ powerOffVM()
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
   echo "Required power off VMID $1 on $2 host"
-  $SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; fi"
-  if ! isRetValOK; then exitError; fi
+  VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+  if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echo "$VAR_RESULT"; fi
   while true; do
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
@@ -227,6 +227,7 @@ getIpAddressByVMName()
   do
     VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/get.guest $VAR_VM_ID | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
+    #vim-cmd vmsvc/get.guest vmid |grep -m 1 "ipAddress = \""
     if ! isEmpty "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
@@ -296,24 +297,20 @@ checkTriggerTemplateVM(){
   local VAR_INPUT=''
   local VAR_RESULT=''
   local VAR_LOG=''
-  if ! isAutoYesMode; then
-    read -r -p "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type. When you are done, press Enter for resume procedure " VAR_INPUT
-  fi
-  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIR_NAME/triggers/${1}_create.sh";then
+  pausePrompt "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type"
+  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${1}_create.sh";then
     VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
     VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     if ! isAutoYesMode; then
-      if ! isEmpty "$4"; then
-        echo "$4"
-      fi
-      read -r -p "Pause 2 of 3: Manually make changes on template VM $1 on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
+      echoResult "$4"
     fi
+    pausePrompt "Pause 2 of 3: Manually make changes on template VM $1 on $2 host"
     VAR_VM_IP=$(getIpAddressByVMName "$1" "$2") || exitChildError "$VAR_VM_IP"
     echo "VM ${1} ip address: $VAR_VM_IP"
     $SSH_COPY_ID root@$VAR_VM_IP
     if ! isRetValOK; then exitError; fi
-    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIR_NAME/triggers/${1}_create.sh root@$VAR_VM_IP:
+    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIR_NAME/trigger/${1}_create.sh root@$VAR_VM_IP:
     if ! isRetValOK; then exitError; fi
     echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
@@ -325,9 +322,8 @@ if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CON
     if ! isTrue "$VAR_RESULT"; then
       exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP on $2 host"
     fi
-    if ! isAutoYesMode; then
-      read -r -p "Pause 3 of 3: Last check template VM ${1} ip $VAR_VM_IP on $2 host. When you are done, press Enter for resume procedure " VAR_INPUT
-    else
+    pausePrompt "Pause 3 of 3: Last check template VM ${1} ip $VAR_VM_IP on $2 host"
+    if isAutoYesMode; then
       sleep $COMMON_CONST_ESXI_SLEEP_LONG
     fi
     VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
@@ -466,7 +462,6 @@ targetDescription(){
 #$1 total stage, $2 stage description
 beginStage(){
   checkParmsCount $# 2 'beginStage'
-  local VAR_STAGE_NUM=0
   VAR_STAGE_NUM=$((VAR_STAGE_NUM+1))
   if [ $VAR_STAGE_NUM -gt $1 ]
   then
@@ -482,7 +477,6 @@ doneStage(){
 
 doneFinalStage(){
   checkParmsCount $# 0 'doneFinalStage'
-  local VAR_STAGE_NUM=0
   if [ $VAR_STAGE_NUM -gt 0 ]
   then
     doneStage
@@ -494,7 +488,9 @@ exitOK(){
   if ! isEmpty "$1"; then
     echo $1
   fi
-  echo "End session $$ with $COMMON_CONST_EXIT_SUCCESS (Ok)"
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
+  fi
   exit $COMMON_CONST_EXIT_SUCCESS
 }
 #[$1] message, [$2] child error
@@ -502,11 +498,35 @@ exitError(){
   if isEmpty "$2"; then
     echo -n "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}"
     echo ". See '$COMMON_CONST_SCRIPT_FILE_NAME --help'"
+    if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+      getTrace
+    fi
   else
     echo "$1"
   fi
-  echo "Stop session $$ with $COMMON_CONST_EXIT_ERROR (Error)"
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
+  fi
   exit $COMMON_CONST_EXIT_ERROR
+}
+
+getTrace(){
+  checkParmsCount $# 0 'getTrace'
+  local TRACE=""
+  local CP=$$ # PID of the script itself [1]
+  while true # safe because "all starts with init..."
+  do
+    CMDLINE=$(ps -o args= -f -p $CP)
+    PP=$(grep PPid /proc/$CP/status | awk '{ print $2; }') # [2]
+    TRACE="$TRACE [$CP]:$CMDLINE\n"
+    if [ "$CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
+      break
+    fi
+    CP=$PP
+  done
+  echo "Begin trace"
+  echo -n "$TRACE" | tac | grep -n ":" | tac # using tac to "print in reverse" [3]
+  echo "End trace"
 }
 #$1 message
 exitChildError(){
@@ -535,43 +555,50 @@ echoHelp(){
     echo "Tooltip: $PRM_TOOLTIP"
     exit $COMMON_CONST_EXIT_SUCCESS
   else
-    echo "Start session $$"
+    if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+      echo "Start session [$$]"
+    fi
   fi
+}
+#1 pause message
+pausePrompt()
+{
+  checkParmsCount $# 1 'pausePrompt'
+  local VAR_INPUT=''
+  if isAutoYesMode; then return; fi
+  read -r -p "$1. When you are done, press Enter for resume procedure " VAR_INPUT
 }
 
 startPrompt(){
   checkParmsCount $# 0 'startPrompt'
-  echoResult "$VAR_COMMAND_VALUE"
-  if ! isAutoYesMode
-  then
-    local VAR_INPUT=''
-    local VAR_YES=$COMMON_CONST_FALSE
-    local VAR_DO_FLAG=$COMMON_CONST_TRUE
-    while [ "$VAR_DO_FLAG" = "$COMMON_CONST_TRUE" ]
-    do
-      read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
-      if isEmpty "$VAR_INPUT"
-      then
-        VAR_DO_FLAG=$COMMON_CONST_FALSE
-      else
-        case $VAR_INPUT in
-          [yY])
-            VAR_YES=$COMMON_CONST_TRUE
-            VAR_DO_FLAG=$COMMON_CONST_FALSE
-            ;;
-          [nN])
-            VAR_DO_FLAG=$COMMON_CONST_FALSE
-            ;;
-          *)
-            echo 'Invalid input'
-            ;;
-        esac
-      fi
-    done
-    if ! isTrue $VAR_YES
-    then
-      exitOK 'Good bye!'
+  local VAR_INPUT=''
+  local VAR_YES=$COMMON_CONST_FALSE
+  local VAR_DO_FLAG=$COMMON_CONST_TRUE
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    echoResult "$VAR_COMMAND_VALUE"
+  fi
+  if isAutoYesMode; then return; fi
+  while isTrue "$VAR_DO_FLAG"; do
+    read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
+    if isEmpty "$VAR_INPUT"; then
+      VAR_DO_FLAG=$COMMON_CONST_FALSE
+    else
+      case $VAR_INPUT in
+        [yY])
+          VAR_YES=$COMMON_CONST_TRUE
+          VAR_DO_FLAG=$COMMON_CONST_FALSE
+          ;;
+        [nN])
+          VAR_DO_FLAG=$COMMON_CONST_FALSE
+          ;;
+        *)
+          echo 'Invalid input'
+          ;;
+      esac
     fi
+  done
+  if ! isTrue $VAR_YES; then
+    exitOK 'Good bye!'
   fi
 }
 #$1 parameter
@@ -597,7 +624,7 @@ getFileNameFromUrlString()
 getFileNameWithoutExt()
 {
   checkParmsCount $# 1 'getFileNameWithoutExt'
-  echo $1 | awk -F. '{print $1}'
+  echo $1 | rev | sed 's/[.]/:/' | rev | awk -F: '{print $1}'
 }
 #$1 parm count, $2 must be count, $3 function name
 checkParmsCount(){
@@ -639,7 +666,7 @@ put_ovftool_to_esxi(){
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
-  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIR_NAME/templates $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
+  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIR_NAME/template $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
 }
 #$1 return result

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Deploy build file on incorp project $COMMON_CONST_PROJECT_NAME"
+targetDescription "Deploy build file on incorp project $ENV_PROJECT_NAME"
 
 ##private consts
 
@@ -51,7 +51,7 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPT_VERSION}
 VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 VAR_SCRIPT_FILE_NAME=${PRM_VMTEMPLATE}_${PRM_SCRIPT_VERSION}_deploy
-VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/triggers/${VAR_SCRIPT_FILE_NAME}.sh
+VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$PRM_FILE_NAME $VAR_CONFIG_FILE_PATH $VAR_SCRIPT_FILE_PATH"
 
@@ -68,7 +68,7 @@ VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}')
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}')
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
 
   $SCP_CLIENT $PRM_FILE_NAME $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi

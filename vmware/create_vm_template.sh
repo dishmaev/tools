@@ -16,7 +16,6 @@ VAR_OVA_FILE_NAME='' # ova package name
 VAR_OVA_FILE_PATH='' # ova package name with local path
 VAR_FILE_URL='' # url for download
 VAR_RESULT='' #child return value
-VAR_INPUT='' #read input value
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
 VAR_DISC_FILE_PATH='' #vmdk file name with local esxi host path
@@ -337,7 +336,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     #power on
     vboxmanage startvm $PRM_VM_TEMPLATE
     if ! isRetValOK; then exitError; fi
-    read -r -p "Pause: Manually open Virtual Box, install OS on VM $PRM_VM_TEMPLATE, and shutdown it. When you are done, press Enter for resume procedure " VAR_INPUT
+    pausePrompt "Pause: Manually open Virtual Box, install OS on VM $PRM_VM_TEMPLATE, and shutdown it"
     #export
     vboxmanage export --ovf10 --manifest --options manifest $PRM_VM_TEMPLATE -o ${PRM_VM_TEMPLATE}_tmp.ova
     if ! isRetValOK; then exitError; fi

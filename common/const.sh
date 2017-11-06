@@ -2,25 +2,7 @@
 
 #define common consts
 
-#default project, user, keys
-readonly COMMON_CONST_ROOT_DIR=/home/dmitry/Projects/tools #set correct path before using this tools
-
-readonly COMMON_CONST_PROJECT_NAME='MYPROJ' #project name
 readonly COMMON_CONST_GPG_KEYID='507650DE33C7BA92EDD1569DF4F5A67BE44EEED4' #gpg keyID
-
-#base tool infrastructure
-readonly COMMON_CONST_SCRIPT_FILE_NAME=$(basename "$0") #script file name
-readonly COMMON_CONST_SCRIPT_DIR_NAME=$(dirname "$0") #script directory name
-readonly COMMON_CONST_TOOL_TIP='-y batch mode with yes answer' #simple autoyes tooltip
-readonly COMMON_CONST_DOWNLOAD_PATH="$COMMON_CONST_ROOT_DIR/downloads" #local directory to save downloads
-readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
-readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
-readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME" #vmware tools local directory
-readonly COMMON_CONST_LINUX_APT='apt'
-readonly COMMON_CONST_LINUX_RPM='rpm'
-readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
-readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
-readonly COMMON_CONST_DATA_TXT_SEPARATOR='::' #default separator for data files
 
 #boolean
 readonly COMMON_CONST_FALSE=0 #false
@@ -31,6 +13,19 @@ readonly COMMON_CONST_BOOL_VALUES="$COMMON_CONST_FALSE $COMMON_CONST_TRUE" #bool
 readonly COMMON_CONST_EXIT_ERROR=1
 readonly COMMON_CONST_EXIT_SUCCESS=0
 readonly COMMON_CONST_ERROR_MESS_UNKNOWN='some problem occured while execute last command, details above in output'
+
+#base tool infrastructure
+readonly COMMON_CONST_SCRIPT_FILE_NAME=$(basename "$0") #script file name
+readonly COMMON_CONST_SCRIPT_DIR_NAME=$(dirname "$0") #script directory name
+readonly COMMON_CONST_TOOL_TIP='-y batch mode with yes answer' #simple autoyes tooltip
+readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
+readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
+readonly COMMON_CONST_LINUX_APT='apt'
+readonly COMMON_CONST_LINUX_RPM='rpm'
+readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
+readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
+readonly COMMON_CONST_DATA_TXT_SEPARATOR='::' #default separator for data files
+readonly COMMON_CONST_SHOW_DEBUG="$COMMON_CONST_TRUE" #show trace when error
 
 #incorp infrastructure
 readonly COMMON_CONST_INCORP_MAILSERVER_HOST='mail'
@@ -89,12 +84,12 @@ readonly COMMON_CONST_ESXI_HOSTS_POOL="$COMMON_CONST_ESXI_HOST" #esxi hosts, lis
 readonly COMMON_CONST_ESXI_BASE_DATASTORE='datastore1' #default datastore of base content: images, patches, tools
 readonly COMMON_CONST_ESXI_VM_DATASTORE='datastore2' #default datastore of virtual machines on esxi host
 readonly COMMON_CONST_ESXI_TOOLS_PATH="/vmfs/volumes/$COMMON_CONST_ESXI_BASE_DATASTORE/tools" #tools directory
-readonly COMMON_CONST_ESXI_IMAGES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/images" #vm images (iso, ova, etc) directory on esxi host
-readonly COMMON_CONST_ESXI_PATCHES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/patches" #esxi patches directory on esxi host
-readonly COMMON_CONST_ESXI_TEMPLATES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/templates" #templates directory on esxi host
+readonly COMMON_CONST_ESXI_IMAGES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/image" #vm images (iso, ova, etc) directory on esxi host
+readonly COMMON_CONST_ESXI_PATCHES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/patch" #esxi patches directory on esxi host
+readonly COMMON_CONST_ESXI_TEMPLATES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/template" #templates directory on esxi host
 readonly COMMON_CONST_ESXI_DATA_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/data" #notupgradable data directory on esxi host
 readonly COMMON_CONST_ESXI_OVFTOOL_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmware-ovftool" #ovf tools directory on esxi host
-readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtools" #vmware tools directory on esxi host
+readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #vmware tools directory on esxi host
 readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_ESXI_TRY_LONG=15 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=10 #sleep long
