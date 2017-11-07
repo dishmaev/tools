@@ -12,7 +12,7 @@ if isEmpty "$ENV_SCRIPT_FILE_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_FI
 readonly ENV_SCRIPT_DIR_NAME=$(dirname "$0")
 if isEmpty "$ENV_SCRIPT_DIR_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_DIR_NAME"; fi
 #project name
-readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -f $ENV_ROOT_DIR/../.gitmodules ]; then VP=$VP/..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -f $ENV_ROOT_DIR/../.gitmodules ]; then VP=\$VP/..; fi; git -C \$VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #default git user
 readonly ENV_GIT_USER_NAME=$(git config user.name)
@@ -27,7 +27,7 @@ if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAM
 readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/sshpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_USER_PASS"; then checkNotEmptyEnvironment "ENV_SSH_USER_PASS"; fi
 #ssh keyID, also key file name in ~/.ssh/
-readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa; if [ -r ~/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
+readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa; if [ -r $HOME/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
 #for add tools submodule
 readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
@@ -42,7 +42,7 @@ readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${ENV_SSH_KEYID}.pub"
 
 #local directory to save downloads
-readonly COMMON_CONST_DOWNLOAD_PATH="$ENV_ROOT_DIR/downloads"
+readonly COMMON_CONST_DOWNLOAD_PATH="$HOME/Downloads"
 #check local directory to save downloads, make if not exist
 if [ ! -d "$COMMON_CONST_DOWNLOAD_PATH" ]; then
   mkdir "$COMMON_CONST_DOWNLOAD_PATH";
