@@ -48,7 +48,7 @@ checkGpgSecKeyExist $COMMON_CONST_GPG_KEYID
 
 ###check required files
 
-checkRequiredFiles "$COMMON_CONST_SCRIPT_DIR_NAME/distributions"
+checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/distributions"
 
 ###start prompt
 
@@ -86,7 +86,7 @@ doneStage
 beginStage $CONST_STAGE_COUNT 'Create keys, config files, symlinks'
 
 gpg -q --export --armor --output $VAR_TARGET_DIR_NAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPG_KEYID
-cat $COMMON_CONST_SCRIPT_DIR_NAME/distributions | sed -e "s#@COMMON_CONST_GPG_KEYID@#$COMMON_CONST_GPG_KEYID#" > $VAR_TARGET_DIR_NAME/linux/apt/conf/distributions
+cat $ENV_SCRIPT_DIR_NAME/distributions | sed -e "s#@COMMON_CONST_GPG_KEYID@#$COMMON_CONST_GPG_KEYID#" > $VAR_TARGET_DIR_NAME/linux/apt/conf/distributions
 
 if [ ! -f ~/$CONST_RPMCFG_FILENAME ]
 then

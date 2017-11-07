@@ -298,7 +298,7 @@ checkTriggerTemplateVM(){
   local VAR_RESULT=''
   local VAR_LOG=''
   pausePrompt "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type"
-  if isFileExistAndRead "$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${1}_create.sh";then
+  if isFileExistAndRead "$ENV_SCRIPT_DIR_NAME/trigger/${1}_create.sh";then
     VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
     VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
@@ -310,7 +310,7 @@ checkTriggerTemplateVM(){
     echo "VM ${1} ip address: $VAR_VM_IP"
     $SSH_COPY_ID root@$VAR_VM_IP
     if ! isRetValOK; then exitError; fi
-    $SCP_CLIENT $COMMON_CONST_SCRIPT_DIR_NAME/trigger/${1}_create.sh root@$VAR_VM_IP:
+    $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/trigger/${1}_create.sh root@$VAR_VM_IP:
     if ! isRetValOK; then exitError; fi
     echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
     #exec trigger script
@@ -498,7 +498,7 @@ exitOK(){
 exitError(){
   if isEmpty "$2"; then
     echo -n "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}"
-    echo ". See '$COMMON_CONST_SCRIPT_FILE_NAME --help'"
+    echo ". See '$ENV_SCRIPT_FILE_NAME --help'"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       getTrace
     fi
@@ -547,8 +547,8 @@ echoHelp(){
     exitError 'too many options'
   fi
   if isTrue "$VAR_NEED_HELP"; then
-    echo "Usage: $COMMON_CONST_SCRIPT_FILE_NAME [-y] $3"
-    echo "Sample: $COMMON_CONST_SCRIPT_FILE_NAME $4"
+    echo "Usage: $ENV_SCRIPT_FILE_NAME [-y] $3"
+    echo "Sample: $ENV_SCRIPT_FILE_NAME $4"
     if ! isEmpty "$5"
     then
       PRM_TOOLTIP="$COMMON_CONST_TOOL_TIP. $5"
@@ -607,7 +607,7 @@ startPrompt(){
 #$1 parameter
 checkAutoYes() {
   checkParmsCount $# 1 'checkAutoYes'
-  echo "Target: $(getFileNameWithoutExt "$COMMON_CONST_SCRIPT_FILE_NAME")"
+  echo "Target: $(getFileNameWithoutExt "$ENV_SCRIPT_FILE_NAME")"
   if [ "$1" = "-y" ]; then
     VAR_AUTO_YES=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
@@ -669,7 +669,7 @@ put_ovftool_to_esxi(){
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
-  $SCP_CLIENT -r $COMMON_CONST_SCRIPT_DIR_NAME/template $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
+  $SCP_CLIENT -r $ENV_SCRIPT_DIR_NAME/template $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
 }
 #$1 return result

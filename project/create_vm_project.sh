@@ -57,12 +57,12 @@ checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VMTYPES_POOL"
 ###check required files
 
 VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_VM_ROLE}_create
-VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
+VAR_SCRIPT_FILE_PATH=$ENV_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
-VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
+VAR_CONFIG_FILE_PATH=$ENV_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 
 checkFileForNotExist "$VAR_CONFIG_FILE_PATH" 'config '
 
@@ -92,7 +92,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   if ! isTrue "$VAR_FOUND"; then
     echo "Not found, required new VM"
     VAR_HOST=$COMMON_CONST_ESXI_HOST
-    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/create_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/create_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
@@ -100,7 +100,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     echo "New VM name: $VAR_VM_NAME"
   else
     echo "Current VM name: $VAR_VM_NAME"
-    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   fi
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
@@ -122,7 +122,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FI
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
   #take project snapshot
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_VM_ROLE" $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_VM_ROLE" $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #save vm config file
   echo "Save config file $VAR_CONFIG_FILE_PATH"

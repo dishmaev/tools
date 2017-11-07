@@ -136,7 +136,7 @@ fi
 
 #update tools
 echo "Checking tools version on $PRM_HOST host"
-VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/upgrade_tools_esxi.sh -y $PRM_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -248,10 +248,10 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       if ! isRetValOK; then exitError; fi
     fi
     #check virtual box deploy
-    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #check vagrant deploy
-    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #create temporary directory
     VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
@@ -320,7 +320,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.oracle.com/technetwork/server-storage/solaris11/downloads/vm-templates-2245495.html/"
     fi
     #check virtual box deploy
-    VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #create temporary directory
     VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
@@ -387,7 +387,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
   ovftool --noSSLVerify "vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST/$PRM_VM_TEMPLATE" $VAR_OVA_FILE_PATH
   if ! isRetValOK; then exitError; fi
   #delete template vm
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/delete_vm.sh -y $PRM_VM_TEMPLATE $PRM_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/delete_vm.sh -y $PRM_VM_TEMPLATE $PRM_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"
   then #can't make ova package

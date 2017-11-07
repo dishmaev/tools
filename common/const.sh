@@ -15,8 +15,6 @@ readonly COMMON_CONST_EXIT_SUCCESS=0
 readonly COMMON_CONST_ERROR_MESS_UNKNOWN='some problem occured while execute last command, details above in output'
 
 #base tool infrastructure
-readonly COMMON_CONST_SCRIPT_FILE_NAME=$(basename "$0") #script file name
-readonly COMMON_CONST_SCRIPT_DIR_NAME=$(dirname "$0") #script directory name
 readonly COMMON_CONST_TOOL_TIP='-y batch mode with yes answer' #simple autoyes tooltip
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
 readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name

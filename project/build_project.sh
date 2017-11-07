@@ -51,9 +51,9 @@ checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 ###check required files
 
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
-VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
+VAR_CONFIG_FILE_PATH=$ENV_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 VAR_SCRIPT_FILE_NAME=${PRM_VMTEMPLATE}_${PRM_VM_ROLE}_build
-VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
+VAR_SCRIPT_FILE_PATH=$ENV_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$PRM_BUILD_FILE $VAR_CONFIG_FILE_PATH $VAR_SCRIPT_FILE_PATH"
 
@@ -70,7 +70,7 @@ VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}') || exitChildError "$VAR_
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #power off
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
