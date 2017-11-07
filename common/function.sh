@@ -386,7 +386,7 @@ checkDependencies(){
   local VAR_DEPENDENCE=''
   for VAR_DEPENDENCE in $1
   do
-    if ! isCommandExist $VAR_DEPENDENCE
+    if ! isCommandExist "$VAR_DEPENDENCE"
     then
       if isLinuxOS
       then
