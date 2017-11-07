@@ -65,7 +65,7 @@ if ! grep -qF "$CONST_VBOX_REPO" "$CONST_APT_SOURCE_FILE"; then
 fi
 #libvpx3
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBVPX3_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
-VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBVPX3_URL
   if ! isRetValOK; then exitError; fi
@@ -74,7 +74,7 @@ sudo dpkg -i $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 #libssl 1.0.0
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBSSL_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
-VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBSSL_URL
   if ! isRetValOK; then exitError; fi

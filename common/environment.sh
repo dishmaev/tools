@@ -12,7 +12,7 @@ if isEmpty "$ENV_SCRIPT_FILE_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_FI
 readonly ENV_SCRIPT_DIR_NAME=$(dirname "$0")
 if isEmpty "$ENV_SCRIPT_DIR_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_DIR_NAME"; fi
 #project name
-readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -f $ENV_ROOT_DIR/../.gitmodules ]; then VP=$VP/..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -d $ENV_ROOT_DIR/bin ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #default git user
 readonly ENV_GIT_USER_NAME=$(git config user.name)
@@ -35,19 +35,24 @@ if isEmpty "$ENV_TOOLS_REPO"; then checkNotEmptyEnvironment "ENV_TOOLS_REPO"; fi
 #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly ENV_OVFTOOL_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/ovftoolpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_USER_PASS"; fi
+#local directory to save downloads
+readonly ENV_DOWNLOAD_PATH=$(if [ -d "$HOME/Downloads" ]; then echo "$HOME/Downloads"; fi)
+if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi
+#directory for project data
+readonly ENV_PROJECT_DATA_PATH=$(if [ -d $ENV_ROOT_DIR/bin ]; then echo $ENV_ROOT_DIR/../data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
+if isEmpty "$ENV_PROJECT_DATA_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_DATA_PATH"; fi
+#directory for project triggers
+readonly ENV_PROJECT_TRIGGER_PATH=$(if [ -d $ENV_ROOT_DIR/bin ]; then echo $ENV_ROOT_DIR/../trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
+if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
+
+#vmware tools local directory
+readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"
 
 #aliases
 readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${ENV_SSH_KEYID}.pub"
 
-#local directory to save downloads
-readonly COMMON_CONST_DOWNLOAD_PATH="$HOME/Downloads"
-#check local directory to save downloads, make if not exist
-if [ ! -d "$COMMON_CONST_DOWNLOAD_PATH" ]; then
-  mkdir "$COMMON_CONST_DOWNLOAD_PATH";
-  #git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
-fi;
-
-#vmware tools local directory
-readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$COMMON_CONST_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"
+#create project directories if not exist
+if [ ! -d "$ENV_PROJECT_DATA_PATH" ]; then mkdir $ENV_PROJECT_DATA_PATH; fi
+if [ ! -d "$ENV_PROJECT_TRIGGER_PATH" ]; then mkdir $ENV_PROJECT_TRIGGER_PATH; fi

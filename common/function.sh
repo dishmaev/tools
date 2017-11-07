@@ -449,13 +449,13 @@ checkNotEmptyEnvironment(){
 setErrorEnvironment()
 {
   checkParmsCount $# 1 'setErrorEnvironment'
-  VAR_ENVIRONMENT_ERROR="$1 in $(basename $0)"
+  VAR_ENVIRONMENT_ERROR="$1 in environment.sh"
 }
 #$1 description
 targetDescription(){
   checkParmsCount $# 1 'targetDescription'
   if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
-    echo "Error environment: $VAR_ENVIRONMENT_ERROR"
+    echo "Error: $VAR_ENVIRONMENT_ERROR"
     exit $COMMON_CONST_EXIT_ERROR
   fi
   VAR_TARGET_DESCRIPTION=$1

@@ -44,7 +44,7 @@ checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 ###check required files
 
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
-VAR_CONFIG_FILE_PATH=$ENV_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
+VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.txt
 checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
 
 ###start prompt

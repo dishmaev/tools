@@ -66,9 +66,9 @@ for VAR_HOST in $PRM_HOSTS_POOL; do
   if ! isTrue "$VAR_RESULT"; then exitError; fi
 done
 
-if [ -f "$COMMON_CONST_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME" ]; then
-  echo "Deleting local file $COMMON_CONST_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
-  rm "$COMMON_CONST_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
+if [ -f "$ENV_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME" ]; then
+  echo "Deleting local file $ENV_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
+  rm "$ENV_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
 fi
 
 doneFinalStage

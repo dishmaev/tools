@@ -144,10 +144,10 @@ if isTrue "$VAR_RESULT"; then
   doneFinalStage
   exitOK
 fi
-VAR_OVA_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
+VAR_OVA_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
 if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
-  VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+  VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 #ptn
   if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
@@ -174,7 +174,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     #check exist base vmdk disk on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
     if ! isTrue "$VAR_RESULT"; then #put if not exist
-      TMP_FILE_PATH2=$COMMON_CONST_DOWNLOAD_PATH/$TMP_FILE_NAME
+      TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$TMP_FILE_NAME
       if ! isFileExistAndRead "${TMP_FILE_PATH2}.xz"; then
         echo "Unpack archive $VAR_ORIG_FILE_PATH"
         p7zip -f -c -d "$VAR_ORIG_FILE_PATH" > "$TMP_FILE_PATH2"

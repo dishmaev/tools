@@ -66,7 +66,15 @@ doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Add tools submodule'
 #add tools submodule
-git submodule add $PRM_TOOLS_REPO
+mkdir tools
+if ! isRetValOK; then exitError; fi
+cd tools
+if ! isRetValOK; then exitError; fi
+git submodule add --name tools $PRM_TOOLS_REPO bin
+if ! isRetValOK; then exitError; fi
+mkdir data
+if ! isRetValOK; then exitError; fi
+mkdir trigger
 if ! isRetValOK; then exitError; fi
 doneStage
 #new stage
