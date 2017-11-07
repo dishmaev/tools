@@ -22,7 +22,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 3 '<sourceDirectory> <remoteRepository> [toolsRepository=$ENV_TOOLS_REPO]' \
       ". git@github.com:$ENV_GIT_USER_NAME/newrepo.git $ENV_TOOLS_REPO" \
-      "Remote repository possible empty, not initialized yet. Required git-flow package. Branch model details http://nvie.com/posts/a-successful-git-branching-model/"
+      "Remote repository possible empty, not initialized yet. Required git-flow package. Gitflow branch model details http://nvie.com/posts/a-successful-git-branching-model/"
 
 ###check commands
 
