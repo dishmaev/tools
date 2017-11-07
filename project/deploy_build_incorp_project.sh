@@ -21,6 +21,7 @@ VAR_VM_TEMPLATE='' #vm template
 VAR_VM_NAME='' #vm name
 VAR_HOST='' #esxi host
 VAR_VM_ID='' #vm id
+VAR_VM_IP='' #vm ip address
 
 ###check autoyes
 
@@ -69,9 +70,28 @@ VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}')
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}')
   VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
-
-  $SCP_CLIENT $PRM_FILE_NAME $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
+  echoResult "$VAR_RESULT"
+  #power off
+  VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
+  VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
+  #copy build file on vm
+  $SCP_CLIENT $PRM_FILE_NAME $VAR_VM_IP:
   if ! isRetValOK; then exitError; fi
+  #copy create script on vm
+  VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
+  $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
+  if ! isRetValOK; then exitError; fi
+  echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME; \
+if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+  RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
+  if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
+  RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$RET_LOG"
+  if ! isEmpty "$RET_LOG"; then echo "Stderr:\n$RET_LOG"; fi
+  if ! isTrue "$VAR_RESULT"; then
+    exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
+  fi
 fi
 
 doneFinalStage

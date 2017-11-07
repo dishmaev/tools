@@ -93,7 +93,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     echo "Not found, required new VM"
     VAR_HOST=$COMMON_CONST_ESXI_HOST
     VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/create_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
-    echo "$VAR_RESULT"
+    echoResult "$VAR_RESULT"
     VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:host:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
     if isEmpty "$VAR_VM_NAME" || isEmpty "$VAR_VM_ID"; then exitError; fi
@@ -101,7 +101,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   else
     echo "Current VM name: $VAR_VM_NAME"
     VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
-    echo "$VAR_RESULT"
+    echoResult "$VAR_RESULT"
   fi
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
@@ -122,7 +122,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FI
   fi
   #take project snapshot
   VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_SCRIPT_VERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
-  echo "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
   #save vm config file
   echo "Save config file $VAR_CONFIG_FILE_PATH"
   echo $PRM_VM_TYPE$COMMON_CONST_DATA_TXT_SEPARATOR\

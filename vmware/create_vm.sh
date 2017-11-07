@@ -89,7 +89,7 @@ $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATAS
 if ! isRetValOK; then exitError; fi
 #take base template snapshot
 VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_HOST) || exitChildError "$VAR_RESULT"
-echo "$VAR_RESULT"
+echoResult "$VAR_RESULT"
 #set autostart new vm
 VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 $SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"

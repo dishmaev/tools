@@ -61,7 +61,7 @@ VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}')
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}')
   VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/remove_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
-  echo "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
   echo "Remove config file $VAR_CONFIG_FILE_PATH"
   rm $VAR_CONFIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
