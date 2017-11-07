@@ -22,7 +22,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 3 '<sourceDirectory> <remoteRepository> [toolsRepository=$ENV_TOOLS_REPO]' \
       ". git@github.com:$ENV_GIT_USER_NAME/newrepo.git $ENV_TOOLS_REPO" \
-      "Remote repository possible empty, not initialized yet. Required git-flow package"
+      "Remote repository possible empty, not initialized yet. Required git-flow package. Branch model details http://nvie.com/posts/a-successful-git-branching-model/"
 
 ###check commands
 
@@ -81,7 +81,7 @@ echo "git clone -b develop --recursive $PRM_REMOTE_REPO"
 echo ''
 echo 'Update tools submodule from master branch orinal repository by command:'
 echo 'git submodule update --remote tools'
-echo 'If need to change submodule update branch, change setting by command:'
-echo 'git config -f .gitmodules submodule.tools.branch <branch>'
+echo 'If you need to change submodule update branch, change setting by command:'
+echo 'git config -f .gitmodules submodule.tools.branch <newBranch>'
 
 exitOK

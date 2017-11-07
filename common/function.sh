@@ -102,8 +102,8 @@ getVMUrl() {
   echo "$VAR_RESULT"
 }
 #$1 vm template
-getAvailableVMVersions(){
-  checkParmsCount $# 1 'getAvailableVMVersions'
+getAvailableVMTemplateVersions(){
+  checkParmsCount $# 1 'getAvailableVMTemplateVersions'
   local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
@@ -127,8 +127,8 @@ getAvailableVMVersions(){
   echo "$VAR_RESULT"
 }
 #$1 vm template
-getDefaultVMVersion(){
-  checkParmsCount $# 1 'getDefaultVMVersion'
+getDefaultVMTemplateVersion(){
+  checkParmsCount $# 1 'getDefaultVMTemplateVersion'
   local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
@@ -313,6 +313,7 @@ checkTriggerTemplateVM(){
     $SCP_CLIENT $COMMON_CONST_SCRIPT_DIR_NAME/trigger/${1}_create.sh root@$VAR_VM_IP:
     if ! isRetValOK; then exitError; fi
     echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
+    #exec trigger script
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
 if [ -f ${1}_create.result ]; then cat ${1}_create.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"

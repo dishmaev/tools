@@ -13,7 +13,7 @@ PRM_VM_TEMPLATE_VERSION='' #vm template version
 PRM_HOSTS_POOL='' # esxi hosts pool
 VAR_RESULT='' #child return value
 VAR_HOST='' #current esxi host
-VAR_VM_VER='' #current vm version
+VAR_VM_TEMPLATE_VER='' #current vm template version
 VAR_OVA_FILE_NAME='' # ova package name
 
 ###check autoyes
@@ -37,11 +37,11 @@ checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" ''
 checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
 
 if [ "$PRM_VM_TEMPLATE_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
-  VAR_VM_VER=$(getDefaultVMVersion "$PRM_VMTEMPLATE") || exitChildError "$VAR_VM_VER"
+  VAR_VM_TEMPLATE_VER=$(getDefaultVMTemplateVersion "$PRM_VMTEMPLATE") || exitChildError "$VAR_VM_TEMPLATE_VER"
 else
-  VAR_VM_VER=$(getAvailableVMVersions "$PRM_VMTEMPLATE") || exitChildError "$VAR_VM_VER"
-  checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" "$VAR_VM_VER"
-  VAR_VM_VER=$PRM_VM_TEMPLATE_VERSION
+  VAR_VM_TEMPLATE_VER=$(getAvailableVMTemplateVersions "$PRM_VMTEMPLATE") || exitChildError "$VAR_VM_TEMPLATE_VER"
+  checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" "$VAR_VM_TEMPLATE_VER"
+  VAR_VM_TEMPLATE_VER=$PRM_VM_TEMPLATE_VERSION
 fi
 
 ###check body dependencies
@@ -58,7 +58,7 @@ startPrompt
 
 ###body
 
-VAR_OVA_FILE_NAME="${PRM_VMTEMPLATE}-${VAR_VM_VER}.ova"
+VAR_OVA_FILE_NAME="${PRM_VMTEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
 
 for VAR_HOST in $PRM_HOSTS_POOL; do
   echo "Esxi host:" $VAR_HOST

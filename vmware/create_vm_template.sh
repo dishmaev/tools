@@ -8,10 +8,10 @@ targetDescription 'Create VM template on remote esxi host'
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
-PRM_VM_VERSION='' #vm version
+PRM_VM_TEMPLATE_VERSION='' #vm version
 PRM_HOST='' #host
 PRM_VM_DATASTORE='' #datastore for vm
-VAR_VM_VER='' #current vm version
+VAR_VM_TEMPLATE_VER='' #current vm template version
 VAR_OVA_FILE_NAME='' # ova package name
 VAR_OVA_FILE_PATH='' # ova package name with local path
 VAR_FILE_URL='' # url for download
@@ -31,28 +31,28 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<vmTemplate> [vmVersion=$COMMON_CONST_DEFAULT_VERSION] [host=$COMMON_CONST_ESXI_HOST] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
+echoHelp $# 4 '<vmTemplate> [vmTemplateVersion=$COMMON_CONST_DEFAULT_VERSION] [host=$COMMON_CONST_ESXI_HOST] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
     "$COMMON_CONST_PHOTON_VM_TEMPLATE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_VM_DATASTORE" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
 
 PRM_VM_TEMPLATE=$1
-PRM_VM_VERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_VM_TEMPLATE_VERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
 PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_VM_DATASTORE=${4:-$COMMON_CONST_ESXI_VM_DATASTORE}
 
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
-checkCommandExist 'vmVersion' "$PRM_VM_VERSION" ''
+checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" ''
 checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'vmDataStore' "$PRM_VM_DATASTORE" ''
 
-if [ "$PRM_VM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
-  VAR_VM_VER=$(getDefaultVMVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_VER"
+if [ "$PRM_VM_TEMPLATE_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
+  VAR_VM_TEMPLATE_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_TEMPLATE_VER"
 else
-  VAR_VM_VER=$(getAvailableVMVersions "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_VER"
-  checkCommandExist 'vmVersion' "$PRM_VM_VERSION" "$VAR_VM_VER"
-  VAR_VM_VER=$PRM_VM_VERSION
+  VAR_VM_TEMPLATE_VER=$(getAvailableVMTemplateVersions "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_TEMPLATE_VER"
+  checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" "$VAR_VM_TEMPLATE_VER"
+  VAR_VM_TEMPLATE_VER=$PRM_VM_TEMPLATE_VERSION
 fi
 
 ###check body dependencies
@@ -69,8 +69,8 @@ startPrompt
 ###body
 
 #get url for current vm template version
-VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$VAR_VM_VER") || exitChildError "$VAR_FILE_URL"
-VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
+VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$VAR_VM_TEMPLATE_VER") || exitChildError "$VAR_FILE_URL"
+VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
 VAR_DISC_DIR_PATH="/vmfs/volumes/$PRM_VM_DATASTORE/$PRM_VM_TEMPLATE"
 VAR_DISC_FILE_PATH="$VAR_DISC_DIR_PATH/$PRM_VM_TEMPLATE.vmdk"
 #set paused text
@@ -169,7 +169,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
       exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/debian/"
     fi
-    TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_VER}.vmdk
+    TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$TMP_FILE_NAME
     #check exist base vmdk disk on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -363,7 +363,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       if ! isRetValOK; then exitError; fi
     fi
-    TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_VER}.vmdk
+    TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$TMP_FILE_NAME
     #check exist base vmdk disk on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -382,7 +382,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isRetValOK; then exitError; fi
   fi
   #execute trigger when exist
-  checkTriggerTemplateVM "$PRM_VM_TEMPLATE" "$PRM_HOST" "$VAR_VM_VER" "$VAR_PAUSE_MESSAGE"
+  checkTriggerTemplateVM "$PRM_VM_TEMPLATE" "$PRM_HOST" "$VAR_VM_TEMPLATE_VER" "$VAR_PAUSE_MESSAGE"
   #make ova package
   ovftool --noSSLVerify "vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST/$PRM_VM_TEMPLATE" $VAR_OVA_FILE_PATH
   if ! isRetValOK; then exitError; fi

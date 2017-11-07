@@ -55,7 +55,7 @@ startPrompt
 ###body
 
 #get vm template current version
-VAR_VM_VER=$(getDefaultVMVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_VER"
+VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_VER"
 VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
 #check tools exist
 echo "Checking exist tools on $PRM_HOST host"

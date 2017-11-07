@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Create VM on incorp project $ENV_PROJECT_NAME"
+targetDescription "Create VM of incorp project $ENV_PROJECT_NAME"
 
 ##private consts
 
@@ -11,7 +11,7 @@ targetDescription "Create VM on incorp project $ENV_PROJECT_NAME"
 PRM_VM_TEMPLATE='' #vm template
 PRM_SUITE='' #suite
 PRM_VM_TYPE='' #vm name
-PRM_SCRIPT_VERSION='' #version script for create VM
+PRM_VM_ROLE='' #role for create VM
 PRM_OVERRIDE_CONFIG=$COMMON_CONST_FALSE #override config if exist
 VAR_RESULT='' #child return value
 VAR_VMS_POOL='' #vms pool
@@ -34,21 +34,21 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmType=$COMMON_CONST_VMWARE_VM_TYPE] [scriptVersion=$COMMON_CONST_DEFAULT_VERSION]' \
-"$COMMON_CONST_PHOTON_VM_TEMPLATE $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_VMWARE_VM_TYPE $COMMON_CONST_DEFAULT_VERSION" \
+echoHelp $# 4 '<vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [vmType=$COMMON_CONST_VMWARE_VM_TYPE]' \
+"$COMMON_CONST_PHOTON_VM_TEMPLATE $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_VMWARE_VM_TYPE" \
 "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $COMMON_CONST_SUITES_POOL. Available VM types: $COMMON_CONST_VMTYPES_POOL"
 
 ###check commands
 
 PRM_VM_TEMPLATE=$1
 PRM_SUITE=${2:-$COMMON_CONST_DEVELOP_SUITE}
-PRM_VM_TYPE=${3:-$COMMON_CONST_VMWARE_VM_TYPE}
-PRM_SCRIPT_VERSION=${4:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_VM_ROLE=${3:-$COMMON_CONST_DEFAULT_VM_ROLE}
+PRM_VM_TYPE=${4:-$COMMON_CONST_VMWARE_VM_TYPE}
 
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
 checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
+checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VMTYPES_POOL"
-checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 
 ###check body dependencies
 
@@ -56,12 +56,12 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 
 ###check required files
 
-VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_SCRIPT_VERSION}_create
+VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_VM_ROLE}_create
 VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
-VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPT_VERSION}
+VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
 VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 
 checkFileForNotExist "$VAR_CONFIG_FILE_PATH" 'config '
@@ -111,7 +111,8 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME; \
+  #exec trigger script
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE; \
 if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
   if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
@@ -121,7 +122,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FI
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
   #take project snapshot
-  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_SCRIPT_VERSION" $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_VM_ROLE" $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #save vm config file
   echo "Save config file $VAR_CONFIG_FILE_PATH"

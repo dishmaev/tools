@@ -13,7 +13,7 @@ echo "VM $3 OS version:" $4
 #set hostname
 hostnamectl set-hostname $3
 #add user
-useradd --create-home $1;
+useradd -s /bin/sh --create-home $1;
 usermod -aG sudo $1;
 #set user password
 echo $2 > pass1

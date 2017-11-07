@@ -23,7 +23,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '[includeShared=0] [libVersion=$COMMON_CONST_DEFAULT_VERSION] [toolSet=$COMMON_CONST_DEFAULT_VERSION]' "$COMMON_CONST_DEFAULT_VERSION 0 $COMMON_CONST_DEFAULT_VERSION" "Boost C++ Libraries version format 'X.XX.X'"
+echoHelp $# 3 '[includeShared=0] [libVersion=$COMMON_CONST_DEFAULT_VERSION] \
+[toolSet=$COMMON_CONST_DEFAULT_VERSION]' \
+"$COMMON_CONST_DEFAULT_VERSION 0 $COMMON_CONST_DEFAULT_VERSION" "Boost C++ Libraries version format 'X.XX.X'"
 
 ###check commands
 

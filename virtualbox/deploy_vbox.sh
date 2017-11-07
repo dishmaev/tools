@@ -12,6 +12,7 @@ readonly CONST_VBOX_REPO='deb http://download.virtualbox.org/virtualbox/debian y
 readonly CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
 
 ##private vars
+PRM_VBOX_VERSION='' #vbox version
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
@@ -22,11 +23,13 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 0 '' "" "While tested only on APT-based Linux. VBoxManage url https://www.virtualbox.org/wiki/Linux_Downloads"
+echoHelp $# 1 '[vBoxVersion=$CONST_VBOX_VERSION]' "$CONST_VBOX_VERSION" "Version format 'X.X'. While tested only on APT-based Linux. VBoxManage url https://www.virtualbox.org/wiki/Linux_Downloads"
 
 ###check commands
 
-#comments
+PRM_VBOX_VERSION=${1:-$CONST_VBOX_VERSION}
+
+checkCommandExist 'vBoxVersion' "$PRM_VBOX_VERSION" ''
 
 ###check body dependencies
 
@@ -80,10 +83,10 @@ sudo dpkg -i $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 #install vbox
 if ! isAutoYesMode; then
-  sudo apt install virtualbox-$CONST_VBOX_VERSION
+  sudo apt install virtualbox-$PRM_VBOX_VERSION
   if ! isRetValOK; then exitError; fi
 else
-  sudo apt -y install virtualbox-$CONST_VBOX_VERSION
+  sudo apt -y install virtualbox-$PRM_VBOX_VERSION
   if ! isRetValOK; then exitError; fi
 fi
 sudo apt -y install -f

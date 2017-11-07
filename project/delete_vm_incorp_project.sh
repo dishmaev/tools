@@ -2,14 +2,14 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Delete VM on incorp project $ENV_PROJECT_NAME"
+targetDescription "Delete VM of incorp project $ENV_PROJECT_NAME"
 
 ##private consts
 
 
 ##private vars
 PRM_SUITE='' #suite
-PRM_SCRIPT_VERSION='' #version script for create VM
+PRM_VM_ROLE='' #role for create VM
 VAR_RESULT='' #child return value
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
@@ -25,17 +25,17 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '[suite=$COMMON_CONST_DEVELOP_SUITE] [scriptVersion=$COMMON_CONST_DEFAULT_VERSION]' \
-"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VERSION" \
+echoHelp $# 2 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE]' \
+"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
 "Available suites: $COMMON_CONST_SUITES_POOL"
 
 ###check commands
 
 PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
-PRM_SCRIPT_VERSION=${2:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
 
 checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
-checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
+checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 
 ###check body dependencies
 
@@ -43,7 +43,7 @@ checkCommandExist 'scriptVersion' "$PRM_SCRIPT_VERSION" ''
 
 ###check required files
 
-VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_SCRIPT_VERSION}
+VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
 VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
 checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
 
