@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Delete VM of incorp project $ENV_PROJECT_NAME"
+targetDescription "Delete VM of project $ENV_PROJECT_NAME"
 
 ##private consts
 

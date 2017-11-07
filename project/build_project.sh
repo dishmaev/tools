@@ -2,13 +2,13 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Deploy build file of incorp project $ENV_PROJECT_NAME"
+targetDescription "Build of project $ENV_PROJECT_NAME"
 
 ##private consts
-
+CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
 
 ##private vars
-PRM_BUILD_FILE='' #build file name
+PRM_BUILD_VERSION='' #build version
 PRM_SUITE='' #suite
 PRM_VM_ROLE='' #role for create VM
 VAR_RESULT='' #child return value
@@ -30,18 +30,18 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<buildFile> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE]' \
-"myfile $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
-"Available suites: $COMMON_CONST_SUITES_POOL"
+echoHelp $# 3 '<buildVersion> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE]' \
+"1.0.0 $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
+"Available suites: $CONST_SUITES_POOL"
 
 ###check commands
 
-PRM_BUILD_FILE=$1
+PRM_BUILD_VERSION=$1
 PRM_SUITE=${2:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
 
-checkCommandExist 'buildFile' "$PRM_BUILD_FILE" ''
-checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
+checkCommandExist 'buildVersion' "$PRM_BUILD_VERSION" ''
+checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
 checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 
 ###check body dependencies
@@ -52,7 +52,7 @@ checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
 VAR_CONFIG_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/data/${VAR_CONFIG_FILE_NAME}.txt
-VAR_SCRIPT_FILE_NAME=${PRM_VMTEMPLATE}_${PRM_VM_ROLE}_deploy
+VAR_SCRIPT_FILE_NAME=${PRM_VMTEMPLATE}_${PRM_VM_ROLE}_build
 VAR_SCRIPT_FILE_PATH=$COMMON_CONST_SCRIPT_DIR_NAME/trigger/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$PRM_BUILD_FILE $VAR_CONFIG_FILE_PATH $VAR_SCRIPT_FILE_PATH"
@@ -86,7 +86,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   if ! isRetValOK; then exitError; fi
   #exec trigger script
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $VAR_SCRIPT_FILE_NAME; \
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE; \
 if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.result ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.result; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
   if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
