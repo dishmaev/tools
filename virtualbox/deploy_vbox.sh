@@ -42,15 +42,15 @@ startPrompt
 
 ###body
 
+#check supported OS
+if ! isLinuxOS; then exitError 'not supported OS'; fi
+VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
 if isCommandExist 'vboxmanage'; then
   doneFinalStage
   exitOK
 fi
-#check supported OS
-if ! isLinuxOS; then exitError 'not supported OS'; fi
-VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
 #check for vbox repo
 if ! grep -qF "$CONST_VBOX_REPO" "$CONST_APT_SOURCE_FILE"; then
   wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
@@ -61,7 +61,7 @@ if ! grep -qF "$CONST_VBOX_REPO" "$CONST_APT_SOURCE_FILE"; then
   if ! isRetValOK; then exitError; fi
 fi
 #libvpx3
-VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBVPX3_URL")
+VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBVPX3_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBVPX3_URL
@@ -70,7 +70,7 @@ fi
 sudo dpkg -i $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 #libssl 1.0.0
-VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBSSL_URL")
+VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBSSL_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBSSL_URL

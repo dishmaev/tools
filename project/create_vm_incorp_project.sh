@@ -74,9 +74,9 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echo "Try to find a free VM"
   VAR_VMS_POOL=$(getVmsPool "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
   for CUR_VM in $VAR_VMS_POOL; do
-    VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}')
-    VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}')
-    VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $3}')
+    VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
+    VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_HOST"
+    VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
     VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"
     #check snapshotName
     if isEmpty "$VAR_SS_ID"

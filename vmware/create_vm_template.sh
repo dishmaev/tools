@@ -93,9 +93,6 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, without a desktop\n\
--rm /etc/apt/trusted.gpg.d/*\n\
--apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
--apt update\n\
 -apt -y install open-vm-tools\n\
 -apt -y install openssh-server\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
@@ -149,7 +146,7 @@ if isTrue "$VAR_RESULT"; then
 fi
 VAR_OVA_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
 if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
-  VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL")
+  VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 #ptn
   if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ]; then

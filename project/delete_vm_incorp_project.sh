@@ -54,12 +54,12 @@ startPrompt
 ###body
 
 VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
-VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F:: '{print $1}')
-VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F:: '{print $2}')
-VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}')
+VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F:: '{print $1}') || exitChildError "$VAR_VM_TYPE"
+VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F:: '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
+VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}') || exitChildError "$VAR_VM_NAME"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
-  VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}')
+  VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
   VAR_RESULT=$($COMMON_CONST_SCRIPT_DIR_NAME/../vmware/remove_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   echo "Remove config file $VAR_CONFIG_FILE_PATH"

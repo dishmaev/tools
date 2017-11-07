@@ -48,7 +48,7 @@ if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
 
-VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_FILE_URL")
+VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$COMMON_CONST_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_FILE_URL

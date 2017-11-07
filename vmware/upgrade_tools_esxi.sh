@@ -70,9 +70,9 @@ cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
 echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then exitError; fi
   #get local tools version
-  VAR_LOCAL_TOOLS_VER=$(cat $COMMON_CONST_SCRIPT_DIR_NAME/data/$CONST_TOOLSVER_FILENAME)
+  VAR_LOCAL_TOOLS_VER=$(cat $COMMON_CONST_SCRIPT_DIR_NAME/data/$CONST_TOOLSVER_FILENAME) || exitChildError "$VAR_LOCAL_TOOLS_VER"
   #get local ovftools version
-  VAR_LOCAL_OVFTOOLS_VER=$(ovftool --version | awk '{print $3}')
+  VAR_LOCAL_OVFTOOLS_VER=$(ovftool --version | awk '{print $3}') || exitChildError "$VAR_LOCAL_OVFTOOLS_VER"
   #check tools exist
   VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"

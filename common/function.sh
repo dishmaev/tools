@@ -26,18 +26,18 @@ getChildSnapshotsPool(){
   local VAR_FOUND=$COMMON_CONST_FALSE
   VAR_SS_LIST=$($SSH_CLIENT $4 "vim-cmd vmsvc/snapshot.get $1 | \
   egrep -- '--Snapshot Name|--Snapshot Id' | awk '{ORS=NR%2?FS:RS; print \$4\":\"(length(\$1)-8)/2}' | \
-  awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
+  awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_SS_LIST"
   for VAR_CUR_STR in $VAR_SS_LIST; do
-    VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}')
-    VAR_CUR_SSID=$(echo $VAR_CUR_STR | awk -F: '{print $2}')
+    VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
+    VAR_CUR_SSID=$(echo $VAR_CUR_STR | awk -F: '{print $2}') || exitChildError "$VAR_CUR_SSID"
     if [ "$2:$3" = "$VAR_CUR_SSNAME:$VAR_CUR_SSID" ]; then
-      VAR_CUR_LEVEL=$(echo $VAR_CUR_STR | awk -F: '{print $3}')
-      VAR_SS_LIST2=$(echo "$VAR_SS_LIST" | sed -n '/'$VAR_CUR_SSNAME:$VAR_CUR_SSID:$VAR_CUR_LEVEL'/,$p' | sed 1d)
-      VAR_CUR_LEVEL=$((VAR_CUR_LEVEL+1))
+      VAR_CUR_LEVEL=$(echo $VAR_CUR_STR | awk -F: '{print $3}') || exitChildError "$VAR_CUR_LEVEL"
+      VAR_SS_LIST2=$(echo "$VAR_SS_LIST" | sed -n '/'$VAR_CUR_SSNAME:$VAR_CUR_SSID:$VAR_CUR_LEVEL'/,$p' | sed 1d) || exitChildError "$VAR_SS_LIST2"
+      VAR_CUR_LEVEL=$((VAR_CUR_LEVEL+1)) || exitChildError "$VAR_CUR_LEVEL"
       for VAR_CUR_STR2 in $VAR_SS_LIST2; do
-        VAR_CUR_LEVEL2=$(echo $VAR_CUR_STR2 | awk -F: '{print $3}')
+        VAR_CUR_LEVEL2=$(echo $VAR_CUR_STR2 | awk -F: '{print $3}') || exitChildError "$VAR_CUR_LEVEL2"
         if [ $VAR_CUR_LEVEL2 -eq $VAR_CUR_LEVEL ]; then
-          VAR_CUR_SSID2=$(echo $VAR_CUR_STR2 | awk -F: '{print $2}')
+          VAR_CUR_SSID2=$(echo $VAR_CUR_STR2 | awk -F: '{print $2}') || exitChildError "$VAR_CUR_SSID2"
           VAR_RESULT="$VAR_RESULT $VAR_CUR_SSID2"
         elif [ $VAR_CUR_LEVEL2 -lt $VAR_CUR_LEVEL ]; then
           break
@@ -66,9 +66,9 @@ getVMSnapshotIDByName(){
   awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
   if ! isEmpty "$VAR_RESULT"; then
     for VAR_CUR_STR in $VAR_RESULT; do
-      VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}')
+      VAR_CUR_SSNAME=$(echo $VAR_CUR_STR | awk -F: '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
       if [ "$2" = "$VAR_CUR_SSNAME" ]; then
-        VAR_RESULT=$(echo $VAR_CUR_STR | awk -F: '{print $2}')
+        VAR_RESULT=$(echo $VAR_CUR_STR | awk -F: '{print $2}') || exitChildError "$VAR_RESULT"
         VAR_FOUND=$COMMON_CONST_TRUE
         break
       fi
@@ -95,7 +95,7 @@ getVMUrl() {
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
   fi
-  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2$COMMON_CONST_DATA_TXT_SEPARATOR" | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $2}')
+  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2$COMMON_CONST_DATA_TXT_SEPARATOR" | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
   if isEmpty "$VAR_RESULT"; then
     exitError "missing url for VM template $1 version $2 in file $CONST_FILE_PATH"
   fi
@@ -113,7 +113,7 @@ getAvailableVMVersions(){
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $1}'| awk '{ORS=FS} 1')
+      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -138,7 +138,7 @@ getDefaultVMVersion(){
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F: '{print $1}')
+      VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F: '{print $1}') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -439,7 +439,7 @@ checkLinuxAptOrRpm(){
 checkNotEmptyEnvironment(){
   checkParmsCount $# 1 'checkNotEmptyEnvironment'
   local VAR_ENV_VALUE=''
-  VAR_ENV_VALUE=$(eval echo \$${1})
+  VAR_ENV_VALUE=$(eval echo \$${1}) || exitChildError "$VAR_ENV_VALUE"
   if isEmpty "$VAR_ENV_VALUE"; then
     setErrorEnvironment "set constant $1"
   fi
@@ -512,20 +512,22 @@ exitError(){
 
 getTrace(){
   checkParmsCount $# 0 'getTrace'
-  local TRACE=""
-  local CP=$$ # PID of the script itself [1]
+  local VAR_TRACE=""
+  local VAR_CP=$$ # PID of the script itself [1]
+  local VAR_PP=''
+  local VAR_CMD_LINE=''
   while true # safe because "all starts with init..."
   do
-    CMDLINE=$(ps -o args= -f -p $CP)
-    PP=$(grep PPid /proc/$CP/status | awk '{ print $2; }') # [2]
-    TRACE="$TRACE [$CP]:$CMDLINE\n"
-    if [ "$CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
+    VAR_CMD_LINE=$(ps -o args= -f -p $VAR_CP) || exitChildError "$VAR_CMD_LINE"
+    VAR_PP=$(grep PPid /proc/$VAR_CP/status | awk '{ print $2; }') || exitChildError "$VAR_PP" # [2]
+    VAR_TRACE="$VAR_TRACE [$VAR_CP]:$VAR_CMD_LINE\n"
+    if [ "$VAR_CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
       break
     fi
-    CP=$PP
+    VAR_CP=$VAR_PP
   done
   echo "Begin trace"
-  echo -n "$TRACE" | tac | grep -n ":" | tac # using tac to "print in reverse" [3]
+  echo -n "$VAR_TRACE" | tac | grep -n ":" | tac # using tac to "print in reverse" [3]
   echo "End trace"
 }
 #$1 message
@@ -687,14 +689,14 @@ isNewLocalVersion() {
   local VAR_REMOTE_MINOR=''
   local VAR_REMOTE_PATCH=''
   local VAR_REMOTE_TEST=''
-  VAR_LOCAL_MAJOR=$(echo $1 | awk -F. '{print $1}')
-  VAR_LOCAL_MINOR=$(echo $1 | awk -F. '{print $2}')
-  VAR_LOCAL_PATCH=$(echo $1 | awk -F. '{print $3}')
-  VAR_LOCAL_TEST=$(echo $1 | awk -F. '{print $4}')
-  VAR_REMOTE_MAJOR=$(echo $2 | awk -F. '{print $1}')
-  VAR_REMOTE_MINOR=$(echo $2 | awk -F. '{print $2}')
-  VAR_REMOTE_PATCH=$(echo $2 | awk -F. '{print $3}')
-  VAR_REMOTE_TEST=$(echo $2 | awk -F. '{print $4}')
+  VAR_LOCAL_MAJOR=$(echo $1 | awk -F. '{print $1}') || exitChildError "$VAR_LOCAL_MAJOR"
+  VAR_LOCAL_MINOR=$(echo $1 | awk -F. '{print $2}') || exitChildError "$VAR_LOCAL_MINOR"
+  VAR_LOCAL_PATCH=$(echo $1 | awk -F. '{print $3}') || exitChildError "$VAR_LOCAL_PATCH"
+  VAR_LOCAL_TEST=$(echo $1 | awk -F. '{print $4}') || exitChildError "$VAR_LOCAL_TEST"
+  VAR_REMOTE_MAJOR=$(echo $2 | awk -F. '{print $1}') || exitChildError "$VAR_REMOTE_MAJOR"
+  VAR_REMOTE_MINOR=$(echo $2 | awk -F. '{print $2}') || exitChildError "$VAR_REMOTE_MINOR"
+  VAR_REMOTE_PATCH=$(echo $2 | awk -F. '{print $3}') || exitChildError "$VAR_REMOTE_PATCH"
+  VAR_REMOTE_TEST=$(echo $2 | awk -F. '{print $4}') || exitChildError "$VAR_REMOTE_TEST"
   if isEmpty "$VAR_LOCAL_MAJOR" || isEmpty "$VAR_REMOTE_MAJOR"
   then
     exitError 'isNewLocalVersion not found major version for compare'

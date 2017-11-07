@@ -69,7 +69,7 @@ if ! isTrue "$VAR_RESULT"; then
   exitError "not found VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME on $PRM_HOST host. Exec 'create_vm_template.sh $PRM_VM_TEMPLATE $PRM_HOST' previously"
 fi
 #check vm name
-if [ "$PRM_VM_NAME"="$COMMON_CONST_DEFAULT_VM_NAME" ]; then
+if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
   #get vm number
   VAR_VM_NUM=$($SSH_CLIENT $PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt ]; \
   then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt; fi; \

@@ -41,16 +41,15 @@ startPrompt
 
 ###body
 
+#check supported OS
+if ! isLinuxOS; then exitError 'not supported OS'; fi
+VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
 if isCommandExist 'java' && ! [ $(java -version 2>&1 | grep "OpenJDK Runtime") ]; then
   doneFinalStage
   exitOK
 fi
-#check supported OS
-if ! isLinuxOS; then exitError 'not supported OS'; fi
-VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
-
 #check for oracle JDK repo
 if ! grep -qF "$CONST_ORACLE_JDK_DEB_REPO" "$CONST_APT_SOURCE_FILE"; then
   sudo apt-key adv --keyserver $CONST_ORACLE_JDK_DEB_KEY
