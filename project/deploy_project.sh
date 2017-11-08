@@ -53,7 +53,11 @@ checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
 VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.txt
 
-checkRequiredFiles "$PRM_BUILD_FILE $VAR_CONFIG_FILE_PATH"
+checkRequiredFiles "$PRM_BUILD_FILE"
+
+if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
+  exitError "not found $VAR_CONFIG_FILE_PATH. Exec 'create_vm_project.sh $VAR_VM_TEMPLATE $PRM_SUITE $PRM_VM_ROLE $VAR_VM_TYPE' previously"
+fi
 
 ###start prompt
 
@@ -68,10 +72,6 @@ VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}') || exitChildError "$VAR_
 
 VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_deploy
 VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
-
-if ! isFileExistAndRead "$VAR_SCRIPT_FILE_PATH"; then
-  exitError "not found $VAR_SCRIPT_FILE_PATH. Exec 'create_vm_project.sh $VAR_VM_TEMPLATE $PRM_SUITE $PRM_VM_ROLE $VAR_VM_TYPE' previously"
-fi
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
