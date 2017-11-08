@@ -86,8 +86,8 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
   #copy build file on vm
-  VAR_SCRIPT_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_SCRIPT_FILE_NAME"
-  $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_SCRIPT_FILE_NAME
+  VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_SCRIPT_FILE_NAME"
+  $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_SHORT_FILE_NAME
   if ! isRetValOK; then exitError; fi
   #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
