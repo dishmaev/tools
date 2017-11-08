@@ -16,3 +16,9 @@ uname -a
 ###finish
 
 echo 1 > ${1}.result
+exit 0
+
+###function
+checkRetVal(){
+  if [ "$?" != "0" ]; then exit 1; fi
+}

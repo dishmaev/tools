@@ -13,6 +13,18 @@ echo "Current build suite: $2"
 
 uname -a
 
+sudo apt -y install git
+
+#test
+git --version
+checkRetVal
+
 ###finish
 
 echo 1 > ${1}.result
+exit 0
+
+###function
+checkRetVal(){
+  if [ "$?" != "0" ]; then exit 1; fi
+}

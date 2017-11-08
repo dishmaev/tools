@@ -15,7 +15,7 @@ echo 'iptables -A INPUT -p icmp -j ACCEPT' >> /etc/systemd/scripts/iptables
 #set hostname
 hostnamectl set-hostname $3
 #add user
-useradd -s /bin/sh --create-home $1
+useradd -s /bin/bash --create-home $1
 usermod -aG sudo $1
 #set user password
 echo $2 > pass1
