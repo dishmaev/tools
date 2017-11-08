@@ -1,12 +1,20 @@
 #!/bin/sh
 
-#$1 $ENV_SSH_USER_NAME, $2 password for user, $3 vm name, $4 vm OS version
+###header
 
-if [ "$#" != "4" ]; then exit 1; fi
+VAR_PARAMETERS='$1 $ENV_SSH_USER_NAME, $2 password for user, $3 vm name, $4 vm OS version'
+
+if [ "$#" != "4" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -f ${3}_create.result ]; then rm ${3}_create.result; fi
 exec 1>${3}_create.log
 exec 2>${3}_create.err
 echo "VM $3 OS version:" $4
+
+###function
+
+checkRetVal(){
+  if [ "$?" != "0" ]; then exit 1; fi
+}
 
 ###body
 
@@ -50,6 +58,8 @@ echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 
 #install standard packages
+
+##test
 
 #check standard packages version
 sudo --version
