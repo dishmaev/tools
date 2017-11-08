@@ -3,7 +3,7 @@
 ##using files: consts.sh
 
 #set correct path before using this tools
-readonly ENV_ROOT_DIR=$(pwd | rev | sed 's!/!:!' | rev | awk -F: '{print $1}')
+readonly ENV_ROOT_DIR=$(getParentDirectoryPath "$PWD")
 if isEmpty "$ENV_ROOT_DIR"; then checkNotEmptyEnvironment "ENV_ROOT_DIR"; fi
 #script file name
 readonly ENV_SCRIPT_FILE_NAME=$(basename "$0")
@@ -11,8 +11,11 @@ if isEmpty "$ENV_SCRIPT_FILE_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_FI
  #script directory name
 readonly ENV_SCRIPT_DIR_NAME=$(dirname "$0")
 if isEmpty "$ENV_SCRIPT_DIR_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_DIR_NAME"; fi
+#submodule mode
+readonly ENV_SUBMODULE_MODE=$(if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $COMMON_CONST_TRUE; else echo $COMMON_CONST_FALSE; fi)
+if isEmpty "$ENV_SUBMODULE_MODE"; then checkNotEmptyEnvironment "ENV_SUBMODULE_MODE"; fi
 #project name
-readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #default git user
 readonly ENV_GIT_USER_NAME=$(git config user.name)
@@ -39,10 +42,10 @@ if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_
 readonly ENV_DOWNLOAD_PATH=$(if [ -d "$HOME/Downloads" ]; then echo "$HOME/Downloads"; fi)
 if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi
 #directory for project data
-readonly ENV_PROJECT_DATA_PATH=$(if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $ENV_ROOT_DIR/../data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
+readonly ENV_PROJECT_DATA_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
 if isEmpty "$ENV_PROJECT_DATA_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_DATA_PATH"; fi
 #directory for project triggers
-readonly ENV_PROJECT_TRIGGER_PATH=$(if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $ENV_ROOT_DIR/../trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
+readonly ENV_PROJECT_TRIGGER_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
 if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
 
 #vmware tools local directory

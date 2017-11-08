@@ -1,6 +1,6 @@
 #!/bin/sh
 
-##using files: consts.sh
+##using files: consts.sh, environment.sh
 
 ##private vars
 VAR_AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
@@ -150,6 +150,11 @@ getDefaultVMTemplateVersion(){
     exitError "missing default version for VM template $1 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
+}
+#$1 path
+getParentDirectoryPath(){
+  checkParmsCount $# 1 'getParentDirectoryPath'
+  echo $1 | rev | sed 's!/!:!' | rev | awk -F: '{print $1}'
 }
 #$1 VMID, $2 esxi host
 powerOnVM()
