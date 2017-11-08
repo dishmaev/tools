@@ -70,6 +70,8 @@ checkFileForNotExist "$VAR_CONFIG_FILE_PATH" 'config '
 
 startPrompt
 
+###body
+
 if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echo "Try to find a free VM"
   VAR_VMS_POOL=$(getVmsPool "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
