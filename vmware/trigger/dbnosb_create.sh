@@ -48,6 +48,7 @@ chown ${1}:${1} /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
 #install standard packages
 apt -y install sudo
+apt -y install apt-transport-https
 #check sudo config file exist
 if [ ! -s /etc/sudoers ]; then
   echo "Error: file /etc/sudoers not found or empty"
@@ -57,6 +58,9 @@ fi
 chmod u+w /etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
+#add personal repository
+wget -O - https://dishmaev.github.io/repos/linux/linux_signing_key.pub | sudo apt-key add -
+wget -P /etc/apt/sources.list.d/ https://dishmaev.github.io/public-apt-dishmaev.list
 
 ##test
 

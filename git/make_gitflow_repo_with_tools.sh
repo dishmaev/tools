@@ -72,14 +72,14 @@ cd tools
 if ! isRetValOK; then exitError; fi
 git submodule add --name tools $PRM_TOOLS_REPO bin
 if ! isRetValOK; then exitError; fi
-mkdir data
-if ! isRetValOK; then exitError; fi
-mkdir trigger
-if ! isRetValOK; then exitError; fi
+#mkdir data
+#if ! isRetValOK; then exitError; fi
+#mkdir trigger
+#if ! isRetValOK; then exitError; fi
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Commit changes and push to remote'
-git commit -m 'add gitflow branching model, submodule tools'
+git commit -m 'add gitflow branching model, tools submodule'
 if ! isRetValOK; then exitError; fi
 git push --all
 if ! isRetValOK; then exitError; fi
