@@ -58,6 +58,12 @@ startPrompt
 
 ###body
 
+VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
+VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.txt
+if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
+  exitError "not found $VAR_CONFIG_FILE_PATH. Exec 'create_vm_project.sh' previously"
+fi
+
 VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
 VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F:: '{print $1}') || exitChildError "$VAR_VM_TYPE"
 VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F:: '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
@@ -67,13 +73,6 @@ VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_deploy
 VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
-
-VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
-VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.txt
-
-if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-  exitError "not found $VAR_CONFIG_FILE_PATH. Exec 'create_vm_project.sh $VAR_VM_TEMPLATE $PRM_SUITE $PRM_VM_ROLE $VAR_VM_TYPE' previously"
-fi
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
