@@ -6,6 +6,7 @@ targetDescription "Build of project $ENV_PROJECT_NAME"
 
 ##private consts
 CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
+CONST_PROJECT_ACTION='build'
 
 ##private vars
 PRM_BUILD_VERSION='' #build version
@@ -66,7 +67,7 @@ VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F:: '{print $1}') || exitChildError "$VAR_
 VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F:: '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
 VAR_VM_NAME=$(echo $VAR_RESULT | awk -F:: '{print $3}') || exitChildError "$VAR_VM_NAME"
 
-VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_deploy
+VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_${CONST_PROJECT_ACTION}
 VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
@@ -85,11 +86,11 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
-  #copy build file on vm
-  VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_SCRIPT_FILE_NAME"
-  $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_SHORT_FILE_NAME
-  if ! isRetValOK; then exitError; fi
-  #copy create script on vm
+#  #copy build file on vm
+#  VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_SCRIPT_FILE_NAME"
+#  $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_SHORT_FILE_NAME
+#  if ! isRetValOK; then exitError; fi
+#  #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi

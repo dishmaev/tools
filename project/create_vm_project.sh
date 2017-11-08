@@ -5,7 +5,7 @@
 targetDescription "Create VM of project $ENV_PROJECT_NAME"
 
 ##private consts
-
+CONST_PROJECT_ACTION='create'
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
@@ -56,7 +56,7 @@ checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VMTYPES_POOL"
 
 ###check required files
 
-VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_VM_ROLE}_create
+VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${PRM_VM_ROLE}_${CONST_PROJECT_ACTION}
 VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
