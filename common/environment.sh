@@ -12,7 +12,7 @@ if isEmpty "$ENV_SCRIPT_FILE_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_FI
 readonly ENV_SCRIPT_DIR_NAME=$(dirname "$0")
 if isEmpty "$ENV_SCRIPT_DIR_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_DIR_NAME"; fi
 #project name
-readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -d $ENV_ROOT_DIR/bin ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #default git user
 readonly ENV_GIT_USER_NAME=$(git config user.name)
@@ -39,10 +39,10 @@ if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_
 readonly ENV_DOWNLOAD_PATH=$(if [ -d "$HOME/Downloads" ]; then echo "$HOME/Downloads"; fi)
 if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi
 #directory for project data
-readonly ENV_PROJECT_DATA_PATH=$(if [ -d $ENV_ROOT_DIR/bin ]; then echo $ENV_ROOT_DIR/../data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
+readonly ENV_PROJECT_DATA_PATH=$(if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $ENV_ROOT_DIR/../data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
 if isEmpty "$ENV_PROJECT_DATA_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_DATA_PATH"; fi
 #directory for project triggers
-readonly ENV_PROJECT_TRIGGER_PATH=$(if [ -d $ENV_ROOT_DIR/bin ]; then echo $ENV_ROOT_DIR/../trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
+readonly ENV_PROJECT_TRIGGER_PATH=$(if [ -f $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $ENV_ROOT_DIR/../trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
 if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
 
 #vmware tools local directory
