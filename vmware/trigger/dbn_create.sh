@@ -48,8 +48,6 @@ chown ${1}:${1} /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
 #install standard packages
 apt -y install sudo
-#check standard packages version
-sudo --version
 #check sudo config file exist
 if [ ! -s /etc/sudoers ]; then
   echo "Error: file /etc/sudoers not found or empty"
@@ -61,6 +59,9 @@ echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 
 ##test
+
+#check standard packages version
+sudo --version
 
 ###finish
 
