@@ -92,8 +92,8 @@ readonly COMMON_CONST_ESXI_DATA_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/data" #notup
 readonly COMMON_CONST_ESXI_OVFTOOL_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmware-ovftool" #ovf tools directory on esxi host
 readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #vmware tools directory on esxi host
 readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
-readonly COMMON_CONST_ESXI_TRY_LONG=15 #one try long
-readonly COMMON_CONST_ESXI_SLEEP_LONG=10 #sleep long
+readonly COMMON_CONST_ESXI_TRY_LONG=30 #one try long
+readonly COMMON_CONST_ESXI_SLEEP_LONG=5 #sleep long
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 
 #readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter

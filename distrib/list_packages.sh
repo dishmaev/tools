@@ -2,20 +2,20 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Remove package to a distrib repository'
+targetDescription 'Get packages list from a distrib repository'
 
 ##private consts
 CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
 CONST_APT_CODE_NAME_STABLE='stable'
 CONST_APT_CODE_NAME_TESTING='testing'
 CONST_APT_CODE_NAME_UNSTABLE='unstable'
+CONST_SHOW_ALL='*'
 
 ##private vars
-PRM_PACKAGE_NAME='' #package name
 PRM_VM_TEMPLATE='' #vm template
+PRM_FILTER_REGEX='' #build file name
 PRM_SUITE='' #suite
 PRM_DISTRIB_REPO='' #distrib repository
-VAR_CUR_DIR_NAME='' #current directory name
 VAR_TMP_DIR_NAME='' #temporary directory name
 VAR_CODE_NAME=$CONST_APT_CODE_NAME_UNSTABLE #code name
 
@@ -25,19 +25,19 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<packageName> <vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [distribRepository=$ENV_DISTRIB_REPO]' \
-"myPackage $COMMON_CONST_PHOTON_VM_TEMPLATE $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
-"Required gpg secret keyID $COMMON_CONST_GPG_KEYID. Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $CONST_SUITES_POOL"
+echoHelp $# 4  '<vmTemplate> [filterRegex=$CONST_SHOW_ALL] [suite=$COMMON_CONST_DEVELOP_SUITE] [distribRepository=$ENV_DISTRIB_REPO]' \
+"$COMMON_CONST_PHOTON_VM_TEMPLATE '$CONST_SHOW_ALL' $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
+"Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $CONST_SUITES_POOL"
 
 ###check commands
 
-PRM_PACKAGE_NAME=$1
-PRM_VM_TEMPLATE=$2
+PRM_VM_TEMPLATE=$1
+PRM_FILTER_REGEX=${2:-$$CONST_SHOW_ALL}
 PRM_SUITE=${3:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_DISTRIB_REPO=${4:-$ENV_DISTRIB_REPO}
 
-checkCommandExist 'packageName' "$PRM_PACKAGE_NAME" ''
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
+checkCommandExist 'filterRegex' "$PRM_FILTER_REGEX" ''
 checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
 checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
@@ -47,7 +47,7 @@ checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check required files
 
-#checkRequiredFiles "$PRM_PACKAGE_NAME"
+#checkRequiredFiles "$PRM_FILTER_REGEX"
 
 ###start prompt
 
@@ -76,19 +76,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
     VAR_CODE_NAME=$CONST_APT_CODE_NAME_STABLE
   fi
   #add package
-  echo "Remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
-  reprepro -b $VAR_TMP_DIR_NAME/repos/linux/apt remove $VAR_CODE_NAME $PRM_PACKAGE_NAME
-  if ! isRetValOK; then exitError; fi
-  VAR_CUR_DIR_NAME=$PWD
-  cd $VAR_TMP_DIR_NAME
-  #git add and commit
-  git add *
-  git commit -m "remove package $PRM_PACKAGE_NAME from $PRM_SUITE suite of distrib repository"
-  if ! isRetValOK; then exitError; fi
-  git push --all
-  if ! isRetValOK; then exitError; fi
-  #remote temporary directory
-  cd $VAR_CUR_DIR_NAME
+  reprepro -b $VAR_TMP_DIR_NAME/repos/linux/apt list $VAR_CODE_NAME | grep -E "'$PRM_FILTER_REGEX'"
   if ! isRetValOK; then exitError; fi
   rm -fR $VAR_TMP_DIR_NAME
   if ! isRetValOK; then exitError; fi
