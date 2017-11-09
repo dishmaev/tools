@@ -63,7 +63,7 @@ startPrompt
 ###body
 
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
-VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.txt
+VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.cfg
 if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
   exitError "not found $VAR_CONFIG_FILE_PATH. Exec 'create_vm_project.sh' previously"
 fi
@@ -80,6 +80,7 @@ checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
+  checkSSHKeyExistEsxi "$VAR_HOST"
   #get vm id
   VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then

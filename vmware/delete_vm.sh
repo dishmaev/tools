@@ -41,6 +41,7 @@ startPrompt
 ###body
 
 #check vm name
+checkSSHKeyExistEsxi "$PRM_HOST"
 VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VM_NAME not found on $PRM_HOST host"

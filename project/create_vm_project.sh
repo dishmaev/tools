@@ -62,7 +62,7 @@ VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
-VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.txt
+VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.cfg
 
 checkFileForNotExist "$VAR_CONFIG_FILE_PATH" 'config '
 
@@ -74,7 +74,7 @@ startPrompt
 
 if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echo "Try to find a free VM"
-  VAR_VMS_POOL=$(getVmsPool "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
+  VAR_VMS_POOL=$(getVmsPoolEsxi "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
   for CUR_VM in $VAR_VMS_POOL; do
     VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_HOST"

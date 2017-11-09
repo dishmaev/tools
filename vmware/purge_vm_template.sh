@@ -62,6 +62,7 @@ VAR_OVA_FILE_NAME="${PRM_VMTEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
 
 for VAR_HOST in $PRM_HOSTS_POOL; do
   echo "Esxi host:" $VAR_HOST
+  checkSSHKeyExistEsxi "$VAR_HOST"
   VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ -f $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then rm $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME; fi; echo $COMMON_CONST_TRUE") || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then exitError; fi
 done

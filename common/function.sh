@@ -90,7 +90,7 @@ getVMSnapshotCount(){
 #$1 vm template, $2 vm version
 getVMUrl() {
   checkParmsCount $# 2 'getVMUrl'
-  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
+  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.cfg"
   local VAR_RESULT=''
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
@@ -104,7 +104,7 @@ getVMUrl() {
 #$1 vm template
 getAvailableVMTemplateVersions(){
   checkParmsCount $# 1 'getAvailableVMTemplateVersions'
-  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
+  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -129,7 +129,7 @@ getAvailableVMTemplateVersions(){
 #$1 vm template
 getDefaultVMTemplateVersion(){
   checkParmsCount $# 1 'getDefaultVMTemplateVersion'
-  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.txt"
+  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -249,13 +249,13 @@ getIpAddressByVMName()
   echo "$VAR_RESULT"
 }
 #$1 vm template, list with space delimiter. Return value format 'vmname:host:vmid'
-getVmsPool(){
-  checkParmsCount $# 1 'getVmsPool'
+getVmsPoolEsxi(){
+  checkParmsCount $# 1 'getVmsPoolEsxi'
   local VAR_CUR_ESXI=''
   local VAR_RESULT=''
-  for VAR_CUR_ESXI in $COMMON_CONST_ESXI_HOSTS_POOL
-  do
+  for VAR_CUR_ESXI in $COMMON_CONST_ESXI_HOSTS_POOL; do
     local VAR_RESULT1
+    checkSSHKeyExistEsxi "$VAR_HOST"
     VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
 awk '{print \$1\":\"\$2}' | grep ':'$1'-' | awk -F: '{print \$2\":$VAR_CUR_ESXI:\"\$1}'") || exitChildError "$VAR_RESULT1"
     VAR_RESULT=$VAR_RESULT$VAR_RESULT1
@@ -449,6 +449,15 @@ checkNotEmptyEnvironment(){
   if isEmpty "$VAR_ENV_VALUE"; then
     setErrorEnvironment "set constant $1"
   fi
+}
+#$1 host
+checkSSHKeyExistEsxi(){
+  checkParmsCount $# 1 'checkSSHKeyExistEsxi'
+  local VAR_RESULT=''
+  VAR_RESULT=$($SSH_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; \
+then mkdir $CONST_HV_SSHKEYS_DIRNAME; \
+cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
+echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
 }
 #$1 message
 setErrorEnvironment()

@@ -32,6 +32,9 @@ if isEmpty "$ENV_SSH_USER_PASS"; then checkNotEmptyEnvironment "ENV_SSH_USER_PAS
 #ssh keyID, also key file name in ~/.ssh/
 readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa; if [ -r $HOME/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
+#distrib repository
+readonly ENV_DISTRIB_REPO='git@github.com:dishmaev/dishmaev.github.io.git'
+if isEmpty "$ENV_DISTRIB_REPO"; then checkNotEmptyEnvironment "ENV_DISTRIB_REPO"; fi
 #for add tools submodule
 readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
 if isEmpty "$ENV_TOOLS_REPO"; then checkNotEmptyEnvironment "ENV_TOOLS_REPO"; fi

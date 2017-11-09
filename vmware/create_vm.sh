@@ -71,10 +71,10 @@ fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
   #get vm number
-  VAR_VM_NUM=$($SSH_CLIENT $PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt ]; \
-  then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt; fi; \
-  echo \$((\$(cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt)+1)) > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt; \
-  cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.txt") || exitChildError "$VAR_VM_NUM"
+  VAR_VM_NUM=$($SSH_CLIENT $PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg ]; \
+  then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg; fi; \
+  echo \$((\$(cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg)+1)) > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg; \
+  cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg") || exitChildError "$VAR_VM_NUM"
   #set new vm name
   VAR_VM_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_NUM}"
 else
