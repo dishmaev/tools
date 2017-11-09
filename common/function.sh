@@ -165,7 +165,7 @@ powerOnVM()
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
   echo "Required power on VMID $1 on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
-  if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echo "$VAR_RESULT"; fi
+  if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
     echo -n '.'
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
@@ -196,7 +196,7 @@ powerOffVM()
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
   echo "Required power off VMID $1 on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
-  if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echo "$VAR_RESULT"; fi
+  if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
     echo -n '.'
     sleep $COMMON_CONST_ESXI_SLEEP_LONG

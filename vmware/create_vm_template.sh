@@ -213,7 +213,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     fi
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
     #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c 50G -d thin $VAR_DISC_FILE_PATH"
+    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_HDD_DISC_SIZE -d thin $VAR_DISC_FILE_PATH"
     if ! isRetValOK; then exitError; fi
     $SSH_CLIENT $PRM_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi
@@ -234,7 +234,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     fi
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
     #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c 50G -d thin $VAR_DISC_FILE_PATH"
+    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_HDD_DISC_SIZE -d thin $VAR_DISC_FILE_PATH"
     if ! isRetValOK; then exitError; fi
     $SSH_CLIENT $PRM_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi
@@ -307,7 +307,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     fi
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
     #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c 50G -d thin $VAR_DISC_FILE_PATH"
+    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_HDD_DISC_SIZE -d thin $VAR_DISC_FILE_PATH"
     if ! isRetValOK; then exitError; fi
     $SSH_CLIENT $PRM_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#;s#@DISC_VMTOOLS_FILE_PATH@#$COMMON_CONST_ESXI_VMTOOLS_PATH/solaris.iso#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi

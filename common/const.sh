@@ -94,6 +94,7 @@ readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #
 readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_ESXI_TRY_LONG=30 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=5 #sleep long
+readonly COMMON_CONST_ESXI_HDD_DISC_SIZE='30G' #default hdd disc size for template vm
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 
 #readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter
