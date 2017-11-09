@@ -18,13 +18,17 @@ checkRetVal(){
 activeSuiteRepository(){
   #deactivate default repository
   sudo sed '1s/^/# /' -i public-apt-dishmaev.list
+  checkRetVal
   #activate required repository
   if [ "$1" = "rel" ]; then
-    cat public-apt-dishmaev.list | grep 'apt stable main' | sed 's/# //' | sudo tee public-apt-dishmaev-stable.list
+    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt stable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-stable.list
+    checkRetVal
   elif [ "$1" = "tst" ]; then
-    cat public-apt-dishmaev.list | grep 'apt testing main' | sed 's/# //' | sudo tee public-apt-dishmaev-testing.list
+    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt testing main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-testing.list
+    checkRetVal
   elif [ "$1" = "dev" ]; then
-    cat public-apt-dishmaev.list | grep 'apt unstable main' | sed 's/# //' | sudo tee public-apt-dishmaev-unstable.list
+    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt unstable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-unstable.list
+    checkRetVal
   else
     return
   fi
