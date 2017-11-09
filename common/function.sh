@@ -167,6 +167,7 @@ powerOnVM()
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echo "$VAR_RESULT"; fi
   while true; do
+    echo -n '.'
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
     VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
@@ -177,11 +178,13 @@ powerOnVM()
       if [ $VAR_TRY -eq 0 ]; then  #still not powered on, force kill vm
         exitError "failed power on the VMID $1 on $2 host. Check VM Tools install and running"
       else
+        echo ''
         echo "Still cannot power on the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
   done
+  echo ''
   return $COMMON_CONST_EXIT_SUCCESS
 }
 #$1 VMID, $2 esxi host
@@ -195,6 +198,7 @@ powerOffVM()
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echo "$VAR_RESULT"; fi
   while true; do
+    echo -n '.'
     sleep $COMMON_CONST_ESXI_SLEEP_LONG
     #check status
     VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
@@ -212,11 +216,13 @@ powerOffVM()
           exitError "failed force power off the VMID $1 on $2 host"
         fi
       else
+        echo ''
         echo "Still cannot standard power off the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
     fi
   done
+  echo ''
   return $COMMON_CONST_EXIT_SUCCESS
 }
 #$1 vm name, $2 esxi host
