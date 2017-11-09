@@ -76,8 +76,8 @@ checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
-  #get vm id
   checkSSHKeyExistEsxi "$VAR_HOST"
+  #get vm id
   VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
     exitError "VM $VAR_VM_NAME not found on $VAR_HOST host"

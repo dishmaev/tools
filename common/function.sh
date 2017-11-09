@@ -255,7 +255,7 @@ getVmsPoolEsxi(){
   local VAR_RESULT=''
   for VAR_CUR_ESXI in $COMMON_CONST_ESXI_HOSTS_POOL; do
     local VAR_RESULT1
-    checkSSHKeyExistEsxi "$VAR_HOST"
+    checkSSHKeyExistEsxi "$VAR_CUR_ESXI"
     VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
 awk '{print \$1\":\"\$2}' | grep ':'$1'-' | awk -F: '{print \$2\":$VAR_CUR_ESXI:\"\$1}'") || exitChildError "$VAR_RESULT1"
     VAR_RESULT=$VAR_RESULT$VAR_RESULT1
