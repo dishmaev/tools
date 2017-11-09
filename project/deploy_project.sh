@@ -86,8 +86,8 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #power on
-  VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
+#  VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
+#  echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
   #copy build file on vm
   VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_SHORT_FILE_NAME"
