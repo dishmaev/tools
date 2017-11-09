@@ -100,7 +100,7 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
       #put new version templates
       put_template_tools_to_esxi "$VAR_HOST"
       #put new version tag
-      $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME $VAR_HOST:$COMMON_CONST_ESXI_DATA_PATH/
+      $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME $VAR_HOST:$COMMON_CONST_ESXI_TEMPLATES_PATH/
       if ! isRetValOK; then exitError; fi
     else
       echo "Newest template tools version on $VAR_HOST host, skip upgrade"
