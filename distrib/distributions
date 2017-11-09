@@ -1,5 +1,6 @@
 Origin: https://dishmaev.github.io/repos/linux/apt
-Codename: stable
+Codename: stretch
+Suite: stable
 Architectures: amd64 i386 source
 Components: main contrib non-free
 Description: Release APT repository
