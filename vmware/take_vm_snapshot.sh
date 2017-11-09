@@ -67,8 +67,10 @@ if isSnapshotVMExist "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_HOST"; then
   exitError "snapshot $PRM_SNAPSHOT_NAME already exist for VM $PRM_VM_NAME on $PRM_HOST host"
 fi
 #power off
-VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
-echoResult "$VAR_RESULT"
+if ! isTrue "$PRM_INCLUDE_MEMORY"; then
+  VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
+fi
 $SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.create $VAR_VM_ID $PRM_SNAPSHOT_NAME \"$PRM_SNAPSHOT_DESCRIPTION\" $PRM_INCLUDE_MEMORY $PRM_QUIESCED"
 if ! isRetValOK; then exitError; fi
 

@@ -77,7 +77,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   fi
   #add package
   echo "Begin list"
-  reprepro -b $VAR_TMP_DIR_NAME/repos/linux/apt list $VAR_CODE_NAME | grep -E "'$PRM_FILTER_REGEX'"
+  reprepro -b $VAR_TMP_DIR_NAME/repos/linux/apt list $VAR_CODE_NAME | grep -E "$PRM_FILTER_REGEX"
   if ! isRetValOK; then exitError; fi
   echo "End list"
   rm -fR $VAR_TMP_DIR_NAME

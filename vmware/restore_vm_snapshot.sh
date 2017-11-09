@@ -66,7 +66,7 @@ if isEmpty "$VAR_SS_ID"; then
   exitError "snapshot $PRM_SNAPSHOT_NAME not found for VM $PRM_VMNAME on $PRM_HOST host"
 fi
 #power off
-VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
+#VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #remove VAR_SS_ID child snapshots
 if isTrue "$PRM_REMOVE_CHILD"; then
@@ -78,7 +78,7 @@ if isTrue "$PRM_REMOVE_CHILD"; then
   done
 fi
 #revert VAR_SS_ID snapshot
-$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.revert $VAR_VM_ID $VAR_SS_ID 1"
+$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.revert $VAR_VM_ID $VAR_SS_ID 0"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage
