@@ -1,6 +1,6 @@
 /downloads
-/common/ovftoolpwd
-/common/sshpwd
+/common/ovftoolpwd.txt
+/common/sshpwd.txt
 /test/
 /repo/repos
 *.iso
