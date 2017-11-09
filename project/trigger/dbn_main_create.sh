@@ -17,7 +17,7 @@ checkRetVal(){
 
 activeSuiteRepository(){
   #deactivate default repository
-  sudo sed '1s/^/# /' -i /etc/apt/sources.list.d/public-apt-dishmaev.list/public-apt-dishmaev.list
+  sudo sed '1s/^/# /' -i /etc/apt/sources.list.d/public-apt-dishmaev.list
   checkRetVal
   #activate required repository
   if [ "$1" = "rel" ]; then
