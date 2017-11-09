@@ -15,11 +15,29 @@ checkRetVal(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
+activeSuiteRepository(){
+  #deactivate default repository
+  sudo sed '1s/^/# /' -i public-apt-dishmaev.list
+  #activate required repository
+  if [ "$1" = "rel" ]; then
+    cat public-apt-dishmaev.list | grep 'apt stable main' | sed 's/# //' | sudo tee public-apt-dishmaev-stable.list
+  elif [ "$1" = "tst" ]; then
+    cat public-apt-dishmaev.list | grep 'apt testing main' | sed 's/# //' | sudo tee public-apt-dishmaev-testing.list
+  elif [ "$1" = "dev" ]; then
+    cat public-apt-dishmaev.list | grep 'apt unstable main' | sed 's/# //' | sudo tee public-apt-dishmaev-unstable.list
+  else
+    return
+  fi
+}
+
 ###body
 
 echo "Current create suite: $2"
 
 uname -a
+
+#active suite repository
+activeSuiteRepository "$2"
 
 ##test
 
