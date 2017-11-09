@@ -1,5 +1,5 @@
 Origin: https://dishmaev.github.io/repos/linux/apt
-Codename: stretch
+Codename: stable
 Suite: stable
 Architectures: amd64 source
 Components: main contrib non-free
