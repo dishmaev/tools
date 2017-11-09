@@ -79,7 +79,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
     VAR_CODE_NAME=$CONST_APT_CODE_NAME_STABLE
   fi
   #add package
-  echo "Add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME code name"
+  echo "Add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME CODENAME"
   reprepro -b $VAR_TMP_DIR_NAME/repos/linux/apt includedeb $VAR_CODE_NAME $PRM_PACKAGE_FILE
   if ! isRetValOK; then exitError; fi
   VAR_CUR_DIR_NAME=$PWD
