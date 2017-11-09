@@ -15,8 +15,10 @@ PRM_PACKAGE_FILE='' #build file name
 PRM_VM_TEMPLATE='' #vm template
 PRM_SUITE='' #suite
 PRM_DISTRIB_REPO='' #distrib repository
+VAR_CUR_DIR_NAME='' #current directory name
 VAR_TMP_DIR_NAME='' #temporary directory name
 VAR_CODE_NAME=$CONST_APT_CODE_NAME_UNSTABLE #code name
+VAR_SHORT_FILE_NAME='' #short file name of $PRM_BUILD_FILE
 
 ###check autoyes
 
@@ -54,6 +56,8 @@ startPrompt
 
 ###body
 
+VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_PACKAGE_FILE") || exitChildError "$VAR_SHORT_FILE_NAME"
+
 if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
@@ -75,15 +79,20 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
     VAR_CODE_NAME=$CONST_APT_CODE_NAME_STABLE
   fi
   #add package
+  echo "Add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME code name"
   reprepro -b $VAR_TMP_DIR_NAME/repos/linux/apt includedeb $VAR_CODE_NAME $PRM_PACKAGE_FILE
   if ! isRetValOK; then exitError; fi
+  VAR_CUR_DIR_NAME=$PWD
+  cd $VAR_TMP_DIR_NAME
   #git add and commit
   git add *
-  git commit -m "add package $PRM_PACKAGE_FILE to $PRM_SUITE suite of distrib repository"
+  git commit -m "add package $VAR_SHORT_FILE_NAME to $PRM_SUITE suite of distrib repository"
   if ! isRetValOK; then exitError; fi
   git push --all
   if ! isRetValOK; then exitError; fi
   #remote temporary directory
+  cd $VAR_CUR_DIR_NAME
+  if ! isRetValOK; then exitError; fi
   rm -fR $VAR_TMP_DIR_NAME
   if ! isRetValOK; then exitError; fi
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \

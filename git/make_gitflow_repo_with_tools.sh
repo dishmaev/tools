@@ -86,8 +86,10 @@ if ! isRetValOK; then exitError; fi
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Delete temporary directory'
-rm -fR $VAR_TMP_DIR_NAME
 cd $VAR_CUR_DIR_NAME
+if ! isRetValOK; then exitError; fi
+rm -fR $VAR_TMP_DIR_NAME
+if ! isRetValOK; then exitError; fi
 doneFinalStage
 
 echo ''

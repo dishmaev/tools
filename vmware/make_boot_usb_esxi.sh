@@ -79,9 +79,12 @@ w
 if ! isRetValOK; then exitError; fi
 
 sudo dd bs=440 count=1 conv=notrunc if=$SYSLINUX_MBR_FILE of=$PRM_DEVICE
+if ! isRetValOK; then exitError; fi
 sudo sync
+if ! isRetValOK; then exitError; fi
 
 sudo mkfs.vfat -F 32 -n USB $PRM_DEVICE\1
+if ! isRetValOK; then exitError; fi
 
 VAR_TMP_USB_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_USB_DIR_NAME"
 VAR_TMP_ISO_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_ISO_DIR_NAME"
@@ -90,23 +93,35 @@ echo "VAR_TMP_ISO_DIR_NAME $VAR_TMP_ISO_DIR_NAME"
 echo "VAR_TMP_USB_DIR_NAME $VAR_TMP_USB_DIR_NAME"
 
 sudo mount $PRM_DEVICE\1 $VAR_TMP_USB_DIR_NAME -o rw,uid=$USER
+if ! isRetValOK; then exitError; fi
 sudo mount -r -o loop $PRM_FILEISO $VAR_TMP_ISO_DIR_NAME
+if ! isRetValOK; then exitError; fi
+
 sleep 3
 
 cp -r $VAR_TMP_ISO_DIR_NAME/* $VAR_TMP_USB_DIR_NAME/
+if ! isRetValOK; then exitError; fi
 cat $VAR_TMP_USB_DIR_NAME/isolinux.cfg | sed -e "s#APPEND -c boot.cfg#APPEND -c boot.cfg -p 1#" > $VAR_TMP_USB_DIR_NAME/syslinux.cfg
+if ! isRetValOK; then exitError; fi
 rm $VAR_TMP_USB_DIR_NAME/isolinux.cfg
+if ! isRetValOK; then exitError; fi
 cp $SYSLINUX_MODULE_BIOS_DIR/* $VAR_TMP_USB_DIR_NAME
+if ! isRetValOK; then exitError; fi
 
 sudo sync
+if ! isRetValOK; then exitError; fi
 
 sudo umount $VAR_TMP_USB_DIR_NAME
+if ! isRetValOK; then exitError; fi
 sudo umount $VAR_TMP_ISO_DIR_NAME
+if ! isRetValOK; then exitError; fi
 
 sleep 3
 
 rmdir $VAR_TMP_USB_DIR_NAME
+if ! isRetValOK; then exitError; fi
 rmdir $VAR_TMP_ISO_DIR_NAME
+if ! isRetValOK; then exitError; fi
 
 doneFinalStage
 exitOK
