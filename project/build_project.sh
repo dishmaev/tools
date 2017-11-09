@@ -12,7 +12,7 @@ CONST_PROJECT_ACTION='build'
 PRM_BUILD_VERSION='' #build version
 PRM_SUITE='' #suite
 PRM_VM_ROLE='' #role for create VM
-PRM_ADD_TO_REPOSITORY='' #add package to repository
+PRM_ADD_TO_DISTRIB_REPOSITORY='' #add package to repository
 VAR_RESULT='' #child return value
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
@@ -32,7 +32,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<buildVersion> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [addToRepository=$COMMON_CONST_TRUE]' \
+echoHelp $# 4 '<buildVersion> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [addToDistribRepository=$COMMON_CONST_TRUE]' \
 "1.0.0 $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_TRUE" \
 "Available suites: $CONST_SUITES_POOL"
 
@@ -41,12 +41,12 @@ echoHelp $# 4 '<buildVersion> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMO
 PRM_BUILD_VERSION=$1
 PRM_SUITE=${2:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${3:-$COMMON_CONST_DEFAULT_VM_ROLE}
-PRM_ADD_TO_REPOSITORY=${4:-$COMMON_CONST_TRUE}
+PRM_ADD_TO_DISTRIB_REPOSITORY=${4:-$COMMON_CONST_TRUE}
 
 checkCommandExist 'buildVersion' "$PRM_BUILD_VERSION" ''
 checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
 checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
-checkCommandExist 'addToRepository' "$PRM_ADD_TO_REPOSITORY" "$COMMON_CONST_BOOL_VALUES"
+checkCommandExist 'addToDistribRepotory' "$PRM_ADD_TO_DISTRIB_REPOSITORY" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
 
