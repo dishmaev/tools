@@ -3,7 +3,7 @@
 ##using files: consts.sh, environment.sh
 
 ##private vars
-VAR_AUTO_YES=$COMMON_CONST_FALSE #non-interactively mode enum {n,y}
+VAR_AUTO_YES=$COMMON_CONST_FALSE #batch mode
 VAR_NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 VAR_ENVIRONMENT_ERROR='' #result of check environment, ok if empty
 VAR_STAGE_NUM=0 #stage num
@@ -471,14 +471,19 @@ setErrorEnvironment()
   checkParmsCount $# 1 'setErrorEnvironment'
   VAR_ENVIRONMENT_ERROR="$1 in environment.sh"
 }
-#$1 description
+#$1 description, [$2] allowed autoyes
 targetDescription(){
-  checkParmsCount $# 1 'targetDescription'
+  local VAR_MODE=$COMMON_CONST_FALSE
   if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
     echo "Error: $VAR_ENVIRONMENT_ERROR"
     exit $COMMON_CONST_EXIT_ERROR
   fi
   VAR_TARGET_DESCRIPTION=$1
+  VAR_MODE=${2:-$COMMON_CONST_TRUE}
+  checkCommandValue 'modeAutoYes' "$VAR_MODE" "$COMMON_CONST_BOOL_VALUES"
+  if ! isTrue "$VAR_MODE"; then
+    VAR_AUTO_YES=$COMMON_CONST_NULL
+  fi
 }
 #$1 total stage, $2 stage description
 beginStage(){
@@ -563,19 +568,29 @@ exitChildError(){
 #$1 options count, $2 must be count, $3 usage message, $4 sample message, $5 add tooltip message
 echoHelp(){
   checkParmsCount $# 5 'echoHelp'
-  if [ $1 -gt $2 ]; then
-    exitError 'too many options'
-  fi
+  local VAR_TOOL_TIP=''
   if isTrue "$VAR_NEED_HELP"; then
-    echo "Usage: $ENV_SCRIPT_FILE_NAME [-y] $3"
+    if [ "$VAR_AUTO_YES" != "$COMMON_CONST_NULL" ]; then
+      echo "Usage: $ENV_SCRIPT_FILE_NAME [-y] $3"
+    else
+      echo "Usage: $ENV_SCRIPT_FILE_NAME $3"
+    fi
     echo "Sample: $ENV_SCRIPT_FILE_NAME $4"
     if ! isEmpty "$5"
     then
-      PRM_TOOLTIP="$COMMON_CONST_TOOL_TIP. $5"
+      if [ "$VAR_AUTO_YES" != "$COMMON_CONST_NULL" ]; then
+        VAR_TOOL_TIP="$COMMON_CONST_TOOL_TIP. $5"
+      else
+        VAR_TOOL_TIP="$5"
+      fi
     else
-      PRM_TOOLTIP=$COMMON_CONST_TOOL_TIP
+      if [ "$VAR_AUTO_YES" != "$COMMON_CONST_NULL" ]; then
+        VAR_TOOL_TIP=$COMMON_CONST_TOOL_TIP
+      fi
     fi
-    echo "Tooltip: $PRM_TOOLTIP"
+    if ! isEmpty "$VAR_TOOL_TIP"; then
+      echo "Tooltip: $VAR_TOOL_TIP"
+    fi
     exit $COMMON_CONST_EXIT_SUCCESS
   else
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
@@ -629,6 +644,9 @@ checkAutoYes() {
   checkParmsCount $# 1 'checkAutoYes'
   echo "Target: $(getFileNameWithoutExt "$ENV_SCRIPT_FILE_NAME")"
   if [ "$1" = "-y" ]; then
+    if [ "$VAR_AUTO_YES" = "$COMMON_CONST_NULL" ]; then
+      exitError 'not allowed batch mode, try without -y option'
+    fi
     VAR_AUTO_YES=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
   elif [ "$1" = "--help" ]; then

@@ -2,7 +2,8 @@
 
 #define common consts
 
-readonly COMMON_CONST_GPG_KEYID='507650DE33C7BA92EDD1569DF4F5A67BE44EEED4' #gpg keyID
+#gpg keyID
+readonly COMMON_CONST_GPG_KEYID='507650DE33C7BA92EDD1569DF4F5A67BE44EEED4'
 
 #boolean
 readonly COMMON_CONST_FALSE=0 #false
@@ -12,14 +13,15 @@ readonly COMMON_CONST_BOOL_VALUES="$COMMON_CONST_FALSE $COMMON_CONST_TRUE" #bool
 #exit values
 readonly COMMON_CONST_EXIT_ERROR=1
 readonly COMMON_CONST_EXIT_SUCCESS=0
-readonly COMMON_CONST_ERROR_MESS_UNKNOWN='some problem occured while execute last command, details above in output'
 
 #base tool infrastructure
 readonly COMMON_CONST_TOOL_TIP='-y batch mode with yes answer' #simple autoyes tooltip
+readonly COMMON_CONST_ERROR_MESS_UNKNOWN='some problem occured while execute last command, details above in output'
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
 readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
 readonly COMMON_CONST_LINUX_APT='apt'
 readonly COMMON_CONST_LINUX_RPM='rpm'
+readonly COMMON_CONST_NULL='<null>' #null value
 readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
 readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
@@ -41,6 +43,7 @@ readonly COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE='ors' #Oracle Solaris withou
 readonly COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE='orsbox' #Oracle Solaris from ova package for Virtual Box
 readonly COMMON_CONST_FREEBSD_VM_TEMPLATE='fbd' # FreeBSD
 
+# available vm templates pool
 readonly COMMON_CONST_VM_TEMPLATES_POOL="\
 $COMMON_CONST_PHOTON_VM_TEMPLATE \
 $COMMON_CONST_DEBIANMINI_VM_TEMPLATE \
@@ -49,13 +52,14 @@ $COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE \
 $COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE \
 $COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE \
 $COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE \
-$COMMON_CONST_FREEBSD_VM_TEMPLATE" # available vm templates pool
+$COMMON_CONST_FREEBSD_VM_TEMPLATE"
 
 #vm types
 readonly COMMON_CONST_VMWARE_VM_TYPE='ex' #Vmware
 readonly COMMON_CONST_DOCKER_VM_TYPE='dc' #Docker
 readonly COMMON_CONST_VAGRANT_VM_TYPE='vg' #Vagrant
 
+# available vm types pool
 readonly COMMON_CONST_VMTYPES_POOL="\
 $COMMON_CONST_VMWARE_VM_TYPE \
 $COMMON_CONST_DOCKER_VM_TYPE \
@@ -67,6 +71,7 @@ readonly COMMON_CONST_TEST_SUITE='tst' #test
 readonly COMMON_CONST_DEVELOP_SUITE='dev' #develop
 readonly COMMON_CONST_RUNNER_SUITE='run' #runner, for build of project
 
+# available suites pool
 readonly COMMON_CONST_SUITES_POOL="\
 $COMMON_CONST_DEVELOP_SUITE \
 $COMMON_CONST_TEST_SUITE \
@@ -94,7 +99,7 @@ readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #
 readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_ESXI_TRY_LONG=30 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=5 #sleep long
-readonly COMMON_CONST_ESXI_HDD_DISC_SIZE='20G' #default hdd disc size for template vm
+readonly COMMON_CONST_ESXI_DEFAULT_HDD_SIZE='20G' #default hdd disc size for template vm
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 
 #readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter
