@@ -41,7 +41,7 @@ echo "Current create suite: $2"
 uname -a
 
 #install packages
-if [ "$1" = "run" ]; then
+if [ "$2" = "run" ]; then
   sudo apt -y install git
   checkRetVal
 fi
@@ -51,7 +51,7 @@ activeSuiteRepository "$2"
 
 ##test
 
-if [ "$1" = "run" ]; then
+if [ "$2" = "run" ]; then
   git --version
   checkRetVal
 fi
