@@ -5,7 +5,6 @@
 targetDescription 'Upgrade tools on esxi hosts pool'
 
 ##private consts
-readonly CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
 readonly CONST_TOOLSVER_FILENAME='version.cfg'
 
 ##private vars

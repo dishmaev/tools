@@ -485,6 +485,7 @@ checkNotEmptyEnvironment(){
 #$1 host
 checkSSHKeyExistEsxi(){
   checkParmsCount $# 1 'checkSSHKeyExistEsxi'
+  local CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
   local VAR_RESULT=''
   VAR_RESULT=$($SSH_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; \
 then mkdir $CONST_HV_SSHKEYS_DIRNAME; \
