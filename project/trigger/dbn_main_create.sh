@@ -51,8 +51,10 @@ activeSuiteRepository "$2"
 
 ##test
 
-git --version
-checkRetVal
+if [ "$1" = "run" ]; then
+  git --version
+  checkRetVal
+fi
 
 ###finish
 
