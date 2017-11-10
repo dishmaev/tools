@@ -37,6 +37,7 @@ readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa; if [ -r $HOME/.ssh/$VA
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
 #distrib repository
 readonly ENV_DISTRIB_REPO='git@github.com:dishmaev/dishmaev.github.io.git'
+#readonly ENV_DISTRIB_REPO='https://github.com/dishmaev/dishmaev.github.io.git'
 if isEmpty "$ENV_DISTRIB_REPO"; then checkNotEmptyEnvironment "ENV_DISTRIB_REPO"; fi
 #for add tools submodule
 readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
