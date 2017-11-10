@@ -3,13 +3,39 @@
 ##using files: consts.sh, environment.sh
 
 ##private vars
-VAR_AUTO_YES=$COMMON_CONST_FALSE #batch mode
+VAR_AUTO_YES=$COMMON_CONST_FALSE #batch mode, allow $COMMON_CONST_NULL
 VAR_NEED_HELP=$COMMON_CONST_FALSE #show help and exit
 VAR_ENVIRONMENT_ERROR='' #result of check environment, ok if empty
 VAR_STAGE_NUM=0 #stage num
 VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
+VAR_START_TIME='' #start execution script
 
+#$1 start time
+getElapsedTime(){
+  local VAR_END_TAB
+  local VAR_END
+  local VAR_START
+#  local VAR_FTIME=''
+#  local VAR_ELAPSED
+#  local VAR_INDEX=1
+#  local VAR_DIFF=0
+#  VAR_START=$(echo $1| sed 's/[ \t]//g')
+  VAR_END_TAB="$(date +%Y%t%m%t%d%t%H%t%M%t%S)"
+#  VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]//g')
+#  VAR_ELAPSED=$((${VAR_END}-${VAR_START}));
+  VAR_START=$(echo $1| sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+  VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+#  while true; do
+#    VAR_DIFF=$((${#VAR_END}-${#VAR_ELAPSED}))
+#    if [ $VAR_INDEX -gt $VAR_DIFF ]; then break; fi
+#    VAR_FTIME="${VAR_FTIME}-"
+#    VAR_INDEX=$(($VAR_INDEX+1))
+#  done
+#  echo "Start  : ${VAR_START}\nStop   : ${VAR_END}\nElapsed: ${VAR_FTIME}${VAR_ELAPSED}"
+#https://stackoverflow.com/questions/16908084/linux-bash-script-to-calculate-time-elapsed
+  echo "Execution: from ${VAR_START} to ${VAR_END}"
+}
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
   checkParmsCount $# 4 'getChildSnapshotsPool'
@@ -515,6 +541,7 @@ exitOK(){
     echo $1
   fi
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    getElapsedTime "$VAR_START_TIME"
     echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
   fi
   exit $COMMON_CONST_EXIT_SUCCESS
@@ -531,6 +558,7 @@ exitError(){
     echo "$1"
   fi
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    getElapsedTime "$VAR_START_TIME"
     echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
   fi
   exit $COMMON_CONST_EXIT_ERROR
@@ -594,6 +622,7 @@ echoHelp(){
     exit $COMMON_CONST_EXIT_SUCCESS
   else
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+      VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
       echo "Start session [$$]"
     fi
   fi
