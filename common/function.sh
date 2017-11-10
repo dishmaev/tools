@@ -541,7 +541,7 @@ exitOK(){
   if ! isEmpty "$1"; then
     echo $1
   fi
-  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+  if isTrue "$COMMON_CONST_SHOW_DEBUG" && ! isEmpty "$VAR_START_TIME"; then
     getElapsedTime "$VAR_START_TIME"
     echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
   fi
@@ -558,7 +558,7 @@ exitError(){
   else
     echo "$1"
   fi
-  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+  if isTrue "$COMMON_CONST_SHOW_DEBUG" && ! isEmpty "$VAR_START_TIME"; then
     getElapsedTime "$VAR_START_TIME"
     echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
   fi
@@ -621,11 +621,6 @@ echoHelp(){
       echo "Tooltip: $VAR_TOOL_TIP"
     fi
     exit $COMMON_CONST_EXIT_SUCCESS
-  else
-    if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-      VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
-      echo "Start session [$$]"
-    fi
   fi
 }
 #1 pause message
@@ -645,28 +640,33 @@ startPrompt(){
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     echoResult "$VAR_COMMAND_VALUE"
   fi
-  if isAutoYesMode; then return; fi
-  while isTrue "$VAR_DO_FLAG"; do
-    read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
-    if isEmpty "$VAR_INPUT"; then
-      VAR_DO_FLAG=$COMMON_CONST_FALSE
-    else
-      case $VAR_INPUT in
-        [yY])
-          VAR_YES=$COMMON_CONST_TRUE
-          VAR_DO_FLAG=$COMMON_CONST_FALSE
-          ;;
-        [nN])
-          VAR_DO_FLAG=$COMMON_CONST_FALSE
-          ;;
-        *)
-          echo 'Invalid input'
-          ;;
-      esac
+  if ! isAutoYesMode; then
+    while isTrue "$VAR_DO_FLAG"; do
+      read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
+      if isEmpty "$VAR_INPUT"; then
+        VAR_DO_FLAG=$COMMON_CONST_FALSE
+      else
+        case $VAR_INPUT in
+          [yY])
+            VAR_YES=$COMMON_CONST_TRUE
+            VAR_DO_FLAG=$COMMON_CONST_FALSE
+            ;;
+          [nN])
+            VAR_DO_FLAG=$COMMON_CONST_FALSE
+            ;;
+          *)
+            echo 'Invalid input'
+            ;;
+        esac
+      fi
+    done
+    if ! isTrue $VAR_YES; then
+      exitOK 'Good bye!'
     fi
-  done
-  if ! isTrue $VAR_YES; then
-    exitOK 'Good bye!'
+  fi
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
+    echo "Start session [$$]"
   fi
 }
 #$1 parameter
