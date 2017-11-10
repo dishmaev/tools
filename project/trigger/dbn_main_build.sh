@@ -4,7 +4,7 @@
 
 VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 project repository, $4 build version, $5 output package file name'
 
-if [ "$#" != "2" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
+if [ "$#" != "5" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -f ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
 exec 2>${1}.err
