@@ -534,7 +534,7 @@ doneFinalStage(){
   then
     doneStage
   fi
-  echo "Success target!"
+  echo "Success target $(getFileNameWithoutExt "$ENV_SCRIPT_FILE_NAME")!"
 }
 #[$1] message
 exitOK(){
