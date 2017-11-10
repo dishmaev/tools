@@ -34,7 +34,7 @@ getElapsedTime(){
 #  done
 #  echo "Start  : ${VAR_START}\nStop   : ${VAR_END}\nElapsed: ${VAR_FTIME}${VAR_ELAPSED}"
 #https://stackoverflow.com/questions/16908084/linux-bash-script-to-calculate-time-elapsed
-  echo "Execution: from ${VAR_START} to ${VAR_END}"
+  echo "Execution period: from ${VAR_START} to ${VAR_END}"
 }
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){

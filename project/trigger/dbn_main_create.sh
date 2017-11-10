@@ -40,10 +40,19 @@ echo "Current create suite: $2"
 
 uname -a
 
+#install packages
+if [ "$1" = "run" ]; then
+  sudo apt -y install git
+  checkRetVal
+fi
+
 #active suite repository
 activeSuiteRepository "$2"
 
 ##test
+
+git --version
+checkRetVal
 
 ###finish
 

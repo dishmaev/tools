@@ -3,7 +3,7 @@
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
 targetDescription 'Make set of empty packages repositories for some OS: Linux (apt,rpm),
-                    FreeBSD (TO-DO), Windows (TO-DO)'
+                    FreeBSD (TO-DO)'
 
 ##private consts
 readonly CONST_STAGE_COUNT=4 #stage count
@@ -59,7 +59,6 @@ startPrompt
 beginStage $CONST_STAGE_COUNT 'Create base directories'
 mkdir $VAR_TARGET_DIR_NAME
 mkdir $VAR_TARGET_DIR_NAME/freebsd
-mkdir $VAR_TARGET_DIR_NAME/windows
 mkdir $VAR_TARGET_DIR_NAME/linux
 
 mkdir $VAR_TARGET_DIR_NAME/linux/apt
@@ -137,6 +136,5 @@ echo ''
 echo 'Now publish keys for repository access:'
 echo '1)For Linux is' $VAR_TARGET_DIR_NAME'/linux/'$CONST_GPGKEY_FILENAME
 echo '2)For FreeBSD is' $VAR_TARGET_DIR_NAME'/freebsd/TO-DO'
-echo '3)For Windows is' $VAR_TARGET_DIR_NAME'/windows/TO-DO'
 
 exitOK

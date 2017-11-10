@@ -2,7 +2,7 @@
 
 ###header
 
-VAR_PARAMETERS='$1 script name without extenstion, $2 suite'
+VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 build version, $4 output package file name'
 
 if [ "$#" != "2" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -f ${1}.ok ]; then rm ${1}.ok; fi
@@ -21,12 +21,7 @@ echo "Current build suite: $2"
 
 uname -a
 
-sudo apt -y install git
-
 ##test
-
-git --version
-checkRetVal
 
 ###finish
 

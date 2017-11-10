@@ -9,10 +9,11 @@ CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_
 CONST_PROJECT_ACTION='build'
 
 ##private vars
-PRM_BUILD_VERSION='' #build version
+PRM_VERSION='' #version
 PRM_SUITE='' #suite
 PRM_VM_ROLE='' #role for create VM
 PRM_ADD_TO_DISTRIB_REPOSITORY='' #add package to repository
+PRM_DISTRIB_REPO='' #distrib repository
 VAR_RESULT='' #child return value
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
@@ -24,7 +25,8 @@ VAR_VM_NAME='' #vm name
 VAR_HOST='' #esxi host
 VAR_VM_ID='' #vm id
 VAR_VM_IP='' #vm ip address
-VAR_SHORT_FILE_NAME='' #short file name of $PRM_BUILD_FILE
+VAR_BUILD_FILE_NAME='' #build file name
+VAR_BUILD_FILE_PATH='' #build file path
 
 ###check autoyes
 
@@ -32,21 +34,26 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<buildVersion> [suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [addToDistribRepository=$COMMON_CONST_TRUE]' \
-"1.0.0 $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_TRUE" \
+echoHelp $# 5 '<version> [suite=$COMMON_CONST_DEVELOP_SUITE] \
+[vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] \
+[addToDistribRepository=$COMMON_CONST_FALSE] \
+[distribRepository=$ENV_DISTRIB_REPO]\' \
+"1.0.0 $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_FALSE $ENV_DISTRIB_REPO" \
 "Available suites: $CONST_SUITES_POOL"
 
 ###check commands
 
-PRM_BUILD_VERSION=$1
+PRM_VERSION=$1
 PRM_SUITE=${2:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${3:-$COMMON_CONST_DEFAULT_VM_ROLE}
-PRM_ADD_TO_DISTRIB_REPOSITORY=${4:-$COMMON_CONST_TRUE}
+PRM_ADD_TO_DISTRIB_REPOSITORY=${4:-$COMMON_CONST_FALSE}
+PRM_DISTRIB_REPO=${5:-$ENV_DISTRIB_REPO}
 
-checkCommandExist 'buildVersion' "$PRM_BUILD_VERSION" ''
+checkCommandExist 'version' "$PRM_VERSION" ''
 checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
 checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 checkCommandExist 'addToDistribRepotory' "$PRM_ADD_TO_DISTRIB_REPOSITORY" "$COMMON_CONST_BOOL_VALUES"
+checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check body dependencies
 
@@ -78,6 +85,24 @@ VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
 
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
+#add package file name extention
+VAR_BUILD_FILE_NAME=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
+if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
+  VAR_BUILD_FILE_NAME=${VAR_BUILD_FILE_NAME}.rpm
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
+  VAR_BUILD_FILE_NAME=${VAR_BUILD_FILE_NAME}.deb
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
+  echo "Oracle Solaris package extention"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
+  echo "FreeBSD package extention"
+fi
+VAR_BUILD_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_BUILD_FILE_NAME
+
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
@@ -93,17 +118,13 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
-#  #copy build file on vm
-#  VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_SCRIPT_FILE_NAME"
-#  $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_SHORT_FILE_NAME
-#  if ! isRetValOK; then exitError; fi
 #  #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi
   #exec trigger script
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE; \
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $PRM_VERSION $VAR_BUILD_FILE_NAME; \
 if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
   if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
@@ -111,7 +132,11 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isEmpty "$RET_LOG"; then echo "Stderr:\n$RET_LOG"; fi
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  fi
+  else
+    echo "Get builded package from VM"
+    $SCP_CLIENT $VAR_VM_IP:$VAR_BUILD_FILE_NAME $VAR_BUILD_FILE_PATH
+    if ! isRetValOK; then exitError; fi
+   fi
 fi
 
 doneFinalStage
