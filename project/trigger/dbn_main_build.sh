@@ -21,7 +21,14 @@ echo "Current build suite: $2"
 
 uname -a
 
+mkdir build
+checkRetVal
+git clone $3 build
+checkRetVal
+
 ##test
+
+if [ ! -f "$5" ]; then echo "Output file $5 not found"; exit 1; fi
 
 ###finish
 
