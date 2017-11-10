@@ -17,6 +17,9 @@ if isEmpty "$ENV_SUBMODULE_MODE"; then checkNotEmptyEnvironment "ENV_SUBMODULE_M
 #project name
 readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//')
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
+#project repository
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url)
+if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #default git user
 readonly ENV_GIT_USER_NAME=$(git config user.name)
 if isEmpty "$ENV_GIT_USER_NAME"; then checkNotEmptyEnvironment "ENV_GIT_USER_NAME"; fi
