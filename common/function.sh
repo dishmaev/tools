@@ -98,8 +98,7 @@ getElapsedTime(){
   VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
   VAR_ESPD=$(echo "${VAR_YY_ESPD}-${VAR_MH_ESPD}-${VAR_DD_ESPD} ${VAR_HH_ESPD}:${VAR_MM_ESPD}:${VAR_SS_ESPD}")
 
-  echo "Execution period: from $VAR_START to $VAR_END"
-  echo "Elapsed time: $VAR_ESPD"
+  echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_END"
 }
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
