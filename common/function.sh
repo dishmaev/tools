@@ -11,30 +11,95 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+#$1 char, $2 count
+getCharCountString(){
+  local VAR_COUNT=1
+  while true; do
+    if [ "$VAR_COUNT" -gt "$2" ]; then break; fi
+    VAR_COUNT=$((VAR_COUNT+1))
+    echo -n $1
+    break;
+  done
+}
+#$1 mh stop, $2 yy stop
+getMhDays(){
+  local VAR_MH_STOP=0
+  case $1 in
+    [1,3,5,7,8,10,12]) VAR_MH_STOP=31
+       ;;
+    2) (( !($2 % 4) && ($2 % 100 || !($2 % 400) ) )) && ( $1=29 || $1=28 )
+       ;;
+    [4,6,9,11]) VAR_MH_STOP=30
+       ;;
+  esac
+  echo "$VAR_MH_STOP"
+}
+
 #$1 start time
 getElapsedTime(){
   local VAR_END_TAB
   local VAR_END
   local VAR_START
-#  local VAR_FTIME=''
-#  local VAR_ELAPSED
-#  local VAR_INDEX=1
-#  local VAR_DIFF=0
-#  VAR_START=$(echo $1| sed 's/[ \t]//g')
+  local VAR_ESPD
+  local VAR_SS_START=0
+  local VAR_SS_STOP=0
+  local VAR_MM_START=0
+  local VAR_MM_STOP=0
+  local VAR_HH_START=0
+  local VAR_HH_STOP=0
+  local VAR_DD_START=0
+  local VAR_DD_STOP=0
+  local VAR_MH_START=0
+  local VAR_MH_STOP=0
+  local VAR_YY_START=0
+  local VAR_YY_STOP=0
+  local VAR_SS_ESPD=0
+  local VAR_MM_ESPD=0
+  local VAR_HH_ESPD=0
+  local VAR_DD_ESPD=0
+  local VAR_MH_ESPD=0
+  local VAR_YY_ESPD=0
+
   VAR_END_TAB="$(date +%Y%t%m%t%d%t%H%t%M%t%S)"
-#  VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]//g')
-#  VAR_ELAPSED=$((${VAR_END}-${VAR_START}));
+
+  VAR_SS_START=$(echo $1 | awk '{print $6}')
+  VAR_SS_STOP=$(echo $VAR_END_TAB | awk '{print $6}')
+  VAR_MM_START=$(echo $1 | awk '{print $5}')
+  VAR_MM_STOP=$(echo $VAR_END_TAB | awk '{print $5}')
+  VAR_HH_START=$(echo $1 | awk '{print $4}')
+  VAR_HH_STOP=$(echo $VAR_END_TAB | awk '{print $4}')
+  VAR_DD_START=$(echo $1 | awk '{print $3}')
+  VAR_DD_STOP=$(echo $VAR_END_TAB | awk '{print $3}')
+  VAR_MH_START=$(echo $1 | awk '{print $2}')
+  VAR_MH_STOP=$(echo $VAR_END_TAB | awk '{print $2}')
+  VAR_YY_START=$(echo $1 | awk '{print $1}')
+  VAR_YY_STOP=$(echo $VAR_END_TAB | awk '{print $1}')
+
+  if [ "${VAR_SS_STOP}" -lt "${VAR_SS_START}" ]; then VAR_SS_STOP=$((VAR_SS_STOP+60)); VAR_MM_STOP=$((VAR_MM_STOP-1)); fi
+  if [ "${VAR_MM_STOP}" -lt "0" ]; then VAR_MM_STOP=$((VAR_MM_STOP+60)); VAR_HH_STOP=$((VAR_HH_STOP-1)); fi
+  if [ "${VAR_MM_STOP}" -lt "${VAR_MM_START}" ]; then VAR_MM_STOP=$((VAR_MM_STOP+60)); VAR_HH_STOP=$((VAR_HH_STOP-1)); fi
+  if [ "${VAR_HH_STOP}" -lt "0" ]; then VAR_HH_STOP=$((VAR_HH_STOP+24)); VAR_DD_STOP=$((VAR_DD_STOP-1)); fi
+  if [ "${VAR_HH_STOP}" -lt "${VAR_HH_START}" ]; then VAR_HH_STOP=$((VAR_HH_STOP+24)); VAR_DD_STOP=$((VAR_DD_STOP-1)); fi
+
+  if [ "${VAR_DD_STOP}" -lt "0" ]; then VAR_DD_STOP=$((VAR_DD_STOP+$(getMhDays $VAR_MH_STOP $VAR_YY_STOP))); VAR_MH_STOP=$((VAR_MH_STOP-1)); fi
+  if [ "${VAR_DD_STOP}" -lt "${VAR_DD_START}" ]; then VAR_DD_STOP=$((VAR_DD_STOP+$(getMhDays $VAR_MH_STOP $VAR_YY_STOP))); VAR_MH_STOP=$((VAR_MH_STOP-1)); fi
+
+  if [ "${VAR_MH_STOP}" -lt "0" ]; then VAR_MH_STOP=$((VAR_MH_STOP+12)); VAR_YY_STOP=$((VAR_YY_STOP-1)); fi
+  if [ "${VAR_MH_STOP}" -lt "${VAR_MH_START}" ]; then VAR_MH_STOP=$((VAR_MH_STOP+12)); VAR_YY_STOP=$((VAR_YY_STOP-1)); fi
+
+  VAR_SS_ESPD=$((${VAR_SS_STOP}-${VAR_SS_START})); if [ "${#VAR_SS_ESPD}" -le "1" ]; then VAR_SS_ESPD=$(getCharCountString '0' "$((${#VAR_SS_STOP}-${#VAR_SS_ESPD}))"; echo ${VAR_SS_ESPD}); fi
+  VAR_MM_ESPD=$((${VAR_MM_STOP}-${VAR_MM_START})); if [ "${#VAR_MM_ESPD}" -le "1" ]; then VAR_MM_ESPD=$(getCharCountString '0' "$((${#VAR_MM_STOP}-${#VAR_MM_ESPD}))"; echo ${VAR_MM_ESPD}); fi
+  VAR_HH_ESPD=$((${VAR_HH_STOP}-${VAR_HH_START})); if [ "${#VAR_HH_ESPD}" -le "1" ]; then VAR_HH_ESPD=$(getCharCountString '0' "$((${#VAR_HH_STOP}-${#VAR_HH_ESPD}))"; echo ${VAR_HH_ESPD}); fi
+  VAR_DD_ESPD=$((${VAR_DD_STOP}-${VAR_DD_START})); if [ "${#VAR_DD_ESPD}" -le "1" ]; then VAR_DD_ESPD=$(getCharCountString '0' "$((${#VAR_DD_STOP}-${#VAR_DD_ESPD}))"; echo ${VAR_DD_ESPD}); fi
+  VAR_MH_ESPD=$((${VAR_MH_STOP}-${VAR_MH_START})); if [ "${#VAR_MH_ESPD}" -le "1" ]; then VAR_MH_ESPD=$(getCharCountString '0' "$((${#VAR_MH_STOP}-${#VAR_MH_ESPD}))"; echo ${VAR_MH_ESPD}); fi
+  VAR_YY_ESPD=$((${VAR_YY_STOP}-${VAR_YY_START})); if [ "${#VAR_YY_ESPD}" -le "1" ]; then VAR_YY_ESPD=$(getCharCountString '0' "$((${#VAR_YY_STOP}-${#VAR_YY_ESPD}))"; echo ${VAR_YY_ESPD}); fi
+
   VAR_START=$(echo $1| sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
   VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
-#  while true; do
-#    VAR_DIFF=$((${#VAR_END}-${#VAR_ELAPSED}))
-#    if [ $VAR_INDEX -gt $VAR_DIFF ]; then break; fi
-#    VAR_FTIME="${VAR_FTIME}-"
-#    VAR_INDEX=$(($VAR_INDEX+1))
-#  done
-#  echo "Start  : ${VAR_START}\nStop   : ${VAR_END}\nElapsed: ${VAR_FTIME}${VAR_ELAPSED}"
-#https://stackoverflow.com/questions/16908084/linux-bash-script-to-calculate-time-elapsed
-  echo "Execution period: from ${VAR_START} to ${VAR_END}"
+  VAR_ESPD=$(echo "${VAR_YY_ESPD}-${VAR_MH_ESPD}-${VAR_DD_ESPD} ${VAR_HH_ESPD}:${VAR_MM_ESPD}:${VAR_SS_ESPD}")
+
+  echo "Execution period: from $VAR_START to $VAR_END"
+  echo "Elapsed time: $VAR_ESPD"
 }
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
 getChildSnapshotsPool(){
