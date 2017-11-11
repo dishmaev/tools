@@ -83,6 +83,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     exitError "VM $VAR_VM_NAME not found on $VAR_HOST host"
   fi
   #restore project snapshot
+  echo "Restore VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #power on

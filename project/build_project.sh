@@ -116,6 +116,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     exitError "VM $VAR_VM_NAME not found on $VAR_HOST host"
   fi
   #restore project snapshot
+  echo "Restore VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #power on
@@ -154,7 +155,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   else
-    echo "Get made from VM"
+    echo "Get necessary file from VM"
     $SCP_CLIENT $VAR_VM_IP:$VAR_BUILD_FILE_NAME $VAR_BUILD_FILE_PATH
     if ! isRetValOK; then exitError; fi
    fi
