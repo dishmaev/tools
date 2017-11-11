@@ -27,6 +27,9 @@ VAR_VM_ID='' #vm id
 VAR_VM_IP='' #vm ip address
 VAR_BUILD_FILE_NAME='' #build file name
 VAR_BUILD_FILE_PATH='' #build file path
+VAR_TAR_FILE_PATH='' #source archive file path
+VAR_CUR_DIR_NAME='' #current directory name
+VAR_TMP_DIR_NAME='' #temporary directory name
 
 ###check autoyes
 
@@ -87,6 +90,7 @@ checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 #add package file name extention
 VAR_BUILD_FILE_NAME=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
+VAR_TAR_FILE_PATH=$ENV_DOWNLOAD_PATH/${VAR_BUILD_FILE_NAME}.tar.gz
 if [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ] || \
 [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
 [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
@@ -118,13 +122,28 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
-#  #copy create script on vm
+  #make temporary directory
+  VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
+  git clone -b $PRM_VERSION $ENV_PROJECT_REPO $VAR_TMP_DIR_NAME
+  if ! isRetValOK; then exitError; fi
+  VAR_CUR_DIR_NAME=$PWD
+  cd $VAR_TMP_DIR_NAME
+  #make archive
+  git archive --format=tar.gz -o $VAR_TAR_FILE_PATH HEAD
+  #remote temporary directory
+  cd $VAR_CUR_DIR_NAME
+  if ! isRetValOK; then exitError; fi
+  rm -fR $VAR_TMP_DIR_NAME
+  if ! isRetValOK; then exitError; fi
+  #copy git archive on vm
+  $SCP_CLIENT $VAR_TAR_FILE_PATH $VAR_VM_IP:
+  #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi
   #exec trigger script
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $ENV_PROJECT_REPO $PRM_VERSION $VAR_BUILD_FILE_NAME; \
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $PRM_VERSION $VAR_BUILD_FILE_NAME; \
 if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
   if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
