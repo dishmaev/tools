@@ -128,6 +128,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   if ! isRetValOK; then rm -fR $VAR_TMP_DIR_NAME; exitError; fi
   VAR_CUR_DIR_NAME=$PWD
   cd $VAR_TMP_DIR_NAME
+  if ! isRetValOK; then exitError; fi
   #make archive
   git archive --format=tar.gz -o $VAR_TAR_FILE_PATH HEAD
   if ! isRetValOK; then cd $VAR_CUR_DIR_NAME; rm -fR $VAR_TMP_DIR_NAME; exitError; fi
