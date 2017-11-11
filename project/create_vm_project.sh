@@ -124,6 +124,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
   #take project snapshot
+  echo "Create VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "$PRM_VM_ROLE" $VAR_HOST $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #save vm config file

@@ -125,11 +125,12 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   #make temporary directory
   VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
   git clone -b $PRM_VERSION $ENV_PROJECT_REPO $VAR_TMP_DIR_NAME
-  if ! isRetValOK; then exitError; fi
+  if ! isRetValOK; then rm -fR $VAR_TMP_DIR_NAME; exitError; fi
   VAR_CUR_DIR_NAME=$PWD
   cd $VAR_TMP_DIR_NAME
   #make archive
   git archive --format=tar.gz -o $VAR_TAR_FILE_PATH HEAD
+  if ! isRetValOK; then cd $VAR_CUR_DIR_NAME; rm -fR $VAR_TMP_DIR_NAME; exitError; fi
   #remote temporary directory
   cd $VAR_CUR_DIR_NAME
   if ! isRetValOK; then exitError; fi
