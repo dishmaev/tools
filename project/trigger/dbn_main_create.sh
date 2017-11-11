@@ -41,11 +41,24 @@ echo "Current create suite: $2"
 uname -a
 
 #install packages
+if [ "$2" = "run" ]; then
+  sudo apt -y install build-essential
+  checkRetVal
+fi
 
 #active suite repository
 activeSuiteRepository "$2"
 
 ##test
+
+if [ "$2" = "run" ]; then
+  make --version
+  checkRetVal
+  gcc --version
+  checkRetVal
+  g++ --version
+  checkRetVal
+fi
 
 ###finish
 
