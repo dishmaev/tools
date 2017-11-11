@@ -843,11 +843,10 @@ isFreeBSDOS(){
 isFileSystemMounted(){
   checkParmsCount $# 1 'isDirectoryMounted'
   mount | awk '{print $1}' | grep -w $1 >/dev/null
-  [ "$?" = "0" ]
+  [ "$?" = "$COMMON_CONST_EXIT_SUCCESS" ]
 }
 
 isRetValOK(){
-  checkParmsCount $# 0 'isRetValOK'
   [ "$?" = "$COMMON_CONST_EXIT_SUCCESS" ]
 }
 #$1 vm name, $2 host
