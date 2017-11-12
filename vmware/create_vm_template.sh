@@ -92,7 +92,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
 -apt -y install openssh-server\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -systemctl reload sshd\n\
--check that ssh and vm tools are working"
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, without a desktop\n\
@@ -101,12 +101,12 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -systemctl reload sshd\n\
 -disconnect all CD-ROM images\n\
--check that ssh and vm tools are working"
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, without a desktop\n\
 -disconnect all CD-ROM images\n\
--check that ssh and vm tools are working"
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is ''\n\
@@ -114,7 +114,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
 -systemctl reload sshd\n\
 -yum -y install open-vm-tools\n\
 -systemctl start vmtoolsd\n\
--check that ssh and vm tools are working"
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, gui is not installed by default for Solaris 11\n\
@@ -126,7 +126,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; the
 -./vmware-install.pl, accept default value\n\
 -shutdown (not power off!)\n\
 -disconnect all CD-ROM images\n\
--power on, check that ssh and vm tools are working"
+-power on, check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is ''\n\
@@ -135,7 +135,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -export ASSUME_ALWAYS_YES=yes\n\
 -pkg install open-vm-tools-nox11\n\
--reboot, check that ssh and vm tools are working"
+-reboot, check that ssh and vm tools are working, by connect and ping from outside"
 fi
 
 #update tools
