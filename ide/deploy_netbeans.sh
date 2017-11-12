@@ -2,16 +2,18 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy NetBeans on the local OS'
+targetDescription 'Deploy NetBeans Java SE on the local OS'
 
 ##private consts
-readonly CONST_FILE_URL='http://download.netbeans.org/netbeans/8.2/final/bundles/netbeans-8.2-javase-linux.sh' #url for download
+readonly CONST_FILE_URL='http://download.netbeans.org/netbeans/@PRM_VERSION@/final/bundles/netbeans-@PRM_VERSION@-javase-linux.sh' #url for download
+readonly CONST_FILE_VERSION='8.2'
 
 ##private vars
+PRM_VERSION='' #ide version
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
-
+VAR_FILE_URL='' #url specific version of boost for download
 
 ###check autoyes
 
@@ -19,7 +21,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 0 '' "" "While tested only on APT-based Linux. Oracle JDK url https://netbeans.org/downloads/"
+echoHelp $# 1 '[version=$CONST_FILE_VERSION]' "$CONST_FILE_VERSION" "Version format 'X.X'. While tested only on APT-based Linux. NetBeans IDE url https://netbeans.org/"
 
 ###check commands
 
@@ -49,10 +51,11 @@ if isCommandExist 'netbeans'; then
   exitOK
 fi
 
-VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
+VAR_FILE_URL=$(echo "$CONST_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#g") || exitChildError "$VAR_FILE_URL"
+VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-  wget -O $VAR_ORIG_FILE_PATH $CONST_FILE_URL
+  wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
   if ! isRetValOK; then exitError; fi
   chmod u+x $VAR_ORIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
@@ -74,8 +77,6 @@ if ! isCommandExist 'gdb'; then
 fi
 
 echo 'Important! When install NetBeans, in the appropriate dialog set JDK full path directory, for JDK 8 default is /usr/lib/jvm/java-8-oracle'
-
-$VAR_ORIG_FILE_PATH
 
 doneFinalStage
 

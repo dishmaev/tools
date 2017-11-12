@@ -83,10 +83,12 @@ getElapsedTime(){
 
   VAR_START=$(echo $1| sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
   VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
-  VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" \
-$((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) \
-$((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) \
-$((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+
+#  long version
+#  VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+
+  #short version
+  VAR_ESPD=$(printf "%02d:%02d:%02d" $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
 
   echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_END"
 }
@@ -388,7 +390,8 @@ checkTriggerTemplateVM(){
   local VAR_INPUT=''
   local VAR_RESULT=''
   local VAR_LOG=''
-  pausePrompt "Pause 1 of 3: Check necessary virtual hardware on template VM $1 on $2 host, guest OS type"
+  pausePrompt "Pause 1 of 3: Check guest OS type, necessary virtual hardware on template VM $1 on $2 host: \
+vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAULT_MEMORY_SIZE, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
   if isFileExistAndRead "$ENV_SCRIPT_DIR_NAME/trigger/${1}_create.sh";then
     VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
     VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"

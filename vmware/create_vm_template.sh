@@ -91,28 +91,30 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
 -apt -y install open-vm-tools\n\
 -apt -y install openssh-server\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
--reboot, check that ssh and vm tools are working"
+-systemctl reload sshd\n\
+-check that ssh and vm tools are working"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, without a desktop\n\
 -apt -y install open-vm-tools\n\
 -apt -y install openssh-server\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
--shutdown (not power off!)\n\
+-systemctl reload sshd\n\
 -disconnect all CD-ROM images\n\
--power on, check that ssh and vm tools are working"
+-check that ssh and vm tools are working"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, without a desktop\n\
--shutdown (not power off!)\n\
 -disconnect all CD-ROM images\n\
--power on, check that ssh and vm tools are working"
+-check that ssh and vm tools are working"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is ''\n\
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
+-systemctl reload sshd\n\
 -yum -y install open-vm-tools\n\
--reboot, check that ssh and vm tools are working"
+-systemctl start vmtoolsd\n\
+-check that ssh and vm tools are working"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, gui is not installed by default for Solaris 11\n\
@@ -143,6 +145,7 @@ echoResult "$VAR_RESULT"
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if isTrue "$VAR_RESULT"; then
+  echoResult "Already exist"
   doneFinalStage
   exitOK
 fi

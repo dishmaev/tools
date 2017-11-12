@@ -99,6 +99,8 @@ readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #
 readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_ESXI_TRY_LONG=30 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=5 #sleep long
+readonly COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT='1' #default vCPUs for template vm
+readonly COMMON_CONST_ESXI_DEFAULT_MEMORY_SIZE='512MB' #default hdd disc size for template vm
 readonly COMMON_CONST_ESXI_DEFAULT_HDD_SIZE='20G' #default hdd disc size for template vm
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 
