@@ -62,7 +62,7 @@ chmod u-w /etc/sudoers
 
 ##test
 
-#check standard packages version
+#check packages version
 sudo --version
 
 ###finish

@@ -61,7 +61,7 @@ chmod u-w /etc/sudoers
 #install standard packages
 #pkg install developer/versioning/git
 
-#check standard packages version
+#check  packages version
 sudo --version
 #git --version
 

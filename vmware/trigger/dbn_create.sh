@@ -64,7 +64,7 @@ wget -P /etc/apt/sources.list.d/ https://dishmaev.github.io/public-apt-dishmaev.
 
 ##test
 
-#check standard packages version
+#check packages version
 sudo --version
 
 ###finish

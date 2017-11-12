@@ -134,7 +134,7 @@ doneFinalStage
 
 echo ''
 echo 'Now publish keys for repository access:'
-echo '1)For Linux is' $VAR_TARGET_DIR_NAME'/linux/'$CONST_GPGKEY_FILENAME
-echo '2)For FreeBSD is' $VAR_TARGET_DIR_NAME'/freebsd/TO-DO'
+echo '1)For Linux is' $VAR_TARGET_DIR_NAME'linux/'$CONST_GPGKEY_FILENAME
+echo '2)For FreeBSD is' $VAR_TARGET_DIR_NAME'freebsd/TO-DO'
 
 exitOK

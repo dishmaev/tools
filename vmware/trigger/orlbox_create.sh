@@ -56,18 +56,18 @@ fi
 chmod u+w /etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
-#install standard packages
+#install packages
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
 yum -y install yum-utils
 #add personal repository
+rpm --import https://dishmaev.github.io/repos/linux/linux_signing_key.pub
 yum-config-manager --add-repo https://dishmaev.github.io/public-yum-dishmaev.repo
-
 
 ##test
 
-yum-config-manager --version
-
-#check standard packages version
+#check packages version
 sudo --version
+yum-config-manager --version
 
 ###finish
 

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create VM template on remote esxi host' "$COMMON_CONST_FALSE"
+targetDescription 'Create VM template' "$COMMON_CONST_FALSE"
 
 ##private consts
 
