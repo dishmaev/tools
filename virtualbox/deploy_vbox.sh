@@ -2,17 +2,17 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy VirtualBox on the local OS'
+targetDescription 'Deploy VirtualBox on the local OS amd64'
 
 ##private consts
 readonly CONST_LIBVPX3_URL='http://archive.ubuntu.com/ubuntu/pool/main/libv/libvpx/libvpx3_1.5.0-2ubuntu1_amd64.deb' #url for download
 readonly CONST_LIBSSL_URL='http://ftp.ru.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u6_amd64.deb' #url for download
 readonly CONST_VBOX_VERSION='5.1'
 readonly CONST_VBOX_REPO='deb http://download.virtualbox.org/virtualbox/debian yakkety contrib'
-readonly CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
+readonly CONST_APT_SOURCE_FILE_PATH='/etc/apt/sources.list.d/virtualbox.list'
 
 ##private vars
-PRM_VBOX_VERSION='' #vbox version
+PRM_VERSION='' #vbox version
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
@@ -23,13 +23,13 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[vBoxVersion=$CONST_VBOX_VERSION]' "$CONST_VBOX_VERSION" "Version format 'X.X'. While tested only on APT-based Linux. VBoxManage url https://www.virtualbox.org/wiki/Linux_Downloads"
+echoHelp $# 1 '[version=$CONST_VBOX_VERSION]' "$CONST_VBOX_VERSION" "Version format 'X.X'. While tested only on APT-based Linux. VBoxManage url https://www.virtualbox.org/wiki/Linux_Downloads"
 
 ###check commands
 
-PRM_VBOX_VERSION=${1:-$CONST_VBOX_VERSION}
+PRM_VERSION=${1:-$CONST_VBOX_VERSION}
 
-checkCommandExist 'vBoxVersion' "$PRM_VBOX_VERSION" ''
+checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
@@ -55,10 +55,10 @@ if isCommandExist 'vboxmanage'; then
   exitOK
 fi
 #check for vbox repo
-if ! grep -qF "$CONST_VBOX_REPO" "$CONST_APT_SOURCE_FILE"; then
+if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
   wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
   if ! isRetValOK; then exitError; fi
-  echo "$CONST_VBOX_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE
+  echo "$CONST_VBOX_REPO" | sudo tee $CONST_APT_SOURCE_FILE_PATH
   if ! isRetValOK; then exitError; fi
   sudo apt update
   if ! isRetValOK; then exitError; fi
@@ -83,10 +83,10 @@ sudo dpkg -i $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 #install vbox
 if ! isAutoYesMode; then
-  sudo apt install virtualbox-$PRM_VBOX_VERSION
+  sudo apt install virtualbox-$PRM_VERSION
   if ! isRetValOK; then exitError; fi
 else
-  sudo apt -y install virtualbox-$PRM_VBOX_VERSION
+  sudo apt -y install virtualbox-$PRM_VERSION
   if ! isRetValOK; then exitError; fi
 fi
 sudo apt -y install -f

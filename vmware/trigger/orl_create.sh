@@ -56,8 +56,10 @@ fi
 chmod u+w /etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
-
 #install standard packages
+yum -y install yum-utils
+#add personal repository
+yum-config-manager --add-repo https://dishmaev.github.io/public-yum-dishmaev.repo
 
 ##test
 

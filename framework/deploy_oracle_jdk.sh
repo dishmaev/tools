@@ -8,7 +8,8 @@ targetDescription 'Deploy Oracle JDK on the local OS'
 readonly CONST_ORACLE_JDK_DEB_REPO='deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
 readonly CONST_ORACLE_JDK_DEB_SRC_REPO='deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
 readonly CONST_ORACLE_JDK_DEB_KEY='hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886'
-readonly CONST_APT_SOURCE_FILE='/etc/apt/sources.list'
+readonly CONST_ORACLE_JDK_VERSION='8'
+readonly CONST_APT_SOURCE_FILE_PATH='/etc/apt/sources.list.d/oraclejdk.list'
 
 
 ##private vars
@@ -21,11 +22,13 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 0 '' "" "While tested only on APT-based Linux. Oracle JDK url http://www.oracle.com/technetwork/java/javase/downloads/index.html"
+echoHelp $# 1 '[version=$CONST_ORACLE_JDK_VERSION]' "$CONST_ORACLE_JDK_VERSION" "Version format 'X'. While tested only on APT-based Linux. Oracle JDK url http://www.oracle.com/technetwork/java/javase/downloads/index.html"
 
 ###check commands
 
-#comments
+PRM_VERSION=${1:-$CONST_ORACLE_JDK_VERSION}
+
+checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
@@ -51,20 +54,20 @@ if isCommandExist 'java' && ! [ $(java -version 2>&1 | grep "OpenJDK Runtime") ]
   exitOK
 fi
 #check for oracle JDK repo
-if ! grep -qF "$CONST_ORACLE_JDK_DEB_REPO" "$CONST_APT_SOURCE_FILE"; then
+if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
   sudo apt-key adv --keyserver $CONST_ORACLE_JDK_DEB_KEY
   if ! isRetValOK; then exitError; fi
-  echo "$CONST_ORACLE_JDK_DEB_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE
+  echo "$CONST_ORACLE_JDK_DEB_REPO" | sudo tee $CONST_APT_SOURCE_FILE_PATH
   if ! isRetValOK; then exitError; fi
-  echo "$CONST_ORACLE_JDK_DEB_SRC_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE
+  echo "$CONST_ORACLE_JDK_DEB_SRC_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE_PATH
   if ! isRetValOK; then exitError; fi
   sudo apt update
   if ! isRetValOK; then exitError; fi
 fi
 
-sudo echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+sudo echo "oracle-java${PRM_VERSION}-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
 if ! isRetValOK; then exitError; fi
-sudo apt -y install oracle-java8-installer
+sudo apt -y install oracle-java${PRM_VERSION}-installer
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

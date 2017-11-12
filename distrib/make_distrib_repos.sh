@@ -67,17 +67,17 @@ mkdir $VAR_TARGET_DIR_NAME/linux/apt/conf
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS
-mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386
+#mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/x86_64
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/noarch
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS
-mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386
+#mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/x86_64
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/noarch
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS
-mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386
+#mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/x86_64
 mkdir $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/noarch
 doneStage
@@ -112,20 +112,20 @@ reprepro -b $VAR_TARGET_DIR_NAME/linux/apt createsymlinks
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Run createrepo for initialize RPM-based system packages repository structure'
-createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386
-gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386/repodata/repomd.xml
+#createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386
+#gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/i386/repodata/repomd.xml
 createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/x86_64
 gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/x86_64/repodata/repomd.xml
 createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/noarch
 gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/release/RPMS/noarch/repodata/repomd.xml
-createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386
-gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386/repodata/repomd.xml
+#createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386
+#gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/i386/repodata/repomd.xml
 createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/x86_64
 gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/x86_64/repodata/repomd.xml
 createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/noarch
 gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/test/RPMS/noarch/repodata/repomd.xml
-createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386
-gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386/repodata/repomd.xml
+#createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386
+#gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/i386/repodata/repomd.xml
 createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/x86_64
 gpg --detach-sign --armor $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/x86_64/repodata/repomd.xml
 createrepo -q $VAR_TARGET_DIR_NAME/linux/rpm/develop/RPMS/noarch

@@ -811,6 +811,13 @@ echoResult(){
     echo "$1"
   fi
 }
+#$1 message
+echoWarning(){
+  checkParmsCount $# 1 'echoWarning'
+  if ! isEmpty "$1"; then
+    echo "Warning: $1"
+  fi
+}
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH
 isNewLocalVersion() {
   checkParmsCount $# 2 'isNewLocalVersion'
