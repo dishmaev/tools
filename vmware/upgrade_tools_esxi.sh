@@ -36,7 +36,7 @@ checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
 
 ###check body dependencies
 
-checkDependencies 'ovftool ssh'
+checkDependencies 'ovftool'
 checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
 
 ###check required files

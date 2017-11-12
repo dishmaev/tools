@@ -20,7 +20,9 @@ VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
 VAR_DISC_FILE_PATH='' #vmdk file name with local esxi host path
 VAR_DISC_DIR_PATH='' #local esxi host path for template vm
+VAR_TMP_FILE_NAME='' #extracted file name
 VAR_TMP_FILE_PATH='' #extracted file name with local esxi host path
+VAR_TMP_FILE_PATH2='' #extracted file name with local path
 VAR_PAUSE_MESSAGE='' #for show message before paused
 VAR_CUR_DIR_NAME='' #current directory name
 VAR_TMP_DIR_NAME='' #temporary directory name
@@ -58,7 +60,7 @@ fi
 ###check body dependencies
 
 #checkDependencies 'dep1 dep2 dep3'
-checkDependencies 'xz p7zip ssh-copy-id dirmngr'
+checkDependencies 'ovftool xz p7zip ssh-copy-id dirmngr'
 
 ###check required files
 
@@ -169,24 +171,24 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
       exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/debian/"
     fi
-    TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
-    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$TMP_FILE_NAME
+    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
+    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
     #check exist base vmdk disk on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
     if ! isTrue "$VAR_RESULT"; then #put if not exist
-      TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$TMP_FILE_NAME
-      if ! isFileExistAndRead "${TMP_FILE_PATH2}.xz"; then
+      VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
+      if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
         echo "Unpack archive $VAR_ORIG_FILE_PATH"
-        p7zip -f -c -d "$VAR_ORIG_FILE_PATH" > "$TMP_FILE_PATH2"
+        p7zip -f -c -d "$VAR_ORIG_FILE_PATH" > "$VAR_TMP_FILE_PATH2"
         if ! isRetValOK; then exitError; fi
-        echo "Pack archive ${TMP_FILE_PATH2}.xz"
-        xz -2fz $TMP_FILE_PATH2
+        echo "Pack archive ${VAR_TMP_FILE_PATH2}.xz"
+        xz -2fz $VAR_TMP_FILE_PATH2
         if ! isRetValOK; then exitError; fi
-        if ! isFileExistAndRead "${TMP_FILE_PATH2}.xz"; then
+        if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
           exitError
         fi
       fi
-      $SCP_CLIENT "${TMP_FILE_PATH2}.xz" $PRM_HOST:${VAR_TMP_FILE_PATH}.xz
+      $SCP_CLIENT "${VAR_TMP_FILE_PATH2}.xz" $PRM_HOST:${VAR_TMP_FILE_PATH}.xz
       if ! isRetValOK; then exitError; fi
       # unpack xz archive with vmdk disk
       echo "Unpack archive ${VAR_TMP_FILE_PATH}.xz on $PRM_HOST host"
@@ -247,52 +249,58 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       if ! isRetValOK; then exitError; fi
     fi
-    #check virtual box deploy
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
-    echoResult "$VAR_RESULT"
-    #check vagrant deploy
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
-    echoResult "$VAR_RESULT"
-    #create temporary directory
-    VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
-    VAR_TMP_FILE_PATH=$VAR_TMP_DIR_NAME/${PRM_VM_TEMPLATE}.ova
-    VAR_CUR_DIR_NAME=$PWD
-    cd $VAR_TMP_DIR_NAME
-    #add vm box file
-    vagrant init $PRM_VM_TEMPLATE $VAR_ORIG_FILE_PATH
-    if ! isRetValOK; then exitError; fi
-    sed -i Vagrantfile -e "/config.vm.box = \"$PRM_VM_TEMPLATE\"/ a\ \n\  config.vm.provider :virtualbox do |vb|\n    vb.name = \"$PRM_VM_TEMPLATE\"\n  end"
-    if ! isRetValOK; then exitError; fi
-    vagrant up
-    if ! isRetValOK; then exitError; fi
-    vagrant halt
-    if ! isRetValOK; then exitError; fi
-    #export ova
-    vboxmanage export --ovf10 --manifest --options manifest $PRM_VM_TEMPLATE -o ${PRM_VM_TEMPLATE}_tmp.ova
-    if ! isRetValOK; then exitError; fi
-    #destroy and remove
-    vagrant destroy -f
-    if ! isRetValOK; then exitError; fi
-    vagrant box remove --force $PRM_VM_TEMPLATE
-    if ! isRetValOK; then exitError; fi
-    #fix any format error
-    ovftool --lax ${PRM_VM_TEMPLATE}_tmp.ova $PRM_VM_TEMPLATE.vmx
-    if ! isRetValOK; then exitError; fi
-    #make target vm template ova package
-    ovftool $PRM_VM_TEMPLATE.vmx $VAR_TMP_FILE_PATH
-    if ! isRetValOK; then exitError; fi
-    #put base ova package on esxi host
-    $SCP_CLIENT "$VAR_TMP_FILE_PATH" $PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova
-    if ! isRetValOK; then exitError; fi
-    #remove temporary directory
-    cd $VAR_CUR_DIR_NAME
-    if ! isRetValOK; then exitError; fi
-    rm -fR $VAR_TMP_DIR_NAME
-    if ! isRetValOK; then exitError; fi
-
+    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE$(echo $VAR_VM_TEMPLATE_VER | sed 's/[.-]//g').ova
+    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
+    #check exist base ova on esxi host in the images directory
+    VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
+    if ! isTrue "$VAR_RESULT"; then #put if not exist
+      VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
+      if ! isFileExistAndRead "$VAR_TMP_FILE_PATH2"; then
+        #check virtual box deploy
+        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
+        echoResult "$VAR_RESULT"
+        #check vagrant deploy
+        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
+        echoResult "$VAR_RESULT"
+        #create temporary directory
+        VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
+        VAR_CUR_DIR_NAME=$PWD
+        cd $VAR_TMP_DIR_NAME
+        #add vm box file
+        vagrant init $PRM_VM_TEMPLATE $VAR_ORIG_FILE_PATH
+        if ! isRetValOK; then exitError; fi
+        sed -i Vagrantfile -e "/config.vm.box = \"$PRM_VM_TEMPLATE\"/ a\ \n\  config.vm.provider :virtualbox do |vb|\n    vb.name = \"$PRM_VM_TEMPLATE\"\n  end"
+        if ! isRetValOK; then exitError; fi
+        vagrant up
+        if ! isRetValOK; then exitError; fi
+        vagrant halt
+        if ! isRetValOK; then exitError; fi
+        #export ova
+        vboxmanage export --ovf10 --manifest --options manifest $PRM_VM_TEMPLATE -o ${PRM_VM_TEMPLATE}_tmp.ova
+        if ! isRetValOK; then exitError; fi
+        #destroy and remove
+        vagrant destroy -f
+        if ! isRetValOK; then exitError; fi
+        vagrant box remove --force $PRM_VM_TEMPLATE
+        if ! isRetValOK; then exitError; fi
+        #fix any format error
+        ovftool --lax ${PRM_VM_TEMPLATE}_tmp.ova $PRM_VM_TEMPLATE.vmx
+        if ! isRetValOK; then exitError; fi
+        #make target vm template ova package
+        ovftool $PRM_VM_TEMPLATE.vmx $VAR_TMP_FILE_PATH2
+        if ! isRetValOK; then exitError; fi
+        #remove temporary directory
+        cd $VAR_CUR_DIR_NAME
+        if ! isRetValOK; then exitError; fi
+        rm -fR $VAR_TMP_DIR_NAME
+        if ! isRetValOK; then exitError; fi
+      fi
+      $SCP_CLIENT "$VAR_TMP_FILE_PATH2" $PRM_HOST:$VAR_TMP_FILE_PATH
+      if ! isRetValOK; then exitError; fi
+    fi
     #register template vm
     $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
-        --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
+--noSSLVerify -n=$PRM_VM_TEMPLATE $VAR_TMP_FILE_PATH vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
     if ! isRetValOK; then exitError; fi
 #ors
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
@@ -363,8 +371,8 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       if ! isRetValOK; then exitError; fi
     fi
-    TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
-    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$TMP_FILE_NAME
+    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
+    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
     #check exist base vmdk disk on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
     if ! isTrue "$VAR_RESULT"; then #put if not exist

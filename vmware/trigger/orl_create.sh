@@ -68,6 +68,7 @@ yum-config-manager --add-repo https://dishmaev.github.io/public-yum-dishmaev.rep
 #check packages version
 sudo --version
 yum-config-manager --version
+yum --nogpgcheck repolist
 
 ###finish
 
