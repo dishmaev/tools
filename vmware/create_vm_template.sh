@@ -34,7 +34,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 4 '<vmTemplate> [vmTemplateVersion=$COMMON_CONST_DEFAULT_VERSION] [host=$COMMON_CONST_ESXI_HOST] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
-    "$COMMON_CONST_PHOTON_VM_TEMPLATE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_VM_DATASTORE" \
+    "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_ESXI_HOST $COMMON_CONST_ESXI_VM_DATASTORE" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
@@ -76,7 +76,7 @@ VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
 VAR_DISC_DIR_PATH="/vmfs/volumes/$PRM_VM_DATASTORE/$PRM_VM_TEMPLATE"
 VAR_DISC_FILE_PATH="$VAR_DISC_DIR_PATH/$PRM_VM_TEMPLATE.vmdk"
 #set paused text
-if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ]; then
+if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -clear default notes from general information\n\
 -set root not empty password by 'passwd', default is 'changeme'\n\
@@ -154,7 +154,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 #ptn
-  if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTON_VM_TEMPLATE" ]; then
+  if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       if ! isRetValOK; then exitError; fi

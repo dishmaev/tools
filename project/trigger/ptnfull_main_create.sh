@@ -17,17 +17,17 @@ checkRetVal(){
 
 activeSuiteRepository(){
   #deactivate default repository
-  sudo sed '1s/^/# /' -i /etc/apt/sources.list.d/public-apt-dishmaev.list
+  sudo sed 's/enabled=1/enabled=0/' -i /etc/yum.repos.d/public-yum-dishmaev-release.repo
   checkRetVal
   #activate required repository
   if [ "$1" = "rel" ]; then
-    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt stable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-stable.list
+    sudo sed 's/enabled=0/enabled=1/' -i /etc/yum.repos.d/public-yum-dishmaev-release.repo
     checkRetVal
   elif [ "$1" = "tst" ]; then
-    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt testing main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-testing.list
+    sudo sed 's/enabled=0/enabled=1/' -i /etc/yum.repos.d/public-yum-dishmaev-test.repo
     checkRetVal
   elif [ "$1" = "dev" ]; then
-    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt unstable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-unstable.list
+    sudo sed 's/enabled=0/enabled=1/' -i /etc/yum.repos.d/public-yum-dishmaev-develop.repo
     checkRetVal
   else #run suite
     return
@@ -42,7 +42,7 @@ uname -a
 
 #install packages
 if [ "$2" = "run" ]; then
-  sudo apt -y install build-essential
+  sudo tdnf -y install gcc glibc-devel binutils rpm-build
   checkRetVal
 fi
 
@@ -57,6 +57,8 @@ if [ "$2" = "run" ]; then
   gcc --version
   checkRetVal
   c++ --version
+  checkRetVal
+  rpmbuild --version
   checkRetVal
 fi
 
