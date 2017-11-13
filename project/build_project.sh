@@ -122,7 +122,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
   #make temporary directory
   VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
-  if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION"]; then
+  if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
     git clone -b develop $ENV_PROJECT_REPO $VAR_TMP_DIR_NAME
   else
     git clone -b $PRM_VERSION $ENV_PROJECT_REPO $VAR_TMP_DIR_NAME
