@@ -24,8 +24,8 @@ VAR_TMP_FILE_NAME='' #extracted file name
 VAR_TMP_FILE_PATH='' #extracted file name with local esxi host path
 VAR_TMP_FILE_PATH2='' #extracted file name with local path
 VAR_PAUSE_MESSAGE='' #for show message before paused
-VAR_CUR_DIR_NAME='' #current directory name
-VAR_TMP_DIR_NAME='' #temporary directory name
+VAR_CUR_DIR_PATH='' #current directory name
+VAR_TMP_DIR_PATH='' #temporary directory name
 
 ###check autoyes
 
@@ -266,9 +266,9 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
         VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
         echoResult "$VAR_RESULT"
         #create temporary directory
-        VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
-        VAR_CUR_DIR_NAME=$PWD
-        cd $VAR_TMP_DIR_NAME
+        VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
+        VAR_CUR_DIR_PATH=$PWD
+        cd $VAR_TMP_DIR_PATH
         #add vm box file
         vagrant init $PRM_VM_TEMPLATE $VAR_ORIG_FILE_PATH
         if ! isRetValOK; then exitError; fi
@@ -293,9 +293,9 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
         ovftool $PRM_VM_TEMPLATE.vmx $VAR_TMP_FILE_PATH2
         if ! isRetValOK; then exitError; fi
         #remove temporary directory
-        cd $VAR_CUR_DIR_NAME
+        cd $VAR_CUR_DIR_PATH
         if ! isRetValOK; then exitError; fi
-        rm -fR $VAR_TMP_DIR_NAME
+        rm -fR $VAR_TMP_DIR_PATH
         if ! isRetValOK; then exitError; fi
       fi
       $SCP_CLIENT "$VAR_TMP_FILE_PATH2" $PRM_HOST:$VAR_TMP_FILE_PATH
@@ -334,10 +334,10 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #create temporary directory
-    VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
-    VAR_TMP_FILE_PATH=$VAR_TMP_DIR_NAME/${PRM_VM_TEMPLATE}.ova
-    VAR_CUR_DIR_NAME=$PWD
-    cd $VAR_TMP_DIR_NAME
+    VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
+    VAR_TMP_FILE_PATH=$VAR_TMP_DIR_PATH/${PRM_VM_TEMPLATE}.ova
+    VAR_CUR_DIR_PATH=$PWD
+    cd $VAR_TMP_DIR_PATH
     #import primary ova
     vboxmanage import $VAR_ORIG_FILE_PATH --vsys 0 --vmname $PRM_VM_TEMPLATE
     if ! isRetValOK; then exitError; fi
@@ -360,9 +360,9 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     #put base ova package on esxi host
     $SCP_CLIENT "$VAR_TMP_FILE_PATH" $PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova
     #remove temporary directory
-    cd $VAR_CUR_DIR_NAME
+    cd $VAR_CUR_DIR_PATH
     if ! isRetValOK; then exitError; fi
-    rm -fR $VAR_TMP_DIR_NAME
+    rm -fR $VAR_TMP_DIR_PATH
     if ! isRetValOK; then exitError; fi
     #register template vm
     $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \

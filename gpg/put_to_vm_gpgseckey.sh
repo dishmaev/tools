@@ -44,7 +44,7 @@ startPrompt
 #check gpg exist on remote host
 VAR_RESULT=$($SSH_CLIENT $PRM_VM_NAME "if [ -x $(command -v gpg) ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "not found gpg on $PRM_VM_NAME host"
+  exitError "gpg tool not found on $PRM_VM_NAME host"
 fi
 
 VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"

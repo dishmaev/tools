@@ -774,13 +774,13 @@ checkParmsCount(){
 #$1 esxi host
 put_vmtools_to_esxi(){
   checkParmsCount $# 1 'put_vmtools_to_esxi'
-  local VAR_TMP_DIR_NAME
-  VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
-  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIR_NAME
+  local VAR_TMP_DIR_PATH
+  VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
+  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIR_PATH
   if ! isRetValOK; then exitError; fi
-  $SCP_CLIENT -r $VAR_TMP_DIR_NAME/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
+  $SCP_CLIENT -r $VAR_TMP_DIR_PATH/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
   if ! isRetValOK; then exitError; fi
-  rm -fR $VAR_TMP_DIR_NAME
+  rm -fR $VAR_TMP_DIR_PATH
   if ! isRetValOK; then exitError; fi
 }
 #$1 esxi host

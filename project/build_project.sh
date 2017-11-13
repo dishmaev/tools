@@ -28,8 +28,8 @@ VAR_VM_IP='' #vm ip address
 VAR_BUILD_FILE_NAME='' #build file name
 VAR_BUILD_FILE_PATH='' #build file path
 VAR_TAR_FILE_PATH='' #source archive file path
-VAR_CUR_DIR_NAME='' #current directory name
-VAR_TMP_DIR_NAME='' #temporary directory name
+VAR_CUR_DIR_PATH='' #current directory name
+VAR_TMP_DIR_PATH='' #temporary directory name
 
 ###check autoyes
 
@@ -72,7 +72,7 @@ startPrompt
 VAR_CONFIG_FILE_NAME=${COMMON_CONST_RUNNER_SUITE}_${PRM_VM_ROLE}
 VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.cfg
 if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-  exitError "not found $VAR_CONFIG_FILE_PATH. Exec 'create_vm_project.sh' previously"
+  exitError "file $VAR_CONFIG_FILE_PATH not found. Exec 'create_vm_project.sh' previously"
 fi
 
 VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
@@ -121,23 +121,23 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echoResult "$VAR_RESULT"
   VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
   #make temporary directory
-  VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
+  VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
-    git clone -b develop $ENV_PROJECT_REPO $VAR_TMP_DIR_NAME
+    git clone -b develop $ENV_PROJECT_REPO $VAR_TMP_DIR_PATH
   else
-    git clone -b $PRM_VERSION $ENV_PROJECT_REPO $VAR_TMP_DIR_NAME
+    git clone -b $PRM_VERSION $ENV_PROJECT_REPO $VAR_TMP_DIR_PATH
   fi
-  if ! isRetValOK; then rm -fR $VAR_TMP_DIR_NAME; exitError; fi
-  VAR_CUR_DIR_NAME=$PWD
-  cd $VAR_TMP_DIR_NAME
-  if ! isRetValOK; then rm -fR $VAR_TMP_DIR_NAME; exitError; fi
+  if ! isRetValOK; then exitError; fi
+  VAR_CUR_DIR_PATH=$PWD
+  cd $VAR_TMP_DIR_PATH
+  if ! isRetValOK; then exitError; fi
   #make archive
   git archive --format=tar.gz -o $VAR_TAR_FILE_PATH HEAD
-  if ! isRetValOK; then cd $VAR_CUR_DIR_NAME; rm -fR $VAR_TMP_DIR_NAME; exitError; fi
-  #remote temporary directory
-  cd $VAR_CUR_DIR_NAME
   if ! isRetValOK; then exitError; fi
-  rm -fR $VAR_TMP_DIR_NAME
+  #remote temporary directory
+  cd $VAR_CUR_DIR_PATH
+  if ! isRetValOK; then exitError; fi
+  rm -fR $VAR_TMP_DIR_PATH
   if ! isRetValOK; then exitError; fi
   #copy git archive on vm
   $SCP_CLIENT $VAR_TAR_FILE_PATH $VAR_VM_IP:

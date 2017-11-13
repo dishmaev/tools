@@ -61,7 +61,7 @@ startPrompt
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}
 VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}.cfg
 if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-  exitError "not found $VAR_CONFIG_FILE_PATH. Exec 'create_vm_project.sh' previously"
+  exitError "file $VAR_CONFIG_FILE_PATH not found. Exec 'create_vm_project.sh' previously"
 fi
 
 VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"

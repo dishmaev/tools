@@ -12,8 +12,8 @@ readonly CONST_GITFLOW_FILE='/usr/lib/git-core/git-flow' #for check git-flow exi
 PRM_SOURCE_DIR_NAME='' #source directory name
 PRM_REMOTE_REPO='' #remote repository
 PRM_TOOLS_REPO='' #remote repository
-VAR_CUR_DIR_NAME='' #current directory name
-VAR_TMP_DIR_NAME='' #temporary directory name
+VAR_CUR_DIR_PATH='' #current directory name
+VAR_TMP_DIR_PATH='' #temporary directory name
 
 ###check autoyes
 
@@ -50,11 +50,11 @@ startPrompt
 
 #new stage
 beginStage $CONST_STAGE_COUNT 'Clone remote repository to temporary directory'
-VAR_TMP_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_NAME"
-git clone $PRM_REMOTE_REPO $VAR_TMP_DIR_NAME
+VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
+git clone $PRM_REMOTE_REPO $VAR_TMP_DIR_PATH
 if ! isRetValOK; then exitError; fi
-VAR_CUR_DIR_NAME=$PWD
-cd $VAR_TMP_DIR_NAME
+VAR_CUR_DIR_PATH=$PWD
+cd $VAR_TMP_DIR_PATH
 if ! isRetValOK; then exitError; fi
 doneStage
 #new stage
@@ -86,9 +86,9 @@ if ! isRetValOK; then exitError; fi
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Delete temporary directory'
-cd $VAR_CUR_DIR_NAME
+cd $VAR_CUR_DIR_PATH
 if ! isRetValOK; then exitError; fi
-rm -fR $VAR_TMP_DIR_NAME
+rm -fR $VAR_TMP_DIR_PATH
 if ! isRetValOK; then exitError; fi
 doneFinalStage
 
