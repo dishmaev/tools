@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy NetBeans Java SE on the local OS'
+targetDescription 'Deploy NetBeans Java SE on the local OS x86_64'
 
 ##private consts
 readonly CONST_FILE_URL='http://download.netbeans.org/netbeans/@PRM_VERSION@/final/bundles/netbeans-@PRM_VERSION@-javase-linux.sh' #url for download
