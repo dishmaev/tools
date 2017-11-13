@@ -17,17 +17,17 @@ checkRetVal(){
 
 activeSuiteRepository(){
   #deactivate default repository
-  sudo sed '1s/^/# /' -i /etc/apt/sources.list.d/public-apt-dishmaev.list
+  sudo sed 's/enabled=1/enabled=0/' -i /etc/apt/sources.list.d/public-yum-dishmaev.repo
   checkRetVal
   #activate required repository
   if [ "$1" = "rel" ]; then
-    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt stable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-stable.list
+    sed -n '/enabled=0/=' public-yum-dishmaev.repo | sed 's:.*:&s/enabled=0/enabled=1/:' | sed -n 1p | sudo sed -f - public-yum-dishmaev.repo
     checkRetVal
   elif [ "$1" = "tst" ]; then
-    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt testing main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-testing.list
+    sed -n '/enabled=0/=' public-yum-dishmaev.repo | sed 's:.*:&s/enabled=0/enabled=1/:' | sed -n 2p | sudo sed -f - public-yum-dishmaev.repo
     checkRetVal
   elif [ "$1" = "dev" ]; then
-    cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt unstable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-unstable.list
+    sed -n '/enabled=0/=' public-yum-dishmaev.repo | sed 's:.*:&s/enabled=0/enabled=1/:' | sed -n 3p | sudo sed -f - public-yum-dishmaev.repo
     checkRetVal
   else #run suite
     return
@@ -42,9 +42,14 @@ uname -a
 
 #install packages
 if [ "$2" = "run" ]; then
-  sudo apt -y install build-essential
+  sudo yum install gcc
   checkRetVal
-  sudo apt -y install libboost-dev
+  sudo yum install gcc-c++
+  checkRetVal
+  sudo yum install rpm-build
+  checkRetVal
+  sudo yum install boost-devel
+  checkRetVal
 fi
 
 #active suite repository
@@ -59,6 +64,7 @@ if [ "$2" = "run" ]; then
   checkRetVal
   c++ --version
   checkRetVal
+  rpmbuild --version
 fi
 
 ###finish

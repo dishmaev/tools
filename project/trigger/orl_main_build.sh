@@ -27,13 +27,13 @@ tar -xvf *.tar.gz -C build/
 checkRetVal
 cd build
 checkRetVal
-make -f Makefile CONF=${VAR_SUITE}_APT clean
+make -f Makefile CONF=${VAR_SUITE}_RPM clean
 checkRetVal
-make -f Makefile CONF=${VAR_SUITE}_APT
+make -f Makefile CONF=${VAR_SUITE}_RPM
 checkRetVal
-bash -x nbproject/Package-Debug_APT.bash
+bash -x nbproject/Package-Debug_RPM.bash
 checkRetVal
-cp dist/${VAR_SUITE}_APT/GNU-Linux/package/*.deb $HOME/
+cp dist/${VAR_SUITE}_RPM/GNU-Linux/package/*.deb $HOME/
 checkRetVal
 
 cd $HOME
@@ -41,7 +41,7 @@ cd $HOME
 ##test
 
 if [ ! -f "$4" ]; then echo "Output file $4 not found"; exit 1; fi
-dpkg-deb -I $4
+rpm -qip $4
 
 ###finish
 

@@ -21,7 +21,20 @@ echo "Current deploy suite: $2"
 
 uname -a
 
+sudo apt -y update
+sudo dpkg -i $3
+#checkRetVal
+sudo apt -y install -f
+checkRetVal
+#sudo apt update
+#checkRetVal
+#sudo apt -y install cppboost
+#checkRetVal
+
 ##test
+
+cppboost
+checkRetVal
 
 ###finish
 
