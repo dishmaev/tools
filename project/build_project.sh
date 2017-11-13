@@ -156,7 +156,7 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   else
-    echo "Get necessary file from VM"
+    echo "Get $VAR_BUILD_FILE_PATH from VM"
     $SCP_CLIENT $VAR_VM_IP:$VAR_BUILD_FILE_NAME $VAR_BUILD_FILE_PATH
     if ! isRetValOK; then exitError; fi
    fi
