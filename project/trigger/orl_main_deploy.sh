@@ -32,7 +32,7 @@ cd deploy
 checkRetVal
 
 #manually install packages
-for VAR_CUR_PACKAGE in ./*.deb; do
+for VAR_CUR_PACKAGE in ./*.rpm; do
   if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
   sudo rpm -i $VAR_CUR_PACKAGE
   checkRetVal
