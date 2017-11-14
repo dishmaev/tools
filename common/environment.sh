@@ -60,7 +60,7 @@ readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOO
 #aliases
 readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
-readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/${ENV_SSH_KEYID}.pub"
+readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $HOME/.ssh/${ENV_SSH_KEYID}.pub"
 
 #create project directories if not exist
 if [ ! -d "$ENV_PROJECT_DATA_PATH" ]; then mkdir $ENV_PROJECT_DATA_PATH; fi
