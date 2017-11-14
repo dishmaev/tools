@@ -414,8 +414,10 @@ vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAU
     #exec trigger script
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
 if [ -f ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
-    VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
-    if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
+    if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+      VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
+      if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
+    fi
     VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echo "Stderr:\n$VAR_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
@@ -740,7 +742,7 @@ checkAutoYes() {
     fi
     VAR_AUTO_YES=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE
-  elif [ "$1" = "--help" ]; then
+  elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     echo "Description: $VAR_TARGET_DESCRIPTION"
     VAR_NEED_HELP=$COMMON_CONST_TRUE
     return $COMMON_CONST_TRUE

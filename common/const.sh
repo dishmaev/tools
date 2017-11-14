@@ -26,7 +26,7 @@ readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
 readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
 readonly COMMON_CONST_DATA_TXT_SEPARATOR='::' #default separator for data files
-readonly COMMON_CONST_SHOW_DEBUG="$COMMON_CONST_TRUE" #show trace when error
+readonly COMMON_CONST_SHOW_DEBUG="$COMMON_CONST_FALSE" #if true, show log details with error trace
 
 #incorp infrastructure
 readonly COMMON_CONST_INCORP_MAILSERVER_HOST='mail'
