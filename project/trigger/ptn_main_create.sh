@@ -2,7 +2,7 @@
 
 ###header
 
-VAR_PARAMETERS='$1 script name without extenstion, $2 suite'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite'
 
 if [ "$#" != "2" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -f ${1}.ok ]; then rm ${1}.ok; fi
@@ -42,8 +42,7 @@ uname -a
 
 #install packages
 if [ "$2" = "run" ]; then
-#  sudo tdnf -y install gcc glibc-devel binutils rpm-build
-#  checkRetVal
+  :
 fi
 
 #active suite repository
@@ -52,14 +51,7 @@ activeSuiteRepository "$2"
 ##test
 
 if [ "$2" = "run" ]; then
-#  make --version
-#  checkRetVal
-#  gcc --version
-#  checkRetVal
-#  c++ --version
-#  checkRetVal
-#  rpmbuild --version
-#  checkRetVal
+  :
 fi
 
 ###finish

@@ -26,8 +26,10 @@ VAR_HOST='' #esxi host
 VAR_VM_ID='' #vm id
 VAR_VM_IP='' #vm ip address
 VAR_BUILD_FILE_NAME='' #build file name
-VAR_BUILD_FILE_PATH='' #build file path
-VAR_TAR_FILE_PATH='' #source archive file path
+VAR_SRC_TAR_FILE_NAME='' #source archive file name
+VAR_SRC_TAR_FILE_PATH='' #source archive file name with local path
+VAR_BIN_TAR_FILE_NAME='' #binary archive file name
+VAR_BIN_TAR_FILE_PATH='' #binary archive file name with local path
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_TMP_DIR_PATH='' #temporary directory name
 
@@ -87,22 +89,10 @@ checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 #add package file name extention
 VAR_BUILD_FILE_NAME=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
-VAR_TAR_FILE_PATH=$ENV_DOWNLOAD_PATH/${VAR_BUILD_FILE_NAME}.tar.gz
-if [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
-[ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
-[ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
-[ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
-  VAR_BUILD_FILE_NAME=${VAR_BUILD_FILE_NAME}.rpm
-elif [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
-[ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
-  VAR_BUILD_FILE_NAME=${VAR_BUILD_FILE_NAME}.deb
-elif [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
-[ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
-  echo "Oracle Solaris package extention"
-elif [ "$VAR_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
-  echo "FreeBSD package extention"
-fi
-VAR_BUILD_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_BUILD_FILE_NAME
+VAR_SRC_TAR_FILE_NAME=${VAR_BUILD_FILE_NAME}-src.tar.gz
+VAR_SRC_TAR_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_SRC_TAR_FILE_NAME
+VAR_BIN_TAR_FILE_NAME=${VAR_BUILD_FILE_NAME}-bin.tar.gz
+VAR_BIN_TAR_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_BIN_TAR_FILE_NAME
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
@@ -132,7 +122,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   cd $VAR_TMP_DIR_PATH
   if ! isRetValOK; then exitError; fi
   #make archive
-  git archive --format=tar.gz -o $VAR_TAR_FILE_PATH HEAD
+  git archive --format=tar.gz -o $VAR_SRC_TAR_FILE_PATH HEAD
   if ! isRetValOK; then exitError; fi
   #remote temporary directory
   cd $VAR_CUR_DIR_PATH
@@ -140,14 +130,14 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   rm -fR $VAR_TMP_DIR_PATH
   if ! isRetValOK; then exitError; fi
   #copy git archive on vm
-  $SCP_CLIENT $VAR_TAR_FILE_PATH $VAR_VM_IP:
+  $SCP_CLIENT $VAR_SRC_TAR_FILE_PATH $VAR_VM_IP:$VAR_SRC_TAR_FILE_NAME
   #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   if ! isRetValOK; then exitError; fi
   #exec trigger script
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $PRM_VERSION $VAR_BUILD_FILE_NAME; \
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $PRM_VERSION $VAR_BIN_TAR_FILE_NAME; \
 if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
   if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
@@ -156,8 +146,8 @@ if [ -f ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   else
-    echo "Get $VAR_BUILD_FILE_PATH from VM"
-    $SCP_CLIENT $VAR_VM_IP:$VAR_BUILD_FILE_NAME $VAR_BUILD_FILE_PATH
+    echo "Get $VAR_BIN_TAR_FILE_PATH from VM"
+    $SCP_CLIENT $VAR_VM_IP:$VAR_BIN_TAR_FILE_NAME $VAR_BIN_TAR_FILE_PATH
     if ! isRetValOK; then exitError; fi
    fi
 fi

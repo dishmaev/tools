@@ -2,7 +2,7 @@
 
 ###header
 
-VAR_PARAMETERS='$1 script name without extenstion, $2 suite'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite'
 
 if [ "$#" != "2" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -f ${1}.ok ]; then rm ${1}.ok; fi
@@ -42,13 +42,13 @@ uname -a
 
 #install packages
 if [ "$2" = "run" ]; then
-  sudo yum install gcc
+  sudo yum -y install gcc
   checkRetVal
-  sudo yum install gcc-c++
+  sudo yum -y install gcc-c++
   checkRetVal
-  sudo yum install rpm-build
+  sudo yum -y install rpm-build
   checkRetVal
-  sudo yum install boost-devel
+  sudo yum -y install boost-devel
   checkRetVal
 fi
 
@@ -65,6 +65,7 @@ if [ "$2" = "run" ]; then
   c++ --version
   checkRetVal
   rpmbuild --version
+  checkRetVal
 fi
 
 ###finish
