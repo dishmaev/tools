@@ -704,9 +704,7 @@ startPrompt(){
   local VAR_INPUT=''
   local VAR_YES=$COMMON_CONST_FALSE
   local VAR_DO_FLAG=$COMMON_CONST_TRUE
-  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    echoResult "$VAR_COMMAND_VALUE"
-  fi
+  echoResult "$VAR_COMMAND_VALUE"
   if ! isAutoYesMode; then
     while isTrue "$VAR_DO_FLAG"; do
       read -r -p 'Do you want to continue? [y/N] ' VAR_INPUT
