@@ -62,7 +62,8 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F:: '{print $4}') || exitChildError "$VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
   echo "Remove VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/remove_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+#  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/remove_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   echo "Remove config file $VAR_CONFIG_FILE_PATH"
   rm $VAR_CONFIG_FILE_PATH

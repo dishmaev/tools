@@ -13,6 +13,8 @@ VAR_START_TIME='' #start execution script
 
 #$1 char, $2 count
 getCharCountString(){
+  checkParmsCount $# 2 'getCharCountString'
+  getMhDays
   local VAR_COUNT=1
   while true; do
     if [ "$VAR_COUNT" -gt "$2" ]; then break; fi
@@ -23,6 +25,7 @@ getCharCountString(){
 }
 #$1 mh stop, $2 yy stop
 getMhDays(){
+  checkParmsCount $# 2 'getMhDays'
   local VAR_MH_STOP=0
   case $1 in
     [1,3,5,7,8,10,12]) VAR_MH_STOP=31
@@ -35,8 +38,9 @@ getMhDays(){
   echo "$VAR_MH_STOP"
 }
 
-#$1 start time
+#$1 start time, $2 elapsed long version
 getElapsedTime(){
+  checkParmsCount $# 2 'getElapsedTime'
   local VAR_END_TAB
   local VAR_END
   local VAR_START
@@ -84,11 +88,11 @@ getElapsedTime(){
   VAR_START=$(echo $1| sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
   VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
 
-#  long version
-#  VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
-
-  #short version
-  VAR_ESPD=$(printf "%02d:%02d:%02d" $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+  if isTrue "$2"; then
+    VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+  else
+    VAR_ESPD=$(printf "%02d:%02d:%02d" $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+  fi
 
   echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_END"
 }
@@ -599,7 +603,7 @@ exitOK(){
     echo $1
   fi
   if isTrue "$COMMON_CONST_SHOW_DEBUG" && ! isEmpty "$VAR_START_TIME"; then
-    getElapsedTime "$VAR_START_TIME"
+    getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
     echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
   fi
   exit $COMMON_CONST_EXIT_SUCCESS
@@ -616,7 +620,7 @@ exitError(){
     echo "$1"
   fi
   if isTrue "$COMMON_CONST_SHOW_DEBUG" && ! isEmpty "$VAR_START_TIME"; then
-    getElapsedTime "$VAR_START_TIME"
+    getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
     echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
   fi
   exit $COMMON_CONST_EXIT_ERROR
