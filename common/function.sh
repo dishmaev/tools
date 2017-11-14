@@ -604,8 +604,10 @@ exitOK(){
   if ! isEmpty "$1"; then
     echo $1
   fi
-  if isTrue "$COMMON_CONST_SHOW_DEBUG" && ! isEmpty "$VAR_START_TIME"; then
+  if ! isEmpty "$VAR_START_TIME"; then
     getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
+  fi
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
   fi
   exit $COMMON_CONST_EXIT_SUCCESS
@@ -621,8 +623,10 @@ exitError(){
   else
     echo "$1"
   fi
-  if isTrue "$COMMON_CONST_SHOW_DEBUG" && ! isEmpty "$VAR_START_TIME"; then
+  if ! isEmpty "$VAR_START_TIME"; then
     getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
+  fi
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
   fi
   exit $COMMON_CONST_EXIT_ERROR
@@ -727,8 +731,8 @@ startPrompt(){
       exitOK 'Good bye!'
     fi
   fi
+  VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
     echo "Start session [$$]"
   fi
 }
