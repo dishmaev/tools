@@ -38,12 +38,6 @@ for VAR_CUR_PACKAGE in ./*.rpm; do
   checkRetVal
 done
 
-#install packages from personal repository
-#sudo apt update
-#checkRetVal
-#sudo apt -y install cppboost
-#checkRetVal
-
 cd $HOME
 
 ##test
