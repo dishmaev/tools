@@ -83,7 +83,10 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ]; then
 -check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
--install OS in full version, without a desktop\n\
+-install OS in full version\n\
+-set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
+-systemctl reload sshd\n\
+-disconnect all CD-ROM images\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\

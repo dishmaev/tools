@@ -49,7 +49,7 @@ cp $HOME/.ssh/authorized_keys /home/${1}/.ssh/
 chown ${1}:users /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
 #install standard packages
-tdnf -y install sudo
+#tdnf -y install sudo
 #check sudo config file exist
 if [ ! -s /etc/sudoers ]; then
   echo "Error: file /etc/sudoers not found or empty"
@@ -60,7 +60,7 @@ chmod u+w /etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 #install packages
-tdnf -y install wget
+#tdnf -y install wget
 #add personal release repository
 echo -e "[dish_release_rpms]\n\
 name=Dmitry Ishmaev repository (x86_64) Rel\n\
@@ -92,7 +92,7 @@ skip_if_unavailable=True" | tee /etc/yum.repos.d/public-yum-dishmaev-develop.rep
 ##test
 
 #check packages version
-sudo --version
+#sudo --version
 tdnf repolist
 
 ###finish
