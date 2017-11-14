@@ -15,6 +15,7 @@ checkRetVal(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
+#$1 suite
 activeSuiteRepository(){
   #deactivate default repository
   sudo sed '1s/^/# /' -i /etc/apt/sources.list.d/public-apt-dishmaev.list

@@ -88,7 +88,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   #list packages
   echo "Begin list"
   for VAR_CUR_FILE_PATH in $VAR_DISTRIB_REPO_DIR_PATH/x86_64/*.rpm; do
-    if [ ! -r "$VAR_CUR_FILE_PATH" ]; then break; fi
+    if [ ! -r "$VAR_CUR_FILE_PATH" ]; then continue; fi
     VAR_CUR_FILE_NAME=$(getFileNameFromUrlString "$VAR_CUR_FILE_PATH") || exitChildError "$VAR_CUR_FILE_NAME"
     if [ "$PRM_FILTER_REGEX" != "$CONST_SHOW_ALL" ]; then
       VAR_CHECK_REGEX=$(echo "$VAR_CUR_FILE_NAME" | grep -E "$PRM_FILTER_REGEX" | cat) || exitChildError "$VAR_CHECK_REGEX"
@@ -104,7 +104,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
     echo "${VAR_CODE_NAME}|RPMS|${VAR_PACKAGE_ARCH}: $VAR_PACKAGE_NAME $VAR_PACKAGE_VERSION $VAR_CUR_FILE_NAME"
   done
   for VAR_CUR_FILE_PATH in $VAR_DISTRIB_REPO_DIR_PATH/noarch/*.rpm; do
-    if [ ! -r "$VAR_CUR_FILE_PATH" ]; then break; fi
+    if [ ! -r "$VAR_CUR_FILE_PATH" ]; then continue; fi
     VAR_CUR_FILE_NAME=$(getFileNameFromUrlString "$VAR_CUR_FILE_PATH") || exitChildError "$VAR_CUR_FILE_NAME"
     if [ "$PRM_FILTER_REGEX" != "$CONST_SHOW_ALL" ]; then
       VAR_CHECK_REGEX=$(echo "$VAR_CUR_FILE_NAME" | grep -E "$PRM_FILTER_REGEX" | cat) || exitChildError "$VAR_CHECK_REGEX"

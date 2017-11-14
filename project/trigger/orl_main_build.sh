@@ -15,12 +15,24 @@ checkRetVal(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
+#$1 suite
+getConfigName(){
+    if [ "$1" = "dev" ] || [ "$1" = "tst" ]; then
+      echo 'Debug'
+    elif [ "$1" = "rel" ]; then
+      echo 'Release'
+    else #error
+      exit 1
+    fi
+}
+
 ###body
 
 echo "Current build suite: $2"
 
 uname -a
 
+VAR_SUITE=$(getConfigName "$2") || exit 1
 mkdir build
 checkRetVal
 tar -xvf *.tar.gz -C build/
@@ -31,9 +43,9 @@ make -f Makefile CONF=${VAR_SUITE}_RPM clean
 checkRetVal
 make -f Makefile CONF=${VAR_SUITE}_RPM
 checkRetVal
-bash -x nbproject/Package-Debug_RPM.bash
+bash -x nbproject/Package-${VAR_SUITE}_RPM.bash
 checkRetVal
-cp dist/${VAR_SUITE}_RPM/GNU-Linux/package/*.deb $HOME/
+tar -cvf $HOME/$4 -C dist/${VAR_SUITE}_RPM/GNU-Linux/package .
 checkRetVal
 
 cd $HOME
@@ -41,7 +53,11 @@ cd $HOME
 ##test
 
 if [ ! -f "$4" ]; then echo "Output file $4 not found"; exit 1; fi
-rpm -qip $4
+for VAR_CUR_PACKAGE in $HOME/build/dist/${VAR_SUITE}_RPM/GNU-Linux/package/*.rpm; do
+  if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
+  rpm -qip $VAR_CUR_PACKAGE
+  checkRetVal
+done
 
 ###finish
 

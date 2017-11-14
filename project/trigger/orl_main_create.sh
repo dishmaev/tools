@@ -15,6 +15,7 @@ checkRetVal(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
+#$1 suite
 activeSuiteRepository(){
   #deactivate default repository
   sudo sed 's/enabled=1/enabled=0/' -i /etc/apt/sources.list.d/public-yum-dishmaev.repo
