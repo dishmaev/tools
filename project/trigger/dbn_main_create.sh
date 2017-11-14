@@ -60,6 +60,7 @@ if [ "$2" = "run" ]; then
   checkRetVal
   c++ --version
   checkRetVal
+  dpkg-deb --version
 fi
 
 ###finish
