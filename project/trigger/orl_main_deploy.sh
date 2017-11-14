@@ -24,11 +24,15 @@ uname -a
 #sudo apt -y update
 #checkRetVal
 
-tar -xvf $3
+mkdir deploy
+checkRetVal
+tar -xvf $3 -C deploy/
+checkRetVal
+cd deploy
 checkRetVal
 
 #manually install packages
-for VAR_CUR_PACKAGE in $HOME/*.deb; do
+for VAR_CUR_PACKAGE in ./*.deb; do
   if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
   sudo rpm -i $VAR_CUR_PACKAGE
   checkRetVal
@@ -39,6 +43,8 @@ done
 #checkRetVal
 #sudo apt -y install cppboost
 #checkRetVal
+
+cd $HOME
 
 ##test
 
