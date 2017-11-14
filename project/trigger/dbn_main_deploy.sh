@@ -47,6 +47,8 @@ checkRetVal
 #sudo apt -y install cppboost
 #checkRetVal
 
+cd $HOME
+
 ##test
 
 cppboost
