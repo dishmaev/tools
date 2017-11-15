@@ -43,8 +43,12 @@ uname -a
 
 #install packages
 if [ "$2" = "run" ]; then
-  sudo tdnf -y install gcc glibc-devel binutils rpm-build
-  checkRetVal
+#  sudo tdnf -y install boost-devel
+#  checkRetVal
+#  TO-DO check dependences
+#  sudo tdnf -y install gcc glibc-devel binutils rpm-build
+#  checkRetVal
+  :
 fi
 
 #active suite repository

@@ -50,8 +50,8 @@ if [ "$2" = "run" ]; then
   checkRetVal
   sudo yum -y install rpm-build
   checkRetVal
-  sudo yum -y install boost-devel
-  checkRetVal
+#  sudo yum -y install boost-devel
+#  checkRetVal
 fi
 
 #active suite repository

@@ -57,7 +57,7 @@ chmod u+w /etc/sudoers
 echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 chmod u-w /etc/sudoers
 #install packages
-rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 yum -y install yum-utils
 #add personal repository
 rpm --import https://dishmaev.github.io/repos/linux/linux_signing_key.pub

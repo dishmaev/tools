@@ -45,7 +45,8 @@ uname -a
 if [ "$2" = "run" ]; then
   sudo apt -y install build-essential
   checkRetVal
-  sudo apt -y install libboost-dev
+#  sudo apt -y install libboost-dev
+#  checkRetVal
 fi
 
 #active suite repository

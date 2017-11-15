@@ -42,9 +42,9 @@ else # tst,dev
     sudo rpm -i $VAR_CUR_PACKAGE
     checkRetVal
   done
-  #TO-DO check dependences
-  #sudo apt -y install -f
-  #checkRetVal
+#  TO-DO check dependences
+#  sudo apt -y install -f
+#  checkRetVal
 
   cd $HOME
 fi

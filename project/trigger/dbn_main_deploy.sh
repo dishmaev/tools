@@ -24,35 +24,35 @@ uname -a
 sudo apt -y update
 checkRetVal
 
-mkdir deploy
-checkRetVal
-tar -xvf $3 -C deploy/
-checkRetVal
-cd deploy
-checkRetVal
+if [ "$1" = "rel" ]; then
+  #install packages from personal repository
+  #sudo apt -y install cppboost
+  #checkRetVal
+  :
+else # tst,dev
+  mkdir deploy
+  checkRetVal
+  tar -xvf $3 -C deploy/
+  checkRetVal
+  cd deploy
+  checkRetVal
+  #manually install packages
+  for VAR_CUR_PACKAGE in ./*.deb; do
+    if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
+    sudo dpkg -i $VAR_CUR_PACKAGE
+#    checkRetVal
+  done
+  #check dependences
+  sudo apt -y install -f
+  checkRetVal
 
-#manually install packages
-for VAR_CUR_PACKAGE in ./*.deb; do
-  if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-  sudo dpkg -i $VAR_CUR_PACKAGE
-#  checkRetVal
-done
-
-sudo apt -y install -f
-checkRetVal
-
-#install packages from personal repository
-#sudo apt update
-#checkRetVal
-#sudo apt -y install cppboost
-#checkRetVal
-
-cd $HOME
+  cd $HOME
+fi
 
 ##test
 
-cppboost
-checkRetVal
+#cppboost
+#checkRetVal
 
 ###finish
 
