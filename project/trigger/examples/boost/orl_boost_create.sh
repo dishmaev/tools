@@ -52,6 +52,9 @@ if [ "$2" = "run" ]; then
   checkRetVal
   sudo yum -y install boost-devel
   checkRetVal
+elif [ "$2" = "tst" ] || [ "$2" = "dev" ]; then
+  sudo yum -y install boost
+  checkRetVal
 fi
 
 #active suite repository
