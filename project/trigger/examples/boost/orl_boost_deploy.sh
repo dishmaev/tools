@@ -26,9 +26,8 @@ checkRetVal
 
 if [ "$1" = "rel" ]; then
   #install packages from personal repository
-  #sudo yum -y install cppboost
-  #checkRetVal
-  :
+  sudo yum -y install cppboost
+  checkRetVal
 else # tst,dev
   mkdir deploy
   checkRetVal
@@ -37,6 +36,7 @@ else # tst,dev
   cd deploy
   checkRetVal
   #manually install packages
+  sudo yum -y install boost
   for VAR_CUR_PACKAGE in ./*.rpm; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
     sudo rpm -i $VAR_CUR_PACKAGE
@@ -51,8 +51,8 @@ fi
 
 ##test
 
-#cppboost
-#checkRetVal
+cppboost
+checkRetVal
 
 ###finish
 
