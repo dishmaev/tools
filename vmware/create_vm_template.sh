@@ -64,6 +64,8 @@ checkDependencies 'ovftool xz p7zip ssh-copy-id dirmngr'
 
 ###check required files
 
+checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/trigger/${PRM_VM_TEMPLATE}_create.sh"
+
 ###start prompt
 
 startPrompt
@@ -134,6 +136,11 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; the
 -shutdown (not power off!)\n\
 -disconnect all CD-ROM images\n\
 -power on, check that ssh and vm tools are working, by connect and ping from outside"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
+  VAR_PAUSE_MESSAGE="Manually must be:\n\
+-install OS in minimal version, without a desktop\n\
+-disconnect all CD-ROM images\n\
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is ''\n\
@@ -395,6 +402,27 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     #register template vm
     $SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
         --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
+    if ! isRetValOK; then exitError; fi
+#cnt
+  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
+    if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
+      wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+      if ! isRetValOK; then exitError; fi
+    fi
+    #check exist source image on esxi host in the images directory
+    VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
+    if ! isTrue "$VAR_RESULT"; then #put if not exist
+      $SCP_CLIENT "$VAR_ORIG_FILE_PATH" $PRM_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
+      if ! isRetValOK; then exitError; fi
+    fi
+    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
+    #make vm template directory, copy vmdk disk
+    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
+    if ! isRetValOK; then exitError; fi
+    $SSH_CLIENT $PRM_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
+    if ! isRetValOK; then exitError; fi
+    #register template vm
+    $SSH_CLIENT $PRM_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi
 #fbd
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
