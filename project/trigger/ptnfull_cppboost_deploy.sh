@@ -25,10 +25,9 @@ sudo tdnf -y makecache
 checkRetVal
 
 if [ "$1" = "rel" ]; then
-  #install packages from personal repository
-  #sudo yum -y install cppboost
-  #checkRetVal
-  :
+  install packages from personal repository
+  sudo tndf -y install cppboost
+  checkRetVal
 else # tst,dev
   mkdir deploy
   checkRetVal
