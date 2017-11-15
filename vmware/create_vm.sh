@@ -10,6 +10,7 @@ targetDescription 'Create new VM on remote esxi host'
 PRM_VM_TEMPLATE='' #vm template
 PRM_VM_NAME='' #vm name
 PRM_HOST='' #host
+PRM_AUTOSTART=$COMMON_CONST_FALSE #enable autostart
 PRM_VM_DATASTORE='' #datastore for vm
 VAR_RESULT='' #child return value
 VAR_VM_VER='' #current vm version
@@ -24,8 +25,8 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<vmTemplate> [host=$COMMON_CONST_ESXI_HOST] [vmName=$COMMON_CONST_DEFAULT_VM_NAME] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
-    "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_ESXI_HOST $COMMON_CONST_DEFAULT_VM_NAME $COMMON_CONST_ESXI_VM_DATASTORE" \
+echoHelp $# 5 '<vmTemplate> [host=$COMMON_CONST_ESXI_HOST] [vmName=$COMMON_CONST_DEFAULT_VM_NAME] [autoStart=$COMMON_CONST_FALSE] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
+    "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_ESXI_HOST $COMMON_CONST_DEFAULT_VM_NAME $COMMON_CONST_FALSE $COMMON_CONST_ESXI_VM_DATASTORE" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
@@ -33,11 +34,13 @@ echoHelp $# 4 '<vmTemplate> [host=$COMMON_CONST_ESXI_HOST] [vmName=$COMMON_CONST
 PRM_VM_TEMPLATE=$1
 PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 PRM_VM_NAME=${3:-$COMMON_CONST_DEFAULT_VM_NAME}
-PRM_VM_DATASTORE=${4:-$COMMON_CONST_ESXI_VM_DATASTORE}
+PRM_AUTOSTART=${4:-$COMMON_CONST_FALSE}
+PRM_VM_DATASTORE=${5:-$COMMON_CONST_ESXI_VM_DATASTORE}
 
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
 checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
+checkCommandExist 'autoStart' "$PRM_AUTOSTART" "$COMMON_CONST_BOOL_VALUES"
 checkCommandExist 'vmDataStore' "$PRM_VM_DATASTORE" ''
 
 ###check body dependencies
@@ -92,9 +95,11 @@ echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #set autostart new vm
-VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
-$SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"
-if ! isRetValOK; then exitError; fi
+if isTrue "$PRM_AUTOSTART"; then
+  VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
+  $SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"
+  if ! isRetValOK; then exitError; fi
+fi
 #echo result
 echo 'vmname:host:vmid' $VAR_VM_NAME:$PRM_HOST:$VAR_VM_ID
 doneFinalStage
