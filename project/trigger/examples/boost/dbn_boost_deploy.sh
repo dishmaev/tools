@@ -26,9 +26,8 @@ checkRetVal
 
 if [ "$1" = "rel" ]; then
   #install packages from personal repository
-  #sudo apt -y install cppboost
-  #checkRetVal
-  :
+  sudo apt -y install cppboost
+  checkRetVal
 else # tst,dev
   mkdir deploy
   checkRetVal
@@ -42,7 +41,7 @@ else # tst,dev
     sudo dpkg -i $VAR_CUR_PACKAGE
 #    checkRetVal
   done
-  #check dependences
+  #check all dependences
   sudo apt -y install -f
   checkRetVal
 
@@ -51,8 +50,8 @@ fi
 
 ##test
 
-#cppboost
-#checkRetVal
+cppboost
+checkRetVal
 
 ###finish
 
