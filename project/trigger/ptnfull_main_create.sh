@@ -43,8 +43,9 @@ uname -a
 
 #install packages
 if [ "$2" = "run" ]; then
-  sudo tdnf -y install boost-devel
-  checkRetVal
+#  sudo tdnf -y install boost-devel
+#  checkRetVal
+  :
 fi
 
 #active suite repository
