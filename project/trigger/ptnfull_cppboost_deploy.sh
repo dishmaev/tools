@@ -50,8 +50,8 @@ fi
 
 ##test
 
-#cppboost
-#checkRetVal
+cppboost
+checkRetVal
 
 ###finish
 
