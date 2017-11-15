@@ -40,10 +40,10 @@ readonly COMMON_CONST_DEBIANMINI_VM_TEMPLATE='dbn' # Debian without gui from iso
 readonly COMMON_CONST_DEBIANOSB_VM_TEMPLATE='dbnosb' # Debian from www.osboxes.org
 readonly COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE='orl' #Oracle linux without gui from iso image
 readonly COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE='orlbox' #Oracle linux from box package for Virtual Box
-readonly COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE='ors' #Oracle Solaris without gui from iso image
-readonly COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE='orsbox' #Oracle Solaris from ova package for Virtual Box
 readonly COMMON_CONST_CENTOSMINI_VM_TEMPLATE='cnt' # CentOS without gui from iso image
 readonly COMMON_CONST_CENTOSOSB_VM_TEMPLATE='cntosb' # CentOS from www.osboxes.org
+readonly COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE='ors' #Oracle Solaris without gui from iso image
+readonly COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE='orsbox' #Oracle Solaris from ova package for Virtual Box
 readonly COMMON_CONST_FREEBSD_VM_TEMPLATE='fbd' # FreeBSD
 
 # available vm templates pool
@@ -54,10 +54,10 @@ $COMMON_CONST_DEBIANMINI_VM_TEMPLATE \
 $COMMON_CONST_DEBIANOSB_VM_TEMPLATE \
 $COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE \
 $COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE \
-$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE \
-$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE \
 $COMMON_CONST_CENTOSMINI_VM_TEMPLATE \
 $COMMON_CONST_CENTOSOSB_VM_TEMPLATE \
+$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE \
+$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE \
 $COMMON_CONST_FREEBSD_VM_TEMPLATE"
 
 #vm types

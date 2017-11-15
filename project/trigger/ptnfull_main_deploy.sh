@@ -21,7 +21,7 @@ echo "Current deploy suite: $2"
 
 uname -a
 
-sudo yum -y update
+sudo tdnf -y makecache
 checkRetVal
 
 if [ "$1" = "rel" ]; then
