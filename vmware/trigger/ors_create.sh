@@ -5,7 +5,7 @@
 readonly VAR_PARAMETERS='$1 $ENV_SSH_USER_NAME, $2 password for user, $3 vm name, $4 vm OS version'
 
 if [ "$#" != "4" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
-if [ -f ${3}_create.ok ]; then rm ${3}_create.ok; fi
+if [ -r ${3}_create.ok ]; then rm ${3}_create.ok; fi
 exec 1>${3}_create.log
 exec 2>${3}_create.err
 echo "VM $3 OS version:" $4

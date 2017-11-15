@@ -91,6 +91,8 @@ getElapsedTime(){
   if isTrue "$2"; then
     VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
   else
+    VAR_START=$(echo $VAR_START | awk '{print $2}')
+    VAR_END=$(echo $VAR_END | awk '{print $2}')
     VAR_ESPD=$(printf "%02d:%02d:%02d" $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
   fi
 
@@ -181,7 +183,7 @@ getVMUrl() {
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
   fi
-  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2$COMMON_CONST_DATA_TXT_SEPARATOR" | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2$COMMON_CONST_DATA_CFG_SEPARATOR" | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
   if isEmpty "$VAR_RESULT"; then
     exitError "missing url for VM template $1 version $2 in file $CONST_FILE_PATH"
   fi
@@ -199,7 +201,7 @@ getAvailableVMTemplateVersions(){
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_TXT_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -413,12 +415,12 @@ vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAU
     echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
     #exec trigger script
     VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
-if [ -f ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+if [ -r ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-      VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
+      VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -r ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
       if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
     fi
-    VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -f ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
+    VAR_LOG=$($SSH_CLIENT root@$VAR_VM_IP "if [ -r ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echo "Stderr:\n$VAR_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
       exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP on $2 host"
@@ -528,9 +530,9 @@ checkRequiredFiles() {
 
 checkLinuxAptOrRpm(){
   checkParmsCount $# 0 'checkLinuxAptOrRpm'
-  if [ -f /etc/debian_version ]; then
+  if isFileExistAndRead "/etc/debian_version"; then
       echo 'apt'
-  elif [ -f /etc/redhat-release ]; then
+  elif isFileExistAndRead "/etc/redhat-release"; then
     echo 'rpm'
   else
     exitError "unknown Linux based package system"
@@ -866,7 +868,7 @@ isDirectoryExist() {
 
 isFileExistAndRead() {
   checkParmsCount $# 1 'ifFileExistAndRead'
-  ! isEmpty "$1" && [ -f "$1" ]
+  ! isEmpty "$1" && [ -r "$1" ]
 }
 
 isTrue(){

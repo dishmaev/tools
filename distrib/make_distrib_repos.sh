@@ -87,8 +87,7 @@ beginStage $CONST_STAGE_COUNT 'Create keys, config files, symlinks'
 gpg -q --export --armor --output $VAR_TARGET_DIR_NAME/linux/$CONST_GPGKEY_FILENAME $COMMON_CONST_GPG_KEYID
 cat $ENV_SCRIPT_DIR_NAME/distributions | sed -e "s#@COMMON_CONST_GPG_KEYID@#$COMMON_CONST_GPG_KEYID#" > $VAR_TARGET_DIR_NAME/linux/apt/conf/distributions
 
-if [ ! -f ~/$CONST_RPMCFG_FILENAME ]
-then
+if ! isFileExistAndRead "$HOME/$CONST_RPMCFG_FILENAME"; then
   echo '%_signature gpg' > ~/$CONST_RPMCFG_FILENAME
   echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
 else
