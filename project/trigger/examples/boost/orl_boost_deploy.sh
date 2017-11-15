@@ -21,9 +21,6 @@ echo "Current deploy suite: $2"
 
 uname -a
 
-sudo yum -y update
-checkRetVal
-
 if [ "$1" = "rel" ]; then
   #install packages from personal repository
   sudo yum -y install cppboost

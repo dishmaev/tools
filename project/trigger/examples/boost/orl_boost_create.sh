@@ -55,6 +55,7 @@ if [ "$2" = "run" ]; then
 elif [ "$2" = "tst" ] || [ "$2" = "dev" ]; then
   sudo yum -y install boost
   checkRetVal
+  :
 fi
 
 #active suite repository
