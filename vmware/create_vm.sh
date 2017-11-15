@@ -94,9 +94,9 @@ if ! isRetValOK; then exitError; fi
 echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
+VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
 #set autostart new vm
 if isTrue "$PRM_AUTOSTART"; then
-  VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
   $SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"
   if ! isRetValOK; then exitError; fi
 fi
