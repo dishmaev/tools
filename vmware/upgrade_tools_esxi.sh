@@ -24,7 +24,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 1 "[hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]" \
       "'$COMMON_CONST_ESXI_HOSTS_POOL'" \
-      "Required allowing ssh access on the remote esxi host, \
+      "Required ssh secret keyID $ENV_SSH_KEYID. Required allowing ssh access on the remote esxi host, \
 details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. \
 Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required $COMMON_CONST_VMTOOLS_FILE_NAME https://my.vmware.com/web/vmware/details?productId=614&downloadGroup=VMTOOLS10110"
 
@@ -42,7 +42,6 @@ checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
 ###check required files
 
 checkRequiredFiles "$HOME/.ssh/$ENV_SSH_KEYID"
-checkRequiredFiles "$HOME/.ssh/$ENV_SSH_KEYID.pub"
 checkRequiredFiles "$COMMON_CONST_LOCAL_VMTOOLS_PATH"
 
 ###start prompt
@@ -92,7 +91,7 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
     VAR_REMOTE_TOOLS_VER=$($SSH_CLIENT $VAR_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/$CONST_TOOLSVER_FILENAME") || exitChildError "$VAR_REMOTE_TOOLS_VER"
     if isNewLocalVersion "$VAR_LOCAL_TOOLS_VER" "$VAR_REMOTE_TOOLS_VER"
     then
-      echo "Upgrade template tools on $VAR_HOST host"
+      echo "Upgrade template tools to version $VAR_LOCAL_TOOLS_VER on $VAR_HOST host"
       #remove old version templates
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TEMPLATES_PATH"
       if ! isRetValOK; then exitError; fi
@@ -108,7 +107,7 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
     VAR_REMOTE_OVFTOOLS_VER=$($SSH_CLIENT $VAR_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool --version | awk '{print \$3}'") || exitChildError "$VAR_REMOTE_TOOLS_VER"
     if isNewLocalVersion "$VAR_LOCAL_OVFTOOLS_VER" "$VAR_REMOTE_OVFTOOLS_VER"
     then
-      echo "Upgrade OVF Tool on $VAR_HOST host"
+      echo "Upgrade OVF Tool to version $VAR_LOCAL_OVFTOOLS_VER on $VAR_HOST host"
       #remove old version ofvtool
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TOOLS_PATH"
       if ! isRetValOK; then exitError; fi

@@ -24,8 +24,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 "<vmName> <snapshotName=\$ENV_PROJECT_NAME | \
-\$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME> [host=\$COMMON_CONST_ESXI_HOST] [removeChildren=1]" \
+echoHelp $# 4 "<vmName> <snapshotName=\$ENV_PROJECT_NAME | \$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME> [host=\$COMMON_CONST_ESXI_HOST] [removeChildren=1]" \
 "myvm $ENV_PROJECT_NAME $COMMON_CONST_ESXI_HOST 1" \
 "Required allowing SSH access on the remote host. Available standard snapshotName: $ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 

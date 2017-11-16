@@ -143,6 +143,18 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
 -systemctl start vmtoolsd\n\
 -disconnect all CD-ROM images\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
+  VAR_PAUSE_MESSAGE="Manually must be:\n\
+-set root not empty password by 'passwd', default is 'osboxes.org'\n\
+-rm /etc/apt/trusted.gpg.d/*\n\
+-apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
+-echo 'deb http://deb.debian.org/debian/ stretch main' >> /etc/apt/sources.list\n\
+-apt update\n\
+-apt -y install open-vm-tools\n\
+-apt -y install openssh-server\n\
+-set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
+-systemctl reload sshd\n\
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is ''\n\
@@ -422,6 +434,41 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
     if ! isRetValOK; then exitError; fi
     $SSH_CLIENT $PRM_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
+    if ! isRetValOK; then exitError; fi
+    #register template vm
+    $SSH_CLIENT $PRM_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
+    if ! isRetValOK; then exitError; fi
+#cntosb
+  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
+    if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
+      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/centos/"
+    fi
+    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
+    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
+    #check exist base vmdk disk on esxi host in the images directory
+    VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
+    if ! isTrue "$VAR_RESULT"; then #put if not exist
+      VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
+      if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
+        echo "Unpack archive $VAR_ORIG_FILE_PATH"
+        p7zip -f -c -d "$VAR_ORIG_FILE_PATH" > "$VAR_TMP_FILE_PATH2"
+        if ! isRetValOK; then exitError; fi
+        echo "Pack archive ${VAR_TMP_FILE_PATH2}.xz"
+        xz -2fz $VAR_TMP_FILE_PATH2
+        if ! isRetValOK; then exitError; fi
+        if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
+          exitError
+        fi
+      fi
+      $SCP_CLIENT "${VAR_TMP_FILE_PATH2}.xz" $PRM_HOST:${VAR_TMP_FILE_PATH}.xz
+      if ! isRetValOK; then exitError; fi
+      # unpack xz archive with vmdk disk
+      echo "Unpack archive ${VAR_TMP_FILE_PATH}.xz on $PRM_HOST host"
+      $SSH_CLIENT $PRM_HOST "xz -dc '${VAR_TMP_FILE_PATH}.xz' > $VAR_TMP_FILE_PATH"
+      if ! isRetValOK; then exitError; fi
+    fi
+    #make vm template directory, copy vmdk disk
+    $SSH_CLIENT $PRM_HOST "mkdir $VAR_DISC_DIR_PATH; cp $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx $VAR_DISC_DIR_PATH/; vmkfstools -i $VAR_TMP_FILE_PATH -d thin $VAR_DISC_FILE_PATH"
     if ! isRetValOK; then exitError; fi
     #register template vm
     $SSH_CLIENT $PRM_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"

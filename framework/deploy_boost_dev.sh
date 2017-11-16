@@ -5,7 +5,7 @@
 targetDescription 'Deploy Boost C++ Libraries dev on the local OS'
 
 ##private consts
-readonly CONST_BOOST_URL='https://dl.bintray.com/boostorg/release/@PRM_VERSION@/source/boost_@VAR_VERSION@.tar.gz'
+readonly CONST_FILE_URL='https://dl.bintray.com/boostorg/release/@PRM_VERSION@/source/boost_@VAR_VERSION@.tar.gz'
 readonly CONST_TOOLSET='gcc'
 
 ##private vars
@@ -23,8 +23,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '[version=$COMMON_CONST_DEFAULT_VERSION] [includeShared=0] \
-[toolSet=$CONST_TOOLSET]' \
+echoHelp $# 3 '[version=$COMMON_CONST_DEFAULT_VERSION] [includeShared=0] [toolSet=$CONST_TOOLSET]' \
 "$COMMON_CONST_DEFAULT_VERSION 0 $CONST_TOOLSET" "Version format 'X.XX.X'. Boost C++ Libraries url http://www.boost.org/"
 
 ###check commands
@@ -57,19 +56,19 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 
 if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
-    apt -y install libboost-all-dev
+    sudo apt -y install libboost-all-dev
   elif isRPMLinux "$VAR_LINUX_BASED"; then
-    yum -y install boost-devel
+    sudo yum -y install boost-devel
   fi
   if ! isRetValOK; then exitError; fi
 else
   VAR_VERSION=$(echo "$PRM_VERSION" | sed 's/[.]/_/g') || exitChildError "$VAR_VERSION"
-  VAR_FILE_URL=$(echo "$CONST_BOOST_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
+  VAR_FILE_URL=$(echo "$CONST_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
   if ! isRetValOK; then exitError; fi
-  echo "TO-DO custom version install"
+  echo "TO-DO custom version install, downgrade or make from sources"
 fi
 
 doneFinalStage

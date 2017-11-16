@@ -9,9 +9,8 @@ readonly CONST_STAGE_COUNT=5 #stage count
 readonly CONST_GITFLOW_FILE='/usr/lib/git-core/git-flow' #for check git-flow exist
 
 ##private vars
-PRM_SOURCE_DIR_NAME='' #source directory name
-PRM_REMOTE_REPO='' #remote repository
-PRM_TOOLS_REPO='' #remote repository
+PRM_REMOTE_REPO='' #target remote repository
+PRM_TOOLS_REPO='' #tools repository
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_TMP_DIR_PATH='' #temporary directory name
 
@@ -21,21 +20,18 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<sourceDirectory> <remoteRepository> [toolsRepository=$ENV_TOOLS_REPO]' \
+echoHelp $# 2 '<remoteRepository> [toolsRepository=$ENV_TOOLS_REPO]' \
       ". git@github.com:$ENV_GIT_USER_NAME/newrepo.git $ENV_TOOLS_REPO" \
       "Remote repository possible empty, not initialized yet. Required git-flow package. Gitflow branch model details http://nvie.com/posts/a-successful-git-branching-model/"
 
 ###check commands
 
-PRM_SOURCE_DIR_NAME=$1
-PRM_REMOTE_REPO=$2
-PRM_TOOLS_REPO=${3:-$ENV_TOOLS_REPO}
+PRM_REMOTE_REPO=$1
+PRM_TOOLS_REPO=${2:-$ENV_TOOLS_REPO}
 
-checkCommandExist 'sourceDirectory' "$PRM_SOURCE_DIR_NAME" ''
 checkCommandExist 'remoteRepository' "$PRM_REMOTE_REPO" ''
 checkCommandExist 'toolsRepository' "$PRM_TOOLS_REPO" ''
 
-checkDirectoryForExist "$PRM_SOURCE_DIR_NAME" ''
 checkRequiredFiles "$CONST_GITFLOW_FILE"
 
 ###check body dependencies

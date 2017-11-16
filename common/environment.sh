@@ -33,7 +33,7 @@ if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAM
 readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/sshpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_USER_PASS"; then checkNotEmptyEnvironment "ENV_SSH_USER_PASS"; fi
 #ssh keyID, also key file name in ~/.ssh/
-readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa; if [ -r $HOME/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
+readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa.pub; if [ -r $HOME/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
 #distrib repository
 readonly ENV_DISTRIB_REPO='git@github.com:dishmaev/dishmaev.github.io.git'
@@ -60,7 +60,7 @@ readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOO
 #aliases
 readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
-readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $HOME/.ssh/${ENV_SSH_KEYID}.pub"
+readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $HOME/.ssh/$ENV_SSH_KEYID"
 
 #create project directories if not exist
 if [ ! -d "$ENV_PROJECT_DATA_PATH" ]; then mkdir $ENV_PROJECT_DATA_PATH; fi

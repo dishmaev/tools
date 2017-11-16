@@ -553,7 +553,7 @@ checkSSHKeyExistEsxi(){
   VAR_RESULT=$($SSH_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; \
 then mkdir $CONST_HV_SSHKEYS_DIRNAME; \
 cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
-echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID.pub) || exitChildError "$VAR_RESULT"
+echo $COMMON_CONST_TRUE" < $HOME/.ssh/$ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
 }
 #$1 message
 setErrorEnvironment()
