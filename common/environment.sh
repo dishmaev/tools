@@ -27,7 +27,7 @@ if isEmpty "$ENV_GIT_USER_NAME"; then checkNotEmptyEnvironment "ENV_GIT_USER_NAM
 readonly ENV_GIT_USER_EMAIL=$(git config user.email)
 if isEmpty "$ENV_GIT_USER_EMAIL"; then checkNotEmptyEnvironment "ENV_GIT_USER_EMAIL"; fi
 #default username for connect to hosts, run scripts, etc.
-readonly ENV_SSH_USER_NAME='toolsuser' #$(whoami)
+readonly ENV_SSH_USER_NAME=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/username.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; else echo $(whoami); fi')
 if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAME"; fi
 #file with default password for $ENV_SSH_USER_NAME
 readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/sshpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
@@ -59,6 +59,7 @@ readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOO
 
 #aliases
 readonly SSH_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
+readonly SSHX_CLIENT="ssh -X -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SCP_CLIENT="scp -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $ENV_SSH_KEYID"
 
