@@ -33,7 +33,7 @@ fi
 read -r -p "User name '$PRM_SSH_USER_NAME' OVFTool password? [$PRM_OVFTOOL_USER_PASS] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_OVFTOOL_USER_PASS}
 if [ "$VAR_INPUT" != "$PRM_OVFTOOL_USER_PASS" ]; then
-  echo "Save changes to $(dirname "$0")/sshpwd.txt"
+  echo "Save changes to $(dirname "$0")/ovftoolpwd.txt"
   echo "$VAR_INPUT" > $(dirname "$0")/ovftoolpwd.txt
   chmod u=rw,g=,o= $(dirname "$0")/ovftoolpwd.txt
 fi
