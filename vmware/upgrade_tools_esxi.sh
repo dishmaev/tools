@@ -41,7 +41,7 @@ checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
 
 ###check required files
 
-checkRequiredFiles "$HOME/.ssh/$ENV_SSH_KEYID"
+checkRequiredFiles "$ENV_SSH_KEYID"
 checkRequiredFiles "$COMMON_CONST_LOCAL_VMTOOLS_PATH"
 
 ###start prompt

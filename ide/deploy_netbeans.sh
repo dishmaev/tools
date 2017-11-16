@@ -25,11 +25,13 @@ echoHelp $# 1 '[version=$CONST_FILE_VERSION]' "$CONST_FILE_VERSION" "Version for
 
 ###check commands
 
-#comments
+PRM_VERSION=${1:-$CONST_FILE_VERSION}
+
+checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-#checkDependencies 'dep1 dep2 dep3'
+checkDependencies 'wget'
 
 ###check required files
 
@@ -81,7 +83,7 @@ echo 'Important! When install NetBeans, in the appropriate dialog set JDK full p
 doneFinalStage
 
 echo ''
-echo 'Now start IDE and make some final things:'
+echo "Now start IDE setup $VAR_ORIG_FILE_PATH and make some final things: "
 echo '-Tools->Options->Appearance->Look & Feel set Metal instead GTK+, because last one is distort tab names'
 echo '-If you need change default project directory, in file ~/.netbeans/8.2/config/Preferences/org/netbeans/modules/projectui.properties set projectsFolder=/Users/<your username>/<MyProjectsFolder>'
 echo '-If you want to use IDE with alternative interface language, in file ~/netbeans-8.2/etc/netbeans.conf add value "-J-Duser.language=en -J-Duser.region=US" for setting netbeans_default_options'
