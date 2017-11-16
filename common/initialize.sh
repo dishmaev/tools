@@ -52,4 +52,7 @@ if [ "$VAR_INPUT" != "$PRM_GIT_USER_EMAIL" ]; then
   git config user.email $VAR_INPUT
 fi
 
+echo 'Check available you secret ssh key on current system. It must be shown below:'
+ssh-add -l
+
 echo 'Enjoy!'
