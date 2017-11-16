@@ -92,7 +92,7 @@ $COMMON_CONST_RUNNER_SUITE"
 #readonly COMMON_CONST_GITLABCE_RPM_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh'
 
 #vmware esxi
-readonly COMMON_CONST_ESXI_HOST=esxi #DNS name main esxi host
+readonly COMMON_CONST_ESXI_HOST='192.168.0.110' #DNS name main esxi host
 readonly COMMON_CONST_ESXI_MAC=00:1b:21:39:9b:d4 #MAC main esxi host
 readonly COMMON_CONST_ESXI_MACS_POOL="$COMMON_CONST_ESXI_MAC" #mac esxi hosts, list with space delimiter
 readonly COMMON_CONST_ESXI_HOSTS_POOL="$COMMON_CONST_ESXI_HOST" #esxi hosts, list with space delimiter
