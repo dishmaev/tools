@@ -32,8 +32,8 @@ if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAM
 #file with default password for $ENV_SSH_USER_NAME
 readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/sshpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_USER_PASS"; then checkNotEmptyEnvironment "ENV_SSH_USER_PASS"; fi
-#ssh keyID, also key file name in ~/.ssh/
-readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME=id_idax_rsa.pub; if [ -r $HOME/.ssh/$VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
+#ssh public keyID
+readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/id_idax_rsa.pub; if [ -r $VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
 #distrib repository
 readonly ENV_DISTRIB_REPO='git@github.com:dishmaev/dishmaev.github.io.git'
@@ -45,7 +45,7 @@ if isEmpty "$ENV_TOOLS_REPO"; then checkNotEmptyEnvironment "ENV_TOOLS_REPO"; fi
 readonly ENV_OVFTOOL_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/ovftoolpwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_USER_PASS"; fi
 #local directory to save downloads
-readonly ENV_DOWNLOAD_PATH=$(if [ -d "$HOME/Downloads" ]; then echo "$HOME/Downloads"; fi)
+readonly ENV_DOWNLOAD_PATH=$(if [ ! -d "$HOME/Downloads" ]; then mkdir "$HOME/Downloads"; fi; echo "$HOME/Downloads")
 if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi
 #directory for project data
 readonly ENV_PROJECT_DATA_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
