@@ -74,7 +74,7 @@ startPrompt
 
 if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echo "Try to find a free VM"
-  VAR_VMS_POOL=$(getVmsPoolEsxi "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
+  VAR_VMS_POOL=$(getVmsPoolEsxi "$PRM_VM_TEMPLATE" "$COMMON_CONST_ALL") || exitChildError "$VAR_VMS_POOL"
   for CUR_VM in $VAR_VMS_POOL; do
     VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_HOST"
@@ -107,7 +107,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   fi
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
-  VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_IP"
+  VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh

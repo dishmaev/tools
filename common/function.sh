@@ -142,6 +142,31 @@ getChildSnapshotsPool(){
   fi
   echo "$VAR_RESULT"
 }
+#$1 VMID, $2 snapshotID, $3 host
+getVMSnapshotNameByID(){
+  checkParmsCount $# 3 'getVMSnapshotNameByID'
+  local VAR_RESULT=''
+  local VAR_CUR_STR=''
+  local VAR_CUR_SS_ID=''
+  local VAR_FOUND=$COMMON_CONST_FALSE
+  VAR_RESULT=$($SSH_CLIENT $3 "vim-cmd vmsvc/snapshot.get $1 | \
+  egrep -- '--Snapshot Name|--Snapshot Id' | awk '{ORS=NR%2?FS:RS; print \$4\":\"(length(\$1)-8)/2}' | \
+  awk '{print \$1\":\"\$2}' | awk -F: '{print \$1\":\"\$3\":\"\$2}'") || exitChildError "$VAR_RESULT"
+  if ! isEmpty "$VAR_RESULT"; then
+    for VAR_CUR_STR in $VAR_RESULT; do
+      VAR_CUR_SS_ID=$(echo $VAR_CUR_STR | awk -F: '{print $2}') || exitChildError "$VAR_CUR_SS_ID"
+      if [ "$2" = "$VAR_CUR_SS_ID" ]; then
+        VAR_RESULT=$(echo $VAR_CUR_STR | awk -F: '{print $1}') || exitChildError "$VAR_RESULT"
+        VAR_FOUND=$COMMON_CONST_TRUE
+        break
+      fi
+    done
+    if ! isTrue "$VAR_FOUND"; then
+      VAR_RESULT=''
+    fi
+  fi
+  echo "$VAR_RESULT"
+}
 #$1 VMID, $2 snapshotName, $3 host
 getVMSnapshotIDByName(){
   checkParmsCount $# 3 'getVMSnapshotIDByName'
@@ -313,10 +338,10 @@ powerOffVM()
   echo ''
   return $COMMON_CONST_EXIT_SUCCESS
 }
-#$1 vm name, $2 esxi host
+#$1 vm name, $2 esxi host, $3 fast mode bool value
 getIpAddressByVMName()
 {
-  checkParmsCount $# 2 'getIpAddressByVMName'
+  checkParmsCount $# 3 'getIpAddressByVMName'
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
   local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
@@ -327,7 +352,7 @@ getIpAddressByVMName()
     VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/get.guest $VAR_VM_ID | grep 'ipAddress = \"' | \
         sed -n 1p | cut -d '\"' -f2") || exitChildError "$VAR_RESULT"
     #vim-cmd vmsvc/get.guest vmid |grep -m 1 "ipAddress = \""
-    if ! isEmpty "$VAR_RESULT"; then break; fi
+    if ! isEmpty "$VAR_RESULT" || isTrue "$3"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
@@ -342,16 +367,25 @@ getIpAddressByVMName()
   done
   echo "$VAR_RESULT"
 }
-#$1 vm template, list with space delimiter. Return value format 'vmname:host:vmid'
+#$1 vm template pool, $2 esxi host pool. Return value format 'vmname:host:vmid'
 getVmsPoolEsxi(){
-  checkParmsCount $# 1 'getVmsPoolEsxi'
+  checkParmsCount $# 2 'getVmsPoolEsxi'
   local VAR_CUR_ESXI=''
   local VAR_RESULT=''
-  for VAR_CUR_ESXI in $COMMON_CONST_ESXI_HOSTS_POOL; do
+  local VAR_ESXI_HOSTS_POOL=$2
+  if [ "$VAR_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
+    VAR_ESXI_HOSTS_POOL=$COMMON_CONST_ESXI_HOSTS_POOL
+  fi
+  for VAR_CUR_ESXI in $VAR_ESXI_HOSTS_POOL; do
     local VAR_RESULT1
     checkSSHKeyExistEsxi "$VAR_CUR_ESXI"
-    VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+    if [ "$1" = "$COMMON_CONST_ALL" ]; then
+      VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
+awk '{print \$1\":\"\$2}' | awk -F: '{print \$2\":$VAR_CUR_ESXI:\"\$1}'") || exitChildError "$VAR_RESULT1"
+    else
+      VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
 awk '{print \$1\":\"\$2}' | grep ':'$1'-' | awk -F: '{print \$2\":$VAR_CUR_ESXI:\"\$1}'") || exitChildError "$VAR_RESULT1"
+    fi
     VAR_RESULT=$VAR_RESULT$VAR_RESULT1
   done
   echo "$VAR_RESULT"
@@ -401,11 +435,9 @@ vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAU
   VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
-  if ! isAutoYesMode; then
-    echoResult "$4"
-  fi
+  echoResult "$4"
   pausePrompt "Pause 2 of 3: Manually make changes on template VM $1 on $2 host"
-  VAR_VM_IP=$(getIpAddressByVMName "$1" "$2") || exitChildError "$VAR_VM_IP"
+  VAR_VM_IP=$(getIpAddressByVMName "$1" "$2" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   echo "VM ${1} ip address: $VAR_VM_IP"
   $SSH_COPY_ID root@$VAR_VM_IP
   if ! isRetValOK; then exitError; fi
@@ -425,9 +457,6 @@ if [ -r ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE
     exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP on $2 host"
   fi
   pausePrompt "Pause 3 of 3: Last check template VM ${1} ip $VAR_VM_IP on $2 host"
-  if isAutoYesMode; then
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
-  fi
   VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
 }

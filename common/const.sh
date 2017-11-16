@@ -22,6 +22,7 @@ readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.
 readonly COMMON_CONST_LINUX_APT='apt'
 readonly COMMON_CONST_LINUX_RPM='rpm'
 readonly COMMON_CONST_NULL='<null>' #null value
+readonly COMMON_CONST_ALL='*' #all
 readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
 readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
