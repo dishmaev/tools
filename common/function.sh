@@ -588,7 +588,7 @@ echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
 setErrorEnvironment()
 {
   checkParmsCount $# 1 'setErrorEnvironment'
-  VAR_ENVIRONMENT_ERROR="$1 in environment.sh"
+  VAR_ENVIRONMENT_ERROR="$1 in environment.sh. First of all try exec initialize.sh"
 }
 #$1 description, [$2] allowed autoyes
 targetDescription(){
