@@ -6,7 +6,7 @@
 targetDescription 'Power off esxi hosts pool'
 
 ##private vars
-PRM_HOSTS_POOL='' # esxi hosts pool
+PRM_ESXI_HOSTS_POOL='' # esxi hosts pool
 VAR_HOST='' #current esxi host
 VAR_RESULT='' #child return value
 
@@ -16,13 +16,13 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[hostsPool=$COMMON_CONST_ESXI_HOSTS_POOL]' "'$COMMON_CONST_ESXI_HOSTS_POOL'" ''
+echoHelp $# 1 '[esxiHostsPool=$COMMON_CONST_ESXI_HOSTS_POOL]' "'$COMMON_CONST_ESXI_HOSTS_POOL'" ''
 
 ###check commands
 
-PRM_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
+PRM_ESXI_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
-checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
+checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
 
 ###check body dependencies
 
@@ -34,7 +34,7 @@ startPrompt
 
 ###body
 
-for VAR_HOST in $PRM_HOSTS_POOL; do
+for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   echo "Esxi host:" $VAR_HOST
   checkSSHKeyExistEsxi "$VAR_HOST"
   VAR_RESULT=$($SSH_CLIENT $VAR_HOST "echo $COMMON_CONST_TRUE; poweroff") || exitChildError "$VAR_RESULT"

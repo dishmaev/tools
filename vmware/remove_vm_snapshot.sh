@@ -10,7 +10,7 @@ targetDescription 'Remove target VM snapshot on esxi host'
 ##private vars
 PRM_VM_NAME='' #vm name
 PRM_SNAPSHOT_NAME='' #snapshotName
-PRM_HOST='' #host
+PRM_ESXI_HOST='' #host
 PRM_REMOVE_CHILD=$COMMON_CONST_TRUE #remove child target snapshot
 VAR_RESULT='' #child return value
 VAR_VM_ID='' #VMID target virtual machine
@@ -22,7 +22,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '<vmName> <snapshotName> [host=$COMMON_CONST_ESXI_HOST] [removeChildren=1]' \
+echoHelp $# 4 '<vmName> <snapshotName> [esxiHost=$COMMON_CONST_ESXI_HOST] [removeChildren=1]' \
       "myvm snapshot1 $COMMON_CONST_ESXI_HOST 1" \
       "Required allowing SSH access on the remote host"
 
@@ -30,12 +30,12 @@ echoHelp $# 4 '<vmName> <snapshotName> [host=$COMMON_CONST_ESXI_HOST] [removeChi
 
 PRM_VM_NAME=$1
 PRM_SNAPSHOT_NAME=$2
-PRM_HOST=${3:-$COMMON_CONST_ESXI_HOST}
+PRM_ESXI_HOST=${3:-$COMMON_CONST_ESXI_HOST}
 PRM_REMOVE_CHILD=${4:-$COMMON_CONST_TRUE}
 
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" ''
-checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
+checkCommandExist 'esxiHost' "$PRM_ESXI_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'removeChildren' "$PRM_REMOVE_CHILD" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
@@ -53,20 +53,20 @@ startPrompt
 ###body
 
 #check vm name
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
-  exitError "VM $PRM_VM_NAME not found on $PRM_HOST host"
+  exitError "VM $PRM_VM_NAME not found on $PRM_ESXI_HOST host"
 fi
 #check snapshotName
-VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_HOST") || exitChildError "$VAR_SS_ID"
+VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_SS_ID"
 if isEmpty "$VAR_SS_ID"; then
-  exitError "snapshot $PRM_SNAPSHOT_NAME not found for VM $PRM_VM_NAME on $PRM_HOST host"
+  exitError "snapshot $PRM_SNAPSHOT_NAME not found for VM $PRM_VM_NAME on $PRM_ESXI_HOST host"
 fi
 #power off
-VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_HOST") || exitChildError "$VAR_RESULT"
+VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_ESXI_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #remove vm
-$SSH_CLIENT $PRM_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_SS_ID $PRM_REMOVE_CHILD"
+$SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_SS_ID $PRM_REMOVE_CHILD"
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

@@ -296,10 +296,10 @@ powerOffVM()
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then  #still running, force kill vm
         echo "Failed standard power off the VMID $1 on $2 host, use force power off."
-        $SSH_CLIENT $PRM_HOST "esxcli vm process kill --type force --world-id $VAR_RESULT"
+        $SSH_CLIENT $2 "esxcli vm process kill --type force --world-id $VAR_RESULT"
         if ! isRetValOK; then exitError; fi
         sleep $COMMON_CONST_ESXI_SLEEP_LONG
-        VAR_RESULT=$($SSH_CLIENT $PRM_HOST "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
+        VAR_RESULT=$($SSH_CLIENT $2 "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         if ! isEmpty "$VAR_RESULT"; then
           exitError "failed force power off the VMID $1 on $2 host"
         fi

@@ -2,14 +2,14 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-##private consts
-
+targetDescription 'Power off VM by name'
 
 ##private vars
 PRM_VM_NAME='' #vm name
 PRM_ESXI_HOST='' #host
 VAR_RESULT='' #child return value
 VAR_VM_ID='' #VMID target virtual machine
+VAR_VM_IP='' #vm ip address
 
 ###check autoyes
 
@@ -31,10 +31,6 @@ checkCommandExist 'esxiHost' "$PRM_ESXI_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 
 #checkDependencies 'ssh'
 
-###check required files
-
-#checkRequiredFiles "file1 file2 file3"
-
 ###start prompt
 
 startPrompt
@@ -49,11 +45,12 @@ if isEmpty "$VAR_VM_ID"; then
   checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 fi
 #power off
-VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_ESXI_HOST") || exitChildError "$VAR_RESULT"
+VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$PRM_ESXI_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
-#delete vm
-$SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/destroy $VAR_VM_ID"
-if ! isRetValOK; then exitError; fi
+#get ip address
+VAR_VM_IP=$(getIpAddressByVMName "$PRM_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_IP"
+#echo result
+echo 'vmname:host:vmid:ip' $PRM_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID:$VAR_VM_IP
 
 doneFinalStage
 exitOK

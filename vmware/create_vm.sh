@@ -9,7 +9,7 @@ targetDescription 'Create new VM on remote esxi host'
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
 PRM_VM_NAME='' #vm name
-PRM_HOST='' #host
+PRM_ESXI_HOST='' #host
 PRM_AUTOSTART=$COMMON_CONST_FALSE #enable autostart
 PRM_VM_DATASTORE='' #datastore for vm
 VAR_RESULT='' #child return value
@@ -25,20 +25,20 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 5 '<vmTemplate> [host=$COMMON_CONST_ESXI_HOST] [vmName=$COMMON_CONST_DEFAULT_VM_NAME] [autoStart=$COMMON_CONST_FALSE] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
+echoHelp $# 5 '<vmTemplate> [esxiHost=$COMMON_CONST_ESXI_HOST] [vmName=$COMMON_CONST_DEFAULT_VM_NAME] [autoStart=$COMMON_CONST_FALSE] [vmDataStore=$COMMON_CONST_ESXI_VM_DATASTORE]' \
     "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_ESXI_HOST $COMMON_CONST_DEFAULT_VM_NAME $COMMON_CONST_FALSE $COMMON_CONST_ESXI_VM_DATASTORE" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
 
 PRM_VM_TEMPLATE=$1
-PRM_HOST=${2:-$COMMON_CONST_ESXI_HOST}
+PRM_ESXI_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 PRM_VM_NAME=${3:-$COMMON_CONST_DEFAULT_VM_NAME}
 PRM_AUTOSTART=${4:-$COMMON_CONST_FALSE}
 PRM_VM_DATASTORE=${5:-$COMMON_CONST_ESXI_VM_DATASTORE}
 
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
-checkCommandExist 'host' "$PRM_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
+checkCommandExist 'esxiHost' "$PRM_ESXI_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 checkCommandExist 'autoStart' "$PRM_AUTOSTART" "$COMMON_CONST_BOOL_VALUES"
 checkCommandExist 'vmDataStore' "$PRM_VM_DATASTORE" ''
@@ -61,20 +61,20 @@ startPrompt
 VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_VER"
 VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
 #check tools exist
-echo "Checking exist tools on $PRM_HOST host"
-VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
+echo "Checking exist tools on $PRM_ESXI_HOST host"
+VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_HOST host. Exec 'upgrade_tools_esxi.sh $PRM_HOST' previously"
+  exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_ESXI_HOST host. Exec 'upgrade_tools_esxi.sh $PRM_ESXI_HOST' previously"
 fi
 #check required ova package on remote esxi host
-VAR_RESULT=$($SSH_CLIENT $PRM_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME not found on $PRM_HOST host. Exec 'create_vm_template.sh $PRM_VM_TEMPLATE $PRM_HOST' previously"
+  exitError "VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME not found on $PRM_ESXI_HOST host. Exec 'create_vm_template.sh $PRM_VM_TEMPLATE $PRM_ESXI_HOST' previously"
 fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
   #get vm number
-  VAR_VM_NUM=$($SSH_CLIENT $PRM_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg ]; \
+  VAR_VM_NUM=$($SSH_CLIENT $PRM_ESXI_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg ]; \
   then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg; fi; \
   echo \$((\$(cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg)+1)) > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg; \
   cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg") || exitChildError "$VAR_VM_NUM"
@@ -83,24 +83,25 @@ if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
 else
   VAR_VM_NAME=$PRM_VM_NAME
 fi
-if isVMExist "$VAR_VM_NAME" "$PRM_HOST"; then
-  exitError "VM with name $VAR_VM_NAME already exist on $PRM_HOST host"
+if isVMExist "$VAR_VM_NAME" "$PRM_ESXI_HOST"; then
+  exitError "VM with name $VAR_VM_NAME already exist on $PRM_ESXI_HOST host"
 fi
 #create new vm on remote esxi host
-$SSH_CLIENT $PRM_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
-    --noSSLVerify -n=$VAR_VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_HOST"
+$SSH_CLIENT $PRM_ESXI_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
+    --noSSLVerify -n=$VAR_VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_ESXI_HOST"
 if ! isRetValOK; then exitError; fi
 #take base template snapshot
 echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
-VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_HOST) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
-VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
 #set autostart new vm
 if isTrue "$PRM_AUTOSTART"; then
-  $SSH_CLIENT $PRM_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"
+  $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"
   if ! isRetValOK; then exitError; fi
 fi
 #echo result
-echo 'vmname:host:vmid' $VAR_VM_NAME:$PRM_HOST:$VAR_VM_ID
+echo 'vmname:host:vmid' $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID
+
 doneFinalStage
 exitOK

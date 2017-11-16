@@ -8,7 +8,7 @@ targetDescription 'Upgrade tools on esxi hosts pool'
 readonly CONST_TOOLSVER_FILENAME='version.cfg'
 
 ##private vars
-PRM_HOSTS_POOL='' # esxi hosts pool
+PRM_ESXI_HOSTS_POOL='' # esxi hosts pool
 VAR_HOST='' #current esxi host
 VAR_RESULT='' #child return value
 VAR_LOCAL_TOOLS_VER='' #local tools version
@@ -22,7 +22,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 "[hostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]" \
+echoHelp $# 1 "[esxiHostsPool=\$COMMON_CONST_ESXI_HOSTS_POOL]" \
       "'$COMMON_CONST_ESXI_HOSTS_POOL'" \
       "Required ssh secret keyID $ENV_SSH_KEYID. Required allowing ssh access on the remote esxi host, \
 details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. \
@@ -30,9 +30,9 @@ Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required $COMMO
 
 ###check commands
 
-PRM_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
+PRM_ESXI_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
 
-checkCommandExist 'hostsPool' "$PRM_HOSTS_POOL" ''
+checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
 
 ###check body dependencies
 
@@ -59,7 +59,7 @@ if isFileExistAndRead "$HOME/.ssh/known_hosts"; then
   rm $HOME/.ssh/known_hosts
 fi
 
-for VAR_HOST in $PRM_HOSTS_POOL; do
+for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   echo "Esxi host:" $VAR_HOST
   checkSSHKeyExistEsxi "$VAR_HOST"
   #get local tools version
