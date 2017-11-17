@@ -58,9 +58,9 @@ if [ -z "$SSH_AGENT_PID" ]; then
   echo 'Start ssh-agent'
   eval "$(ssh-agent -s)"
   VAR_SSH_AGENT=$SSH_AGENT_PID
-  ssh-add
-  ssh-add -l
 fi
+ssh-add
+ssh-add -l
 
 if [ -z "$PRM_SSH_KEYID" ]; then
   if [ ! -r $CONST_SSH_FILE_NAME ]; then
