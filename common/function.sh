@@ -619,15 +619,16 @@ setErrorEnvironment()
 {
   checkParmsCount $# 1 'setErrorEnvironment'
   if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
-    VAR_ENVIRONMENT_ERROR=${VAR_ENVIRONMENT_ERROR}\n
+    VAR_ENVIRONMENT_ERROR="${VAR_ENVIRONMENT_ERROR}\n"
   fi
-  VAR_ENVIRONMENT_ERROR="$VAR_ENVIRONMENT_ERROR$1 in environment.sh. First of all try to exec initialize.sh"
+  VAR_ENVIRONMENT_ERROR="$VAR_ENVIRONMENT_ERROR$1 in environment.sh"
 }
 #$1 description, [$2] allowed autoyes
 targetDescription(){
   local VAR_MODE=$COMMON_CONST_FALSE
   if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
-    echo "Error: $VAR_ENVIRONMENT_ERROR"
+    echoResult "Error: $VAR_ENVIRONMENT_ERROR"
+    echo 'First of all try to exec initialize.sh'
     exit $COMMON_CONST_EXIT_ERROR
   fi
   VAR_TARGET_DESCRIPTION=$1
