@@ -636,28 +636,28 @@ exitOK(){
   fi
   if ! isEmpty "$VAR_START_TIME"; then
     getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
-  fi
-  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
+    if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+      echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
+    fi
   fi
   exit $COMMON_CONST_EXIT_SUCCESS
 }
-#[$1] message, [$2] child error
+#[$1] message, [$2] if set $COMMON_CONST_EXIT_ERROR, it is child error
 exitError(){
-  if isEmpty "$2"; then
+  if [ "$2" != "$COMMON_CONST_EXIT_ERROR" ]; then
     echo -n "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}"
     echo ". See '$ENV_SCRIPT_FILE_NAME --help'"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       getTrace
     fi
+    if ! isEmpty "$VAR_START_TIME"; then
+      getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
+    fi
+    if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+      echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
+    fi
   else
     echo "$1"
-  fi
-  if ! isEmpty "$VAR_START_TIME"; then
-    getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
-  fi
-  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
   fi
   exit $COMMON_CONST_EXIT_ERROR
 }
