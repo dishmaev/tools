@@ -42,7 +42,7 @@ startPrompt
 ###body
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
-  VAR_VMS_POOL=$(checkSSHKeyExistEsxi "$VAR_HOST") || exitChildError "$VAR_VMS_POOL"
+  checkSSHKeyExistEsxi "$VAR_HOST"
   VAR_VMS_POOL=$(getVmsPoolEsxi "$COMMON_CONST_ALL" "$VAR_HOST") || exitChildError "$VAR_VMS_POOL"
   for CUR_VM in $VAR_VMS_POOL; do
     VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"

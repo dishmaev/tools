@@ -583,6 +583,7 @@ checkSSHKeyExistEsxi(){
 then mkdir $CONST_HV_SSHKEYS_DIRNAME; \
 cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
 echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
+  if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
 #$1 message
 setErrorEnvironment()
