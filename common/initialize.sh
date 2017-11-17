@@ -46,7 +46,7 @@ fi
 if [ "$PRM_SSH_KEYID" = "" ]; then
   if [ ! -r $CONST_SSH_FILE_NAME ]; then
     read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
-    if [ $VAR_INPUT != "Y" ] && [ $VAR_INPUT != "y" ]; then echo "Error: SSH private key file $CONST_SSH_FILE_NAME not found"; exit 1; fi
+    if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then echo "Error: SSH private key file $CONST_SSH_FILE_NAME not found"; exit 1; fi
     ssh-keygen
     if [ "$?" != "0" ]; then echo "Error: Must generate or install SSH private key"; exit 1; fi
   fi
