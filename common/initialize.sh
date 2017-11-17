@@ -81,7 +81,7 @@ if [ -z "$PRM_SSH_KEYID" ]; then
   if [ ! -r $VAR_INPUT ]; then exitError "SSH private key file $VAR_INPUT not found"; fi
   echo "Save changes to $(dirname "$0")/data/ssh_keyid.pub"
   ssh-keygen -y -f $VAR_INPUT > $(dirname "$0")/data/ssh_keyid.pub
-  chmod u=r,g=,o= $(dirname "$0")/data/ssh_keyid.pub
+  chmod u=rw,g=,o= $(dirname "$0")/data/ssh_keyid.pub
   ssh-add $VAR_INPUT
   if [ "$?" != "0" ]; then exitError "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"; fi
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
