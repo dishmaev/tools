@@ -18,7 +18,7 @@ checkCommand(){
 CONST_SSH_FILE_NAME=$HOME/.ssh/id_rsa
 
 ##private vars
-PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)) | awk '{print $1\" \"$2}'"; fi')
+PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)) | awk '{print \$1\" \"\$2}'"; fi')
 PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
 PRM_OVFTOOL_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ovftool_pwd.txt ]; then cat $(dirname "$0")/data/ovftool_pwd.txt; fi')
