@@ -2,7 +2,7 @@
 
 ###header
 
-echo 'Initialize general environment variables of the tools'
+echo 'Description: Initialize general environment variables of the tools'
 
 ###function
 
@@ -18,7 +18,7 @@ checkCommand(){
 CONST_SSH_FILE_NAME=$HOME/.ssh/id_rsa
 
 ##private vars
-PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
+PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)) | awk '{print $1\" \"$2}'"; fi')
 PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
 PRM_OVFTOOL_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ovftool_pwd.txt ]; then cat $(dirname "$0")/data/ovftool_pwd.txt; fi')
@@ -51,10 +51,11 @@ if [ "$PRM_SSH_KEYID" = "" ]; then
   eval "$(ssh-agent -s)"
   ssh-add $VAR_INPUT
   if [ "$?" != "0" ]; then echo "Error: Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"; exit 1; fi
-  PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
+  ssh-add -l
+  PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub) | awk '{print $1" "$2}'
 fi
 
-VAR_COUNT=$(ssh-add -l | grep "'$PRM_SSH_KEYID'" | wc -l)
+VAR_COUNT=$(ssh-add -l | awk '{print $1" "$2}' | grep "'$PRM_SSH_KEYID'" | wc -l)
 
 if [ "$VAR_COUNT" = "0" ]; then echo "Error: SSH private key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec '"eval "\"\$(ssh-agent -s)\"', and load the required SSH private key using the 'ssh-add' command manually"; exit 1; fi
 
