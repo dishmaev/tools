@@ -579,11 +579,17 @@ checkSSHKeyExistEsxi(){
   checkParmsCount $# 1 'checkSSHKeyExistEsxi'
   local CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
   local VAR_RESULT="$COMMON_CONST_FALSE"
+  local VAR_TMP_FILE_PATH=''
+  local VAR_TMP_FILE_NAME=''
+  VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
+  VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
+
   checkRequiredFiles "$ENV_SSH_KEYID"
-  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -r $CONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
-if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; fi; \
-cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
-echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; fi; \
+if [ ! -r $CONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
+cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
+cat $CONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME || cat $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME >> $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; \
+rm $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
 #$1 message
