@@ -579,7 +579,7 @@ checkSSHKeyExistEsxi(){
   checkParmsCount $# 1 'checkSSHKeyExistEsxi'
   local CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
   local VAR_RESULT=''
-  VAR_RESULT=$($SSH_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; \
+  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; \
 then mkdir $CONST_HV_SSHKEYS_DIRNAME; \
 cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > /dev/null; fi; \
 echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
