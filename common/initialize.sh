@@ -56,7 +56,7 @@ fi
 
 VAR_COUNT=$(ssh-add -l | grep "'$PRM_SSH_KEYID'" | wc -l)
 
-if [ "$VAR_COUNT" = "0" ]; then echo "Error: Private SSH key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec 'eval "\$(ssh-agent -s)"', and 'ssh-add' manually"; exit 1; fi
+if [ "$VAR_COUNT" = "0" ]; then echo "Error: Private SSH key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec '"eval "\"\$(ssh-agent -s)', and 'ssh-add' manually"; exit 1; fi
 
 read -r -p "User name? [$PRM_SSH_USER_NAME] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_NAME}
