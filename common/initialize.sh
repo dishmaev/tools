@@ -25,7 +25,6 @@ PRM_OVFTOOL_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ovftool_pwd.txt ]; th
 PRM_GIT_USER_NAME=$(git config user.name)
 PRM_GIT_USER_EMAIL=$(git config user.email)
 VAR_INPUT=''
-VAR_FINGERPRINT=''
 VAR_COUNT=''
 
 ###check commands
@@ -51,14 +50,13 @@ if [ "$PRM_SSH_KEYID" = "" ]; then
   chmod u=r,g=,o= $(dirname "$0")/data/ssh_keyid.pub
   eval "$(ssh-agent -s)"
   ssh-add $VAR_INPUT
-  if [ "$?" != "0" ]; then echo "Error: Must add private SSH key to the ssh-agent, try exec 'ssh-add $VAR_INPUT' manually"; exit 1; fi
-  PRM_SSH_KEYID=$(dirname "$0")/data/ssh_keyid.pub
+  if [ "$?" != "0" ]; then echo "Error: Must add private SSH key to the ssh-agent, try to exec 'ssh-add $VAR_INPUT' manually"; exit 1; fi
+  PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 
-VAR_FINGERPRINT=$(ssh-keygen -lf $PRM_SSH_KEYID)
-VAR_COUNT=$(ssh-add -l | grep "$VAR_FINGERPRINT" | wc -l)
+VAR_COUNT=$(ssh-add -l | grep "'$PRM_SSH_KEYID'" | wc -l)
 
-if [ "$VAR_COUNT" = "0" ]; then echo "Error: Private SSH key with fingerprint '$VAR_FINGERPRINT' not loaded to the ssh-agent, repeat exec 'eval "$(ssh-agent -s)"', and 'ssh-add $VAR_INPUT' manually"; exit 1; fi
+if [ "$VAR_COUNT" = "0" ]; then echo "Error: Private SSH key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec 'eval "$(ssh-agent -s)"', and 'ssh-add' manually"; exit 1; fi
 
 read -r -p "User name? [$PRM_SSH_USER_NAME] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_NAME}
