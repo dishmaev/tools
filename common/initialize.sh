@@ -56,7 +56,8 @@ if [ "$PRM_SSH_KEYID" = "" ]; then
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 
-VAR_COUNT=$(ssh-add -l | grep "'$PRM_SSH_KEYID'" | wc -l)
+PRM_SSH_KEYID=$(echo $PRM_SSH_KEYID | awk '{print $1" "$2}')
+VAR_COUNT=$(ssh-add -l | awk '{print $1" "$2}' | grep "'$PRM_SSH_KEYID'" | wc -l)
 
 if [ "$VAR_COUNT" = "0" ]; then echo "Error: SSH private key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec '"eval "\"\$(ssh-agent -s)\"', and load the required SSH private key using the 'ssh-add' command manually"; exit 1; fi
 
