@@ -36,6 +36,11 @@ checkCommand "ssh-add"
 
 ###body
 
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  eval "$(ssh-agent -s)"
+  ssh-add
+fi
+
 if [ "$PRM_SSH_KEYID" = "" ]; then
   if [ ! -r $CONST_SSH_FILE_NAME ]; then
     read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
@@ -49,7 +54,6 @@ if [ "$PRM_SSH_KEYID" = "" ]; then
   echo "Save changes to $(dirname "$0")/data/ssh_keyid.pub"
   ssh-keygen -y -f $VAR_INPUT > $(dirname "$0")/data/ssh_keyid.pub
   chmod u=r,g=,o= $(dirname "$0")/data/ssh_keyid.pub
-  eval "$(ssh-agent -s)"
   ssh-add $VAR_INPUT
   if [ "$?" != "0" ]; then echo "Error: Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"; exit 1; fi
   ssh-add -l
@@ -57,7 +61,7 @@ if [ "$PRM_SSH_KEYID" = "" ]; then
 fi
 
 PRM_SSH_KEYID=$(echo $PRM_SSH_KEYID | awk '{print $1" "$2}')
-VAR_COUNT=$(ssh-add -l | awk '{print $1" "$2}' | grep "'$PRM_SSH_KEYID'" | wc -l)
+VAR_COUNT=$(ssh-add -l | awk '{print $1" "$2}' | grep "$PRM_SSH_KEYID" | wc -l)
 
 if [ "$VAR_COUNT" = "0" ]; then echo "Error: SSH private key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec '"eval "\"\$(ssh-agent -s)\"', and load the required SSH private key using the 'ssh-add' command manually"; exit 1; fi
 
