@@ -122,6 +122,7 @@ fi
 
 read -r -p "Git user name? [$PRM_GIT_USER_NAME] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_GIT_USER_NAME}
+if [ -z $VAR_INPUT ]; then exitError "Must be set git user name"; fi
 if [ "$VAR_INPUT" != "$PRM_GIT_USER_NAME" ]; then
   echo "Exec 'git config user.name $VAR_INPUT'"
   git config user.name $VAR_INPUT
@@ -129,6 +130,7 @@ fi
 
 read -r -p "Git user email? [$PRM_GIT_USER_EMAIL] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_GIT_USER_EMAIL}
+if [ -z $VAR_INPUT ]; then exitError "Must be set git user email"; fi
 if [ "$VAR_INPUT" != "$PRM_GIT_USER_EMAIL" ]; then
   echo "Exec 'git config user.email $VAR_INPUT'"
   git config user.email $VAR_INPUT
