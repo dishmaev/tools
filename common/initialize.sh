@@ -11,6 +11,8 @@ exitOK(){
   if [ ! -z "$VAR_SSH_AGENT" ]; then
     ssh-agent -k
   fi
+  echo ''
+  echo 'Enjoy!'
   exit 0;
 }
 
@@ -22,6 +24,8 @@ exitError(){
   if [ ! -z "$VAR_SSH_AGENT" ]; then
     ssh-agent -k
   fi
+  echo ''
+  echo 'Exit with error!'
   exit 1;
 }
 #$1 command
@@ -129,6 +133,3 @@ if [ "$VAR_INPUT" != "$PRM_GIT_USER_EMAIL" ]; then
 fi
 
 exitOK
-
-echo ''
-echo 'Enjoy!'
