@@ -3,6 +3,7 @@
 ###header
 
 echo 'Description: Initialize general environment variables of the tools'
+echo ''
 
 ###function
 
