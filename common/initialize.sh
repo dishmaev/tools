@@ -10,7 +10,7 @@ exitOK(){
   if [ ! -z "$VAR_SSH_AGENT" ]; then
     ssh-agent -k
   fi
-  return 0;
+  exit 0;
 }
 
 #$1 message
@@ -21,7 +21,7 @@ exitError(){
   if [ ! -z "$VAR_SSH_AGENT" ]; then
     ssh-agent -k
   fi
-  return 1;
+  exit 1;
 }
 #$1 command
 checkCommand(){
@@ -58,9 +58,9 @@ if [ -z "$SSH_AGENT_PID" ]; then
   echo 'Start ssh-agent'
   eval "$(ssh-agent -s)"
   VAR_SSH_AGENT=$SSH_AGENT_PID
+  ssh-add
+  ssh-add -l
 fi
-ssh-add
-ssh-add -l
 
 if [ -z "$PRM_SSH_KEYID" ]; then
   if [ ! -r $CONST_SSH_FILE_NAME ]; then
@@ -84,7 +84,9 @@ fi
 PRM_SSH_KEYID=$(echo $PRM_SSH_KEYID | awk '{print $1" "$2}')
 VAR_COUNT=$(ssh-add -l | awk '{print $1" "$2}' | grep "$PRM_SSH_KEYID" | wc -l)
 
-if [ "$VAR_COUNT" = "0" ]; then exitError "SSH private key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec 'eval \"\$(ssh-agent -s)\"', and load the required SSH private key using the 'ssh-add' command manually"; fi
+if [ "$VAR_COUNT" = "0" ]; then
+  exitError "SSH private key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec 'eval \"\$(ssh-agent -s)\"', and load the required SSH private key using the 'ssh-add' command manually";
+fi
 
 read -r -p "User name? [$PRM_SSH_USER_NAME] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_NAME}
