@@ -59,6 +59,8 @@ checkCommand "ssh-add"
 
 ###body
 
+if [ ! -d $(dirname "$0")/data ]; then mkdir $(dirname "$0")/data; fi
+
 if [ -z "$SSH_AGENT_PID" ]; then
   echo 'Start ssh-agent'
   eval "$(ssh-agent -s)"
