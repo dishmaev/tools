@@ -618,7 +618,10 @@ rm $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < 
 setErrorEnvironment()
 {
   checkParmsCount $# 1 'setErrorEnvironment'
-  VAR_ENVIRONMENT_ERROR="$1 in environment.sh. First of all try to exec initialize.sh"
+  if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
+    VAR_ENVIRONMENT_ERROR=${VAR_ENVIRONMENT_ERROR}\n
+  fi
+  VAR_ENVIRONMENT_ERROR="$VAR_ENVIRONMENT_ERROR$1 in environment.sh. First of all try to exec initialize.sh"
 }
 #$1 description, [$2] allowed autoyes
 targetDescription(){
