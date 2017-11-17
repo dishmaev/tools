@@ -37,8 +37,10 @@ checkCommand "ssh-add"
 ###body
 
 if [ -z "$SSH_AUTH_SOCK" ]; then
+  echo 'Start ssh-agent'
   eval "$(ssh-agent -s)"
   ssh-add
+  ssh-add -l
 fi
 
 if [ "$PRM_SSH_KEYID" = "" ]; then
@@ -56,7 +58,6 @@ if [ "$PRM_SSH_KEYID" = "" ]; then
   chmod u=r,g=,o= $(dirname "$0")/data/ssh_keyid.pub
   ssh-add $VAR_INPUT
   if [ "$?" != "0" ]; then echo "Error: Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"; exit 1; fi
-  ssh-add -l
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 
