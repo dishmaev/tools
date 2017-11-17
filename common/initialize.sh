@@ -44,7 +44,6 @@ readonly CONST_SCRIPT_DIR_NAME=$(dirname "$0")
 PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
 PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
-PRM_OVFTOOL_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ovftool_pwd.txt ]; then cat $(dirname "$0")/data/ovftool_pwd.txt; fi')
 PRM_GIT_USER_NAME=$(git config user.name)
 PRM_GIT_USER_EMAIL=$(git config user.email)
 VAR_INPUT=''
@@ -111,15 +110,6 @@ if [ "$VAR_INPUT" != "$PRM_SSH_USER_PASS" ]; then
   echo "Save changes to $(dirname "$0")/data/ssh_pwd.txt"
   echo "$VAR_INPUT" > $(dirname "$0")/data/ssh_pwd.txt
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_pwd.txt
-fi
-
-read -r -p "User name '$PRM_SSH_USER_NAME' OVFTool password? [$PRM_OVFTOOL_USER_PASS] " VAR_INPUT
-VAR_INPUT=${VAR_INPUT:-$PRM_OVFTOOL_USER_PASS}
-if [ -z $VAR_INPUT ]; then exitError "Must be set OVFTool password"; fi
-if [ "$VAR_INPUT" != "$PRM_OVFTOOL_USER_PASS" ]; then
-  echo "Save changes to $(dirname "$0")/data/ovftool_pwd.txt"
-  echo "$VAR_INPUT" > $(dirname "$0")/data/ovftool_pwd.txt
-  chmod u=rw,g=,o= $(dirname "$0")/data/ovftool_pwd.txt
 fi
 
 read -r -p "Git user name? [$PRM_GIT_USER_NAME] " VAR_INPUT

@@ -92,13 +92,11 @@ if ! isFileExistAndRead "$HOME/$CONST_RPMCFG_FILENAME"; then
   echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
 else
   VAR_SG=$(grep '%_signature gpg' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_SG"
-  if [ "$VAR_SG" = "" ]
-  then
+  if isEmpty "$VAR_SG"; then
     echo '%_signature gpg' >> ~/$CONST_RPMCFG_FILENAME
   fi
   VAR_GN=$(grep '%_gpg_name' ~/$CONST_RPMCFG_FILENAME) || exitChildError "$VAR_GN"
-  if [ "$VAR_GN" = "" ]
-  then
+  if isEmpty "$VAR_GN"; then
     echo '%_gpg_name' $COMMON_CONST_GPG_KEYID >> ~/$CONST_RPMCFG_FILENAME
   fi
 fi

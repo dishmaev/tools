@@ -11,6 +11,28 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+#$1 regular string
+getOVFToolPassword(){
+  checkParmsCount $# 1 'getOVFToolPassword'
+  local CONST_SPEC_SYMBOLS="@!#$^&*?[(){}<>~;'\"\`\|=,"
+  local VAR_LENGTH=0
+  local VAR_RESULT=''
+  local VAR_INDEX=0;
+  local VAR_CHAR='';
+  local VAR_TEST='';
+  VAR_LENGTH=${#1}
+  while true; do
+    VAR_INDEX=$((VAR_INDEX+1))
+    if [ $VAR_INDEX -gt ${#1} ]; then break; fi
+    VAR_CHAR=$(echo "$1" | cut -b $VAR_INDEX)
+    VAR_TEST=$(echo "$VAR_CHAR" | grep -E '['$CONST_SPEC_SYMBOLS']')
+    if [ ! -z $VAR_TEST ]; then
+      VAR_CHAR=$(printf '%%%x' "'$VAR_TEST")
+    fi
+    VAR_RESULT=$VAR_RESULT$VAR_CHAR
+  done
+  echo "$VAR_RESULT"
+}
 #$1 char, $2 count
 getCharCountString(){
   checkParmsCount $# 2 'getCharCountString'

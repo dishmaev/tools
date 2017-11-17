@@ -1,6 +1,6 @@
 #!/bin/sh
 
-##using files: consts.sh
+##using files: consts.sh, function.sh
 
 #set correct path before using this tools
 readonly ENV_ROOT_DIR=$(getParentDirectoryPath "$PWD")
@@ -42,7 +42,7 @@ if isEmpty "$ENV_DISTRIB_REPO"; then checkNotEmptyEnvironment "ENV_DISTRIB_REPO"
 readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
 if isEmpty "$ENV_TOOLS_REPO"; then checkNotEmptyEnvironment "ENV_TOOLS_REPO"; fi
 #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
-readonly ENV_OVFTOOL_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ovftool_pwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
+readonly ENV_OVFTOOL_USER_PASS=$(getOVFToolPassword "$ENV_SSH_USER_PASS")
 if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_USER_PASS"; fi
 #local directory to save downloads
 readonly ENV_DOWNLOAD_PATH=$(if [ ! -d "$HOME/Downloads" ]; then mkdir "$HOME/Downloads"; fi; echo "$HOME/Downloads")
