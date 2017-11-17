@@ -104,8 +104,9 @@ if [ "$VAR_INPUT" != "$PRM_SSH_USER_NAME" ]; then
   PRM_SSH_USER_NAME=$VAR_INPUT
 fi
 
-read -r -p "User name '$PRM_SSH_USER_NAME' password? [$PRM_SSH_USER_PASS] " VAR_INPUT
+read -r -p "User '$PRM_SSH_USER_NAME' password? [$PRM_SSH_USER_PASS] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_PASS}
+if [ -z $VAR_INPUT ]; then exitError "Must be set user $PRM_SSH_USER_NAME password"; fi
 if [ "$VAR_INPUT" != "$PRM_SSH_USER_PASS" ]; then
   echo "Save changes to $(dirname "$0")/data/ssh_pwd.txt"
   echo "$VAR_INPUT" > $(dirname "$0")/data/ssh_pwd.txt
@@ -114,6 +115,7 @@ fi
 
 read -r -p "User name '$PRM_SSH_USER_NAME' OVFTool password? [$PRM_OVFTOOL_USER_PASS] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_OVFTOOL_USER_PASS}
+if [ -z $VAR_INPUT ]; then exitError "Must be set OVFTool password"; fi
 if [ "$VAR_INPUT" != "$PRM_OVFTOOL_USER_PASS" ]; then
   echo "Save changes to $(dirname "$0")/data/ovftool_pwd.txt"
   echo "$VAR_INPUT" > $(dirname "$0")/data/ovftool_pwd.txt
