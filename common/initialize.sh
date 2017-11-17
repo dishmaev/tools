@@ -38,25 +38,25 @@ checkCommand "ssh-add"
 if [ "$PRM_SSH_KEYID" = "" ]; then
   if [ ! -r $CONST_SSH_FILE_NAME ]; then
     read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
-    if [ $VAR_INPUT != "Y" ] && [ $VAR_INPUT != "y" ]; then echo "Error: Private SSH key file $CONST_SSH_FILE_NAME not found"; exit 1; fi
+    if [ $VAR_INPUT != "Y" ] && [ $VAR_INPUT != "y" ]; then echo "Error: SSH private key file $CONST_SSH_FILE_NAME not found"; exit 1; fi
     ssh-keygen
-    if [ "$?" != "0" ]; then echo "Error: Must generate or install private SSH key"; exit 1; fi
+    if [ "$?" != "0" ]; then echo "Error: Must generate or install SSH private key"; exit 1; fi
   fi
-  read -r -p "Private SSH key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
+  read -r -p "SSH private key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
   VAR_INPUT=${VAR_INPUT:-$CONST_SSH_FILE_NAME}
-  if [ ! -r $VAR_INPUT ]; then echo "Error: Private SSH key file $VAR_INPUT not found"; exit 1; fi
+  if [ ! -r $VAR_INPUT ]; then echo "Error: SSH private key file $VAR_INPUT not found"; exit 1; fi
   echo "Save changes to $(dirname "$0")/data/ssh_keyid.pub"
   ssh-keygen -y -f $VAR_INPUT > $(dirname "$0")/data/ssh_keyid.pub
   chmod u=r,g=,o= $(dirname "$0")/data/ssh_keyid.pub
   eval "$(ssh-agent -s)"
   ssh-add $VAR_INPUT
-  if [ "$?" != "0" ]; then echo "Error: Must add private SSH key to the ssh-agent, try to exec 'ssh-add $VAR_INPUT' manually"; exit 1; fi
+  if [ "$?" != "0" ]; then echo "Error: Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"; exit 1; fi
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 
 VAR_COUNT=$(ssh-add -l | grep "'$PRM_SSH_KEYID'" | wc -l)
 
-if [ "$VAR_COUNT" = "0" ]; then echo "Error: Private SSH key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec '"eval "\"\$(ssh-agent -s)\"', and load private SSH key with command 'ssh-add' manually"; exit 1; fi
+if [ "$VAR_COUNT" = "0" ]; then echo "Error: SSH private key with fingerprint '$PRM_SSH_KEYID' not loaded to the ssh-agent, repeat exec '"eval "\"\$(ssh-agent -s)\"', and load the required SSH private key using the 'ssh-add' command manually"; exit 1; fi
 
 read -r -p "User name? [$PRM_SSH_USER_NAME] " VAR_INPUT
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_NAME}
