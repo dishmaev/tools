@@ -26,6 +26,7 @@ VAR_TMP_FILE_PATH2='' #extracted file name with local path
 VAR_PAUSE_MESSAGE='' #for show message before paused
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_TMP_DIR_PATH='' #temporary directory name
+VAR_SITE_URL='' # url for manually download
 
 ###check autoyes
 
@@ -91,6 +92,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ]; then
 -disconnect all CD-ROM images\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
+  VAR_SITE_URL='http://www.osboxes.org/debian/'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'osboxes.org'\n\
 -rm /etc/apt/trusted.gpg.d/*\n\
@@ -124,7 +126,10 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
 -yum -y install open-vm-tools\n\
 -systemctl start vmtoolsd\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
+  VAR_SITE_URL='http://www.oracle.com/technetwork/server-storage/solaris11/downloads/vm-templates-2245495.html'
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
+  VAR_SITE_URL='http://www.oracle.com/technetwork/server-storage/solaris11/downloads/install-2245079.html'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, gui is not installed by default for Solaris 11\n\
 -bootadm set-menu timeout=10\n\
@@ -144,6 +149,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
 -disconnect all CD-ROM images\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
+  VAR_SITE_URL='http://www.osboxes.org/centos/'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'osboxes.org'\n\
 -yum -y install open-vm-tools\n\
@@ -190,31 +196,11 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     $SSH_CLIENT $PRM_ESXI_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
         --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_ESXI_HOST"
     if ! isRetValOK; then exitError; fi
-#ptnfull
-  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ]; then
+#dbnosb cntosb
+  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ] || \
+        [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-      if ! isRetValOK; then exitError; fi
-    fi
-    #check exist source image on esxi host in the images directory
-    VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
-    if ! isTrue "$VAR_RESULT"; then #put if not exist
-      $SCP_CLIENT "$VAR_ORIG_FILE_PATH" $PRM_ESXI_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
-      if ! isRetValOK; then exitError; fi
-    fi
-    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
-    #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
-    if ! isRetValOK; then exitError; fi
-    $SSH_CLIENT $PRM_ESXI_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
-    if ! isRetValOK; then exitError; fi
-    #register template vm
-    $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
-    if ! isRetValOK; then exitError; fi
-#dbnosb
-  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
-    if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/debian/"
+      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url $VAR_SITE_URL"
     fi
     VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
@@ -246,29 +232,12 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     #register template vm
     $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi
-#dbn
-  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
-    if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-      if ! isRetValOK; then exitError; fi
-    fi
-    #check exist source image on esxi host in the images directory
-    VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
-    if ! isTrue "$VAR_RESULT"; then #put if not exist
-      $SCP_CLIENT "$VAR_ORIG_FILE_PATH" $PRM_ESXI_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
-      if ! isRetValOK; then exitError; fi
-    fi
-    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
-    #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
-    if ! isRetValOK; then exitError; fi
-    $SSH_CLIENT $PRM_ESXI_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
-    if ! isRetValOK; then exitError; fi
-    #register template vm
-    $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
-    if ! isRetValOK; then exitError; fi
-#orl
-  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ]; then
+#dbn orl cnt ptnfull cntgui
+  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ] || \
+        [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
+        [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
+        [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ] || \
+        [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       if ! isRetValOK; then exitError; fi
@@ -350,7 +319,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
 #ors
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.oracle.com/technetwork/server-storage/solaris11/downloads/install-2245079.html"
+      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url $VAR_SITE_URL"
     fi
     #check exist source image on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -370,7 +339,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
 #orsbox
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.oracle.com/technetwork/server-storage/solaris11/downloads/vm-templates-2245495.html/"
+      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url $VAR_SITE_URL"
     fi
     #check virtual box deploy
     VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
@@ -409,62 +378,6 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     #register template vm
     $SSH_CLIENT $PRM_ESXI_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
         --noSSLVerify -n=$PRM_VM_TEMPLATE $COMMON_CONST_ESXI_IMAGES_PATH/${PRM_VM_TEMPLATE}.ova vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_ESXI_HOST"
-    if ! isRetValOK; then exitError; fi
-#cnt
-  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
-    if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-      if ! isRetValOK; then exitError; fi
-    fi
-    #check exist source image on esxi host in the images directory
-    VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
-    if ! isTrue "$VAR_RESULT"; then #put if not exist
-      $SCP_CLIENT "$VAR_ORIG_FILE_PATH" $PRM_ESXI_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
-      if ! isRetValOK; then exitError; fi
-    fi
-    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
-    #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
-    if ! isRetValOK; then exitError; fi
-    $SSH_CLIENT $PRM_ESXI_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
-    if ! isRetValOK; then exitError; fi
-    #register template vm
-    $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
-    if ! isRetValOK; then exitError; fi
-#cntosb
-  elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
-    if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-      exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url http://www.osboxes.org/centos/"
-    fi
-    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE-${VAR_VM_TEMPLATE_VER}.vmdk
-    VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
-    #check exist base vmdk disk on esxi host in the images directory
-    VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
-    if ! isTrue "$VAR_RESULT"; then #put if not exist
-      VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
-      if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
-        echo "Unpack archive $VAR_ORIG_FILE_PATH"
-        p7zip -f -c -d "$VAR_ORIG_FILE_PATH" > "$VAR_TMP_FILE_PATH2"
-        if ! isRetValOK; then exitError; fi
-        echo "Pack archive ${VAR_TMP_FILE_PATH2}.xz"
-        xz -2fz $VAR_TMP_FILE_PATH2
-        if ! isRetValOK; then exitError; fi
-        if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
-          exitError
-        fi
-      fi
-      $SCP_CLIENT "${VAR_TMP_FILE_PATH2}.xz" $PRM_ESXI_HOST:${VAR_TMP_FILE_PATH}.xz
-      if ! isRetValOK; then exitError; fi
-      # unpack xz archive with vmdk disk
-      echo "Unpack archive ${VAR_TMP_FILE_PATH}.xz on $PRM_ESXI_HOST host"
-      $SSH_CLIENT $PRM_ESXI_HOST "xz -dc '${VAR_TMP_FILE_PATH}.xz' > $VAR_TMP_FILE_PATH"
-      if ! isRetValOK; then exitError; fi
-    fi
-    #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; cp $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx $VAR_DISC_DIR_PATH/; vmkfstools -i $VAR_TMP_FILE_PATH -d thin $VAR_DISC_FILE_PATH"
-    if ! isRetValOK; then exitError; fi
-    #register template vm
-    $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd solo/registervm $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     if ! isRetValOK; then exitError; fi
 #fbd
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
