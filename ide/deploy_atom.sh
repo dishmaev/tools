@@ -5,7 +5,7 @@
 targetDescription 'Deploy Atom on the local OS x64'
 
 ##private consts
-readonly CONST_FILE_DEB_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-amd64.deb' #APT-based Linux url for download
+readonly CONST_FILE_APT_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-amd64.deb' #APT-based Linux url for download
 readonly CONST_FILE_RPM_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom.x86_64.rpm' #RPM-based Linux url for download
 readonly CONST_FILE_VERSION='1.22.1'
 
@@ -64,12 +64,9 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
 else
   exitError "unknown Linux based package system"
 fi
-echo "$VAR_FILE_URL"
 VAR_FILE_URL=$(echo "$VAR_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
-echo "$VAR_ORIG_FILE_NAME"
-echo "$VAR_ORIG_FILE_PATH"
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
   if ! isRetValOK; then exitError; fi
