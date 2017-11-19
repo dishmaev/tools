@@ -54,6 +54,8 @@ if isCommandExist 'atom'; then
   exitOK
 fi
 
+echo "$VAR_LINUX_BASED"
+
 if isAPTLinux "$VAR_LINUX_BASED"; then
   VAR_FILE_URL="$CONST_FILE_APT_URL"
 elif isRPMLinux "$VAR_LINUX_BASED"; then
