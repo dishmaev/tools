@@ -42,6 +42,8 @@ checkAutoYes() {
   if [ "$1" = "-y" ]; then
     VAR_AUTO_YES=1
     return 1
+  elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage in batch mode: $(basename "$0") -y 'ssh user password' 'git user name' 'git user email'"
   fi
 }
 
