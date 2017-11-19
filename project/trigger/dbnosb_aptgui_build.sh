@@ -27,7 +27,7 @@ tar -xvf *.tar.gz -C build/
 checkRetVal
 cd build/common
 checkRetVal
-./initialize.sh -y 'O@nXmRZ' dishmaev idax@rambler.ru
+./initialize.sh -y
 checkRetVal
 
 #cd ../ide
@@ -42,7 +42,7 @@ cd $HOME
 
 if [ ! -x "$(command -v atom)" ]; then
   echo "Command atom not found"
-  exit 1
+#  exit 1
 fi
 
 ###finish

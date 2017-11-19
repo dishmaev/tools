@@ -154,7 +154,6 @@ VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_PASS}
 if isAutoYesMode; then
   VAR_INPUT=${VAR_INPUT:-$2}
 fi
-if [ -z $VAR_INPUT ]; then exitError "Must be set user $PRM_SSH_USER_NAME password"; fi
 if [ "$VAR_INPUT" != "$PRM_SSH_USER_PASS" ]; then
   echo "Save changes to $(dirname "$0")/data/ssh_pwd.txt"
   echo "$VAR_INPUT" > $(dirname "$0")/data/ssh_pwd.txt
