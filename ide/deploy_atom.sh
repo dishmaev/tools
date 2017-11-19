@@ -80,6 +80,7 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
   sudo yum -y install $VAR_ORIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
 fi
+sudo apt -y update
 apm install atom-ide-ui
 if ! isRetValOK; then exitError; fi
 apm install ide-java
@@ -88,7 +89,7 @@ apm install git-plus
 if ! isRetValOK; then exitError; fi
 apt install tree-view-git-status
 if ! isRetValOK; then exitError; fi
-apt install terminator
+apt install termination
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage
