@@ -580,7 +580,7 @@ checkRequiredFiles() {
 checkLinuxAptOrRpm(){
   checkParmsCount $# 0 'checkLinuxAptOrRpm'
   if isFileExistAndRead "/etc/debian_version"; then
-      echo 'apt'
+    echo 'apt'
   elif isFileExistAndRead "/etc/redhat-release"; then
     echo 'rpm'
   else

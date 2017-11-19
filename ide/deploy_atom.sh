@@ -61,6 +61,8 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
   VAR_FILE_URL="$CONST_FILE_APT_URL"
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   VAR_FILE_URL="$CONST_FILE_RPM_URL"
+else
+  exitError "unknown Linux based package system"
 fi
 echo "$VAR_FILE_URL"
 VAR_FILE_URL=$(echo "$VAR_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#") || exitChildError "$VAR_FILE_URL"
