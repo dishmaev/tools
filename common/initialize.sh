@@ -133,6 +133,8 @@ if [ "$VAR_INPUT" != "$PRM_SSH_USER_NAME" ]; then
   echo "$VAR_INPUT" > $(dirname "$0")/data/user.txt
   chmod u=rw,g=,o= $(dirname "$0")/data/user.txt
   PRM_SSH_USER_NAME=$VAR_INPUT
+else
+  echo "User name: $VAR_INPUT"
 fi
 
 if ! isAutoYesMode; then
@@ -149,6 +151,8 @@ if [ "$VAR_INPUT" != "$PRM_SSH_USER_PASS" ]; then
   echo "Save changes to $(dirname "$0")/data/ssh_pwd.txt"
   echo "$VAR_INPUT" > $(dirname "$0")/data/ssh_pwd.txt
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_pwd.txt
+else
+  echo "User $PRM_SSH_USER_NAME password: $VAR_INPUT"
 fi
 
 if ! isAutoYesMode; then
@@ -164,6 +168,8 @@ if [ -z $VAR_INPUT ]; then exitError "Must be set git user name"; fi
 if [ "$VAR_INPUT" != "$PRM_GIT_USER_NAME" ]; then
   echo "Exec 'git config user.name $VAR_INPUT'"
   git config user.name $VAR_INPUT
+else
+  echo "Git user name: $VAR_INPUT"
 fi
 
 if ! isAutoYesMode; then
@@ -179,6 +185,8 @@ if [ -z $VAR_INPUT ]; then exitError "Must be set git user email"; fi
 if [ "$VAR_INPUT" != "$PRM_GIT_USER_EMAIL" ]; then
   echo "Exec 'git config user.email $VAR_INPUT'"
   git config user.email $VAR_INPUT
+else
+  echo "Git user email: $VAR_INPUT"
 fi
 
 exitOK
