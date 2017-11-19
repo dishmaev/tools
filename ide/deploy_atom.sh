@@ -55,13 +55,15 @@ if isCommandExist 'atom'; then
 fi
 
 if isAPTLinux "$VAR_LINUX_BASED"; then
-  VAR_FILE_URL=$CONST_FILE_APT_URL
+  VAR_FILE_URL="$CONST_FILE_APT_URL"
 elif isRPMLinux "$VAR_LINUX_BASED"; then
-  VAR_FILE_URL=$CONST_FILE_RPM_URL
+  VAR_FILE_URL="$CONST_FILE_RPM_URL"
 fi
 VAR_FILE_URL=$(echo "$VAR_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+echo "$VAR_ORIG_FILE_NAME"
+echo "$VAR_ORIG_FILE_PATH"
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
   if ! isRetValOK; then exitError; fi
