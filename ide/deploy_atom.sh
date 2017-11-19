@@ -13,6 +13,9 @@ readonly CONST_FILE_VERSION='1.22.1'
 PRM_VERSION='' #IDE version
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_VERSION='' #lib short version format MAJOR.MINOR
+VAR_ORIG_FILE_NAME='' #original file name
+VAR_ORIG_FILE_PATH='' #original file name with local path
+VAR_FILE_URL='' #url specific version of boost for download
 
 ###check autoyes
 
