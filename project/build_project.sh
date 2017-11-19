@@ -60,6 +60,7 @@ checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 ###check body dependencies
 
 checkDependencies 'git'
+checkProjectRepository
 
 ###check required files
 

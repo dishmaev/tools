@@ -615,23 +615,30 @@ rm $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < 
   if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
 
+checkProjectRepository(){
+  checkParmsCount $# 0 'checkProjectRepository'
+  if isEmpty "$ENV_PROJECT_REPO"; then
+    exitError "set variable ENV_GIT_USER_NAME in environment.sh"
+  fi
+}
+
 checkGitUserAndEmail(){
   checkParmsCount $# 0 'checkGitUserAndEmail'
   if isEmpty "$ENV_GIT_USER_NAME"; then
-    exitError "git config user.name is empty"
+    exitError "variable ENV_GIT_USER_NAME is empty. Try to exec 'git config user.name <userName>'"
   fi
   if isEmpty "$ENV_GIT_USER_EMAIL"; then
-    exitError "git config user.email is empty"
+    exitError "variable ENV_GIT_USER_EMAIL is empty. Try to exec 'git config user.email <userEmail>'"
   fi
 }
 
 checkUserPassword(){
   checkParmsCount $# 0 'checkUserPassword'
   if isEmpty "$ENV_SSH_USER_PASS"; then
-    exitError "variable $ENV_SSH_USER_PASS is empty. Try to exec initialize.sh"
+    exitError "variable ENV_SSH_USER_PASS is empty. Try to exec initialize.sh"
   fi
   if isEmpty "$ENV_OVFTOOL_USER_PASS"; then
-    exitError "variable $ENV_OVFTOOL_USER_PASS is empty. Try to exec initialize.sh"
+    exitError "variable ENV_OVFTOOL_USER_PASS is empty. Try to exec initialize.sh"
   fi
 }
 #$1 message

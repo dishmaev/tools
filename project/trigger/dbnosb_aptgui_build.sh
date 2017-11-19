@@ -30,11 +30,11 @@ checkRetVal
 ./initialize.sh -y
 checkRetVal
 
-#cd ../ide
-#checkRetVal
+cd ../ide
+checkRetVal
 
-#./deploy_atom.sh -y
-#checkRetVal
+./deploy_atom.sh -y
+checkRetVal
 
 cd $HOME
 
