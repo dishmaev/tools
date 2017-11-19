@@ -89,6 +89,8 @@ if [ -z "$PRM_SSH_KEYID" ]; then
   if [ ! -r $CONST_SSH_FILE_NAME ]; then
     if ! isAutoYesMode; then
       read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
+    else
+      VAR_INPUT=''
     fi
     VAR_INPUT=${VAR_INPUT:-'y'}
     if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $CONST_SSH_FILE_NAME not found"; fi
@@ -97,6 +99,8 @@ if [ -z "$PRM_SSH_KEYID" ]; then
   fi
   if ! isAutoYesMode; then
     read -r -p "SSH private key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
+  else
+    VAR_INPUT=''
   fi
   VAR_INPUT=${VAR_INPUT:-$CONST_SSH_FILE_NAME}
   if [ ! -r $VAR_INPUT ]; then exitError "SSH private key file $VAR_INPUT not found"; fi
@@ -117,6 +121,8 @@ fi
 
 if ! isAutoYesMode; then
   read -r -p "User name? [$PRM_SSH_USER_NAME] " VAR_INPUT
+else
+  VAR_INPUT=''
 fi
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_NAME}
 if [ "$VAR_INPUT" != "$PRM_SSH_USER_NAME" ]; then
@@ -128,6 +134,8 @@ fi
 
 if ! isAutoYesMode; then
   read -r -p "User '$PRM_SSH_USER_NAME' password? [$PRM_SSH_USER_PASS] " VAR_INPUT
+else
+  VAR_INPUT=''
 fi
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_PASS}
 if isAutoYesMode; then
@@ -142,6 +150,8 @@ fi
 
 if ! isAutoYesMode; then
   read -r -p "Git user name? [$PRM_GIT_USER_NAME] " VAR_INPUT
+else
+  VAR_INPUT=''
 fi
 VAR_INPUT=${VAR_INPUT:-$PRM_GIT_USER_NAME}
 if isAutoYesMode; then
@@ -155,6 +165,8 @@ fi
 
 if ! isAutoYesMode; then
   read -r -p "Git user email? [$PRM_GIT_USER_EMAIL] " VAR_INPUT
+else
+  VAR_INPUT=''
 fi
 VAR_INPUT=${VAR_INPUT:-$PRM_GIT_USER_EMAIL}
 if isAutoYesMode; then
