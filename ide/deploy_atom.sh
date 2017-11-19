@@ -72,7 +72,7 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
   sudo apt -y install -f
   if ! isRetValOK; then exitError; fi
 elif isRPMLinux "$VAR_LINUX_BASED"; then
-  sudo yum -y install $VAR_ORIG_FILE_PATH\
+  sudo yum -y install $VAR_ORIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
 fi
 apm install atom-ide-ui
