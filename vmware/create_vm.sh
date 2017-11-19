@@ -45,7 +45,8 @@ checkCommandExist 'vmDataStore' "$PRM_VM_DATASTORE" ''
 
 ###check body dependencies
 
-#checkDependencies 'dep1 dep2 dep3'
+checkDependencies 'ovftool'
+checkUserPassword
 
 ###check required files
 

@@ -10,6 +10,11 @@ VAR_AUTO_YES=0
 
 ###function
 
+#$1 message
+checkRetVal(){
+  if [ "$?" != "0" ]; then exitError "$1"; fi
+}
+
 exitOK(){
   if [ ! -z "$VAR_SSH_AGENT" ]; then
     ssh-agent -k
@@ -43,7 +48,8 @@ checkAutoYes() {
     VAR_AUTO_YES=1
     return 1
   elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    echo "Usage in batch mode: $(basename "$0") -y 'ssh user password' 'git user name' 'git user email'"
+    echo "Usage: $(basename "$0") [-y] [userName] [userPassword]"
+    echo "Tooltip: -y batch mode with yes answer"
     exit 0
   fi
 }
@@ -60,8 +66,6 @@ readonly CONST_SCRIPT_DIR_NAME=$(dirname "$0")
 PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
 PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
-PRM_GIT_USER_NAME=$(git config user.name)
-PRM_GIT_USER_EMAIL=$(git config user.email)
 VAR_INPUT=''
 VAR_COUNT=''
 VAR_SSH_AGENT=''
@@ -71,6 +75,10 @@ VAR_SSH_AGENT=''
 checkAutoYes "$1" || shift
 
 ###check commands
+
+if [ -n "$1" ]; then
+  PRM_SSH_USER_NAME=$1
+fi
 
 checkCommand "git"
 checkCommand "ssh-keygen"
@@ -98,7 +106,7 @@ if [ -z "$PRM_SSH_KEYID" ]; then
     VAR_INPUT=${VAR_INPUT:-'y'}
     if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $CONST_SSH_FILE_NAME not found"; fi
     ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
-    if [ "$?" != "0" ]; then exitError "Must generate or install SSH private key"; fi
+    checkRetVal "Must generate or install SSH private key"
   fi
   if ! isAutoYesMode; then
     read -r -p "SSH private key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
@@ -111,7 +119,7 @@ if [ -z "$PRM_SSH_KEYID" ]; then
   ssh-keygen -y -f $VAR_INPUT > $(dirname "$0")/data/ssh_keyid.pub
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_keyid.pub
   ssh-add $VAR_INPUT
-  if [ "$?" != "0" ]; then exitError "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"; fi
+  checkRetVal "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 
@@ -144,7 +152,7 @@ else
 fi
 VAR_INPUT=${VAR_INPUT:-$PRM_SSH_USER_PASS}
 if isAutoYesMode; then
-  VAR_INPUT=${VAR_INPUT:-$1}
+  VAR_INPUT=${VAR_INPUT:-$2}
 fi
 if [ -z $VAR_INPUT ]; then exitError "Must be set user $PRM_SSH_USER_NAME password"; fi
 if [ "$VAR_INPUT" != "$PRM_SSH_USER_PASS" ]; then
@@ -153,40 +161,6 @@ if [ "$VAR_INPUT" != "$PRM_SSH_USER_PASS" ]; then
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_pwd.txt
 else
   echo "User $PRM_SSH_USER_NAME password: $VAR_INPUT"
-fi
-
-if ! isAutoYesMode; then
-  read -r -p "Git user name? [$PRM_GIT_USER_NAME] " VAR_INPUT
-else
-  VAR_INPUT=''
-fi
-VAR_INPUT=${VAR_INPUT:-$PRM_GIT_USER_NAME}
-if isAutoYesMode; then
-  VAR_INPUT=${VAR_INPUT:-$2}
-fi
-if [ -z $VAR_INPUT ]; then exitError "Must be set git user name"; fi
-if [ "$VAR_INPUT" != "$PRM_GIT_USER_NAME" ]; then
-  echo "Exec 'git config user.name $VAR_INPUT'"
-  git config user.name $VAR_INPUT
-else
-  echo "Git user name: $VAR_INPUT"
-fi
-
-if ! isAutoYesMode; then
-  read -r -p "Git user email? [$PRM_GIT_USER_EMAIL] " VAR_INPUT
-else
-  VAR_INPUT=''
-fi
-VAR_INPUT=${VAR_INPUT:-$PRM_GIT_USER_EMAIL}
-if isAutoYesMode; then
-  VAR_INPUT=${VAR_INPUT:-$3}
-fi
-if [ -z $VAR_INPUT ]; then exitError "Must be set git user email"; fi
-if [ "$VAR_INPUT" != "$PRM_GIT_USER_EMAIL" ]; then
-  echo "Exec 'git config user.email $VAR_INPUT'"
-  git config user.email $VAR_INPUT
-else
-  echo "Git user email: $VAR_INPUT"
 fi
 
 exitOK

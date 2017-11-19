@@ -36,7 +36,8 @@ checkRequiredFiles "$CONST_GITFLOW_FILE"
 
 ###check body dependencies
 
-checkDependencies 'mktemp git'
+checkDependencies 'git mktemp'
+checkGitUserAndEmail
 
 ###start prompt
 

@@ -20,30 +20,26 @@ if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"
 #project repository
 readonly ENV_PROJECT_REPO=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url)
 if isEmpty "$ENV_PROJECT_REPO"; then checkNotEmptyEnvironment "ENV_PROJECT_REPO"; fi
-#default git user
-readonly ENV_GIT_USER_NAME=$(git config user.name)
-if isEmpty "$ENV_GIT_USER_NAME"; then checkNotEmptyEnvironment "ENV_GIT_USER_NAME"; fi
-#default git email
-readonly ENV_GIT_USER_EMAIL=$(git config user.email)
-if isEmpty "$ENV_GIT_USER_EMAIL"; then checkNotEmptyEnvironment "ENV_GIT_USER_EMAIL"; fi
 #default username for connect to hosts, run scripts, etc.
 readonly ENV_SSH_USER_NAME=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/user.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; else echo $(whoami); fi')
 if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAME"; fi
 #file with default password for $ENV_SSH_USER_NAME
 readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh_pwd.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
-if isEmpty "$ENV_SSH_USER_PASS"; then checkNotEmptyEnvironment "ENV_SSH_USER_PASS"; fi
 #ssh public keyID
 readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh_keyid.pub; if [ -r $VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
+#default git user
+readonly ENV_GIT_USER_NAME=$(git config user.name)
+#default git email
+readonly ENV_GIT_USER_EMAIL=$(git config user.email)
 #distrib repository
-readonly ENV_DISTRIB_REPO='git@github.com:dishmaev/dishmaev.github.io.git'
+readonly ENV_DISTRIB_REPO="git@github.com:$ENV_GIT_USER_NAME/$ENV_GIT_USER_NAME.github.io.git"
 if isEmpty "$ENV_DISTRIB_REPO"; then checkNotEmptyEnvironment "ENV_DISTRIB_REPO"; fi
 #for add tools submodule
 readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
 if isEmpty "$ENV_TOOLS_REPO"; then checkNotEmptyEnvironment "ENV_TOOLS_REPO"; fi
 #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly ENV_OVFTOOL_USER_PASS=$(getOVFToolPassword "$ENV_SSH_USER_PASS")
-if isEmpty "$ENV_OVFTOOL_USER_PASS"; then checkNotEmptyEnvironment "ENV_OVFTOOL_USER_PASS"; fi
 #local directory to save downloads
 readonly ENV_DOWNLOAD_PATH=$(if [ ! -d "$HOME/Downloads" ]; then mkdir "$HOME/Downloads"; fi; echo "$HOME/Downloads")
 if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi

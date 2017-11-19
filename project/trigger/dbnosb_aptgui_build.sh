@@ -21,22 +21,29 @@ echo "Current build suite: $2"
 
 uname -a
 
-git clone https://github.com/dishmaev/tools.git
+mkdir build
 checkRetVal
-cd tools/common
+tar -xvf *.tar.gz -C build/
+checkRetVal
+cd build/common
 checkRetVal
 ./initialize.sh -y 'O@nXmRZ' dishmaev idax@rambler.ru
 checkRetVal
 
-cd ../ide
-checkRetVal
+#cd ../ide
+#checkRetVal
 
-./deploy_atom.sh -y
-checkRetVal
+#./deploy_atom.sh -y
+#checkRetVal
 
 cd $HOME
 
 ##test
+
+if [ ! -x "$(command -v atom)" ]; then
+  echo "Command atom not found"
+  exit 1
+fi
 
 ###finish
 

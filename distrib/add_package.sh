@@ -50,7 +50,8 @@ checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check body dependencies
 
-checkDependencies 'mktemp'
+checkDependencies 'git mktemp'
+checkGitUserAndEmail
 
 #check availability gpg sec key
 checkGpgSecKeyExist $COMMON_CONST_GPG_KEYID

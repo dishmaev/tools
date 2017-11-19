@@ -59,7 +59,7 @@ checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check body dependencies
 
-#checkDependencies 'dep1 dep2 dep3'
+checkDependencies 'git'
 
 ###check required files
 
@@ -148,9 +148,14 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   else
-    echo "Get build file from VM $VAR_VM_NAME and put it in $VAR_BIN_TAR_FILE_PATH"
-    $SCP_CLIENT $VAR_VM_IP:$VAR_BIN_TAR_FILE_NAME $VAR_BIN_TAR_FILE_PATH
-    if ! isRetValOK; then exitError; fi
+    VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "if [ -r $VAR_BIN_TAR_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi")
+    if isTrue "$VAR_RESULT"; then
+      echoResult "Get build file from VM $VAR_VM_NAME and put it in $VAR_BIN_TAR_FILE_PATH"
+      $SCP_CLIENT $VAR_VM_IP:$VAR_BIN_TAR_FILE_NAME $VAR_BIN_TAR_FILE_PATH
+      if ! isRetValOK; then exitError; fi
+    else
+      echoWarning "Build file $VAR_BIN_TAR_FILE_NAME on VM $VAR_VM_NAME not found"
+    fi
    fi
 fi
 

@@ -38,6 +38,7 @@ checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
 
 checkDependencies 'ovftool'
 checkDirectoryForExist "$COMMON_CONST_LOCAL_OVFTOOL_PATH" 'ovftool source '
+checkUserPassword
 
 ###check required files
 

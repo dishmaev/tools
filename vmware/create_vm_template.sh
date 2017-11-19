@@ -62,6 +62,7 @@ fi
 
 #checkDependencies 'dep1 dep2 dep3'
 checkDependencies 'ovftool xz p7zip ssh-copy-id dirmngr'
+checkUserPassword
 
 ###check required files
 

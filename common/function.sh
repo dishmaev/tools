@@ -593,7 +593,7 @@ checkNotEmptyEnvironment(){
   local VAR_ENV_VALUE=''
   VAR_ENV_VALUE=$(eval echo \$${1}) || exitChildError "$VAR_ENV_VALUE"
   if isEmpty "$VAR_ENV_VALUE"; then
-    setErrorEnvironment "set constant $1"
+    setErrorEnvironment "set variable $1"
   fi
 }
 #$1 host
@@ -614,6 +614,26 @@ cat $CONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $CONST_HV_SSHKEYS_D
 rm $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
+
+checkGitUserAndEmail(){
+  checkParmsCount $# 0 'checkGitUserAndEmail'
+  if isEmpty "$ENV_GIT_USER_NAME"; then
+    exitError "git config user.name is empty"
+  fi
+  if isEmpty "$ENV_GIT_USER_EMAIL"; then
+    exitError "git config user.email is empty"
+  fi
+}
+
+checkUserPassword(){
+  checkParmsCount $# 0 'checkUserPassword'
+  if isEmpty "$ENV_SSH_USER_PASS"; then
+    exitError "variable $ENV_SSH_USER_PASS is empty. Try to exec initialize.sh"
+  fi
+  if isEmpty "$ENV_OVFTOOL_USER_PASS"; then
+    exitError "variable $ENV_OVFTOOL_USER_PASS is empty. Try to exec initialize.sh"
+  fi
+}
 #$1 message
 setErrorEnvironment()
 {
@@ -628,7 +648,7 @@ targetDescription(){
   local VAR_MODE=$COMMON_CONST_FALSE
   if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
     echoResult "Error: $VAR_ENVIRONMENT_ERROR"
-    echo 'First of all try to exec initialize.sh'
+    echo 'Try to exec initialize.sh'
     exit $COMMON_CONST_EXIT_ERROR
   fi
   VAR_TARGET_DESCRIPTION=$1
