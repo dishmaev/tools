@@ -48,9 +48,11 @@ startPrompt
 #check supported OS
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
+if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
 if isCommandExist 'vboxmanage'; then
+  echoResult "Already deployed"
+  vboxmanage --version
   doneFinalStage
   exitOK
 fi

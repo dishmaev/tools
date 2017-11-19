@@ -101,7 +101,7 @@ if isTrue "$PRM_AUTOSTART"; then
   if ! isRetValOK; then exitError; fi
 fi
 #echo result
-echo 'vmname:host:vmid' $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID
+echo 'vmname:esxihost:vmid' $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID
 
 doneFinalStage
 exitOK

@@ -42,7 +42,7 @@ startPrompt
 #check supported OS
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
+if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 
 if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   if isAPTLinux "$VAR_LINUX_BASED"; then

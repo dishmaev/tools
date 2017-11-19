@@ -148,6 +148,13 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
 -systemctl start vmtoolsd\n\
 -disconnect all CD-ROM images\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ]; then
+  VAR_PAUSE_MESSAGE="Manually must be:\n\
+-install OS with base environment 'Server with GUI'\n\
+-yum -y install open-vm-tools\n\
+-systemctl start vmtoolsd\n\
+-disconnect all CD-ROM images\n\
+-check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
   VAR_SITE_URL='http://www.osboxes.org/centos/'
   VAR_PAUSE_MESSAGE="Manually must be:\n\

@@ -51,6 +51,7 @@ if isCommandExist 'vagrant'; then
     echoWarning "older version $VAR_VERSION is found, skip deploy"
   else
     echoResult "Already deployed"
+    vagrant --version
   fi
   doneFinalStage
   exitOK
@@ -58,7 +59,7 @@ fi
 #check supported OS
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux $VAR_LINUX_BASED; then exitError 'not supported OS'; fi
+if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 
 VAR_FILE_URL=$(echo "$CONST_VAGRANT_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#g") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"

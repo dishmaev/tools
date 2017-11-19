@@ -64,7 +64,7 @@ for VAR_VM_NAME in $PRM_VMS_POOL; do
   if ! isEmpty "$VAR_RESULT"; then
     VAR_RESULT="${VAR_RESULT}\n"
   fi
-  VAR_RESULT="${VAR_RESULT}vmname:host:vmid:ip $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID:$VAR_VM_IP"
+  VAR_RESULT="${VAR_RESULT}vmname:esxihost:vmid:ip $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID:$VAR_VM_IP"
 done
 #echo result
 echoResult "$VAR_RESULT"

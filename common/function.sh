@@ -389,7 +389,7 @@ getIpAddressByVMName()
   done
   echo "$VAR_RESULT"
 }
-#$1 vm template pool, $2 esxi host pool. Return value format 'vmname:host:vmid'
+#$1 vm template pool, $2 esxi host pool. Return value format 'vmname:esxihost:vmid'
 getVmsPoolEsxi(){
   checkParmsCount $# 2 'getVmsPoolEsxi'
   local VAR_CUR_ESXI=''
@@ -452,7 +452,7 @@ checkTriggerTemplateVM(){
   local VAR_INPUT=''
   local VAR_RESULT=''
   local VAR_LOG=''
-  pausePrompt "Pause 1 of 3: Check guest OS type, necessary virtual hardware on template VM $1 on $2 host: \
+  pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM $1 on $2 host. Typically for Linux without GUI: \
 vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAULT_MEMORY_SIZE, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
   VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
