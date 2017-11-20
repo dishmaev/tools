@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy Sublime Text on the local OS'
+targetDescription 'Deploy Sublime Text on the local OS x86_64'
 
 ##private consts
 

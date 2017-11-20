@@ -22,7 +22,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[version=$CONST_FILE_VERSION]' "$CONST_FILE_VERSION" "Version format 'X.X'. While tested only on APT-based Linux. NetBeans IDE url https://netbeans.org/"
+echoHelp $# 1 '[version=$CONST_FILE_VERSION]' "$CONST_FILE_VERSION" "Version format 'X.X'. NetBeans IDE url https://netbeans.org/"
 
 ###check commands
 
@@ -47,7 +47,6 @@ startPrompt
 #check supported OS
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
 if isCommandExist 'netbeans'; then
   echoResult "Already deployed"
@@ -69,20 +68,35 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   chmod u+x $VAR_ORIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
 fi
-#for prevent Gtk-Message: Failed to load module "canberra-gtk-module"
-if ! apt list --installed | grep -qF "libcanberra-gtk-module"; then
-  sudo apt -y install libcanberra-gtk-module
-fi
-if ! isRetValOK; then exitError; fi
-#if gcc not exist, install it
-if ! isCommandExist 'gcc'; then
-  sudo apt -y install build-essential
-  if ! isRetValOK; then exitError; fi
-fi
-#if gdb not exist, install it
-if ! isCommandExist 'gdb'; then
-  sudo apt -y install gdb
-  if ! isRetValOK; then exitError; fi
+if isAPTLinux "$VAR_LINUX_BASED"; then
+  #for prevent Gtk-Message: Failed to load module "canberra-gtk-module"
+  if ! apt list --installed | grep -qF "libcanberra-gtk-module"; then
+    sudo apt -y install libcanberra-gtk-module
+    if ! isRetValOK; then exitError; fi
+  fi
+  #if gcc not exist, install it
+  if ! isCommandExist 'gcc'; then
+    sudo apt -y install build-essential
+    if ! isRetValOK; then exitError; fi
+  fi
+  #if gdb not exist, install it
+  if ! isCommandExist 'gdb'; then
+    sudo apt -y install gdb
+    if ! isRetValOK; then exitError; fi
+  fi
+elif isRPMLinux "$VAR_LINUX_BASED"; then
+  if ! isCommandExist 'gcc'; then
+    sudo yum -y install gcc
+    checkRetVal
+  fi
+  if ! isCommandExist 'c++'; then
+    sudo yum -y install gcc-c++
+    checkRetVal
+  fi
+  if ! isCommandExist 'rpmbuild'; then
+    sudo yum -y install rpm-build
+    checkRetVal
+  fi
 fi
 
 echo 'Important! When install NetBeans, in the appropriate dialog set JDK full path directory, for JDK 8 default is /usr/lib/jvm/java-8-oracle'

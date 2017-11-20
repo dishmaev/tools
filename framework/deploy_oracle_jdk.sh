@@ -26,7 +26,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[version=$CONST_ORACLE_JDK_VERSION]' "$CONST_ORACLE_JDK_VERSION" "Version format 'X'. While tested only on APT-based Linux. Oracle JDK url http://www.oracle.com/technetwork/java/javase/downloads/index.html"
+echoHelp $# 1 '[version=$CONST_ORACLE_JDK_VERSION]' "$CONST_ORACLE_JDK_VERSION" "Version format 'X'. Oracle JDK url http://www.oracle.com/technetwork/java/javase/downloads/index.html"
 
 ###check commands
 
