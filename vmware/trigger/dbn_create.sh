@@ -18,8 +18,6 @@ checkRetVal(){
 
 ###body
 
-#disable automatic download updates
-gsettings set org.gnome.software download-updates false
 #set hostname
 hostnamectl set-hostname $3
 #add user

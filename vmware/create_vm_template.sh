@@ -105,7 +105,8 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -systemctl reload sshd\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
-elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
+      [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANGUI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -install OS in minimal version, without a desktop\n\
 -apt -y install open-vm-tools\n\
@@ -243,6 +244,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
 #dbn orl cnt ptnfull cntgui
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ] || \
         [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
+        [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANGUI_VM_TEMPLATE" ] || \
         [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
         [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ] || \
         [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ]; then
