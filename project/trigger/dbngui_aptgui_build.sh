@@ -39,19 +39,20 @@ checkRetVal
 #./deploy_qt_creator.sh -y
 #checkRetVal
 
-./deploy_netbeans.sh -y
-checkRetVal
-
-#./deploy_sublime_text.sh -y
+#./deploy_netbeans.sh -y
 #checkRetVal
+
+./deploy_sublime_text.sh -y
+checkRetVal
 
 cd $HOME
 
 ##test
 
 if [ ! -x "$(command -v atom)" ]; then
-  echo "Command atom not found"
+#  echo "Command atom not found"
 #  exit 1
+  :
 fi
 
 ###finish

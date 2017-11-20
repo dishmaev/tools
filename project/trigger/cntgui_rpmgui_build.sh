@@ -50,8 +50,9 @@ cd $HOME
 ##test
 
 if [ ! -x "$(command -v atom)" ]; then
-  echo "Command atom not found"
+#  echo "Command atom not found"
 #  exit 1
+  :
 fi
 
 ###finish

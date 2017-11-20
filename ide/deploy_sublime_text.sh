@@ -36,9 +36,9 @@ startPrompt
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 #if already deployed, exit OK
-if isCommandExist 'sublime'; then
+if isCommandExist 'subl'; then
   echoResult "Already deployed"
-  sublime --version
+  subl --version
   doneFinalStage
   exitOK
 fi
