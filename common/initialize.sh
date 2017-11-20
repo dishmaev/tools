@@ -80,7 +80,6 @@ if [ -n "$1" ]; then
   PRM_SSH_USER_NAME=$1
 fi
 
-checkCommand "git"
 checkCommand "ssh-keygen"
 checkCommand "ssh-add"
 
