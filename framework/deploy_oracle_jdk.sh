@@ -59,7 +59,7 @@ if isCommandExist 'java'; then
   fi
 fi
 
-if ! isAPTLinux "$VAR_LINUX_BASED"; then
+if isAPTLinux "$VAR_LINUX_BASED"; then
   #check for oracle JDK repo
   if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
     sudo apt-key adv --keyserver $CONST_ORACLE_JDK_DEB_KEY
