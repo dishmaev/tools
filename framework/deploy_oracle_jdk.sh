@@ -5,16 +5,20 @@
 targetDescription 'Deploy Oracle JDK on the local OS'
 
 ##private consts
-readonly CONST_ORACLE_JDK_DEB_REPO='deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
-readonly CONST_ORACLE_JDK_DEB_SRC_REPO='deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
-readonly CONST_ORACLE_JDK_DEB_KEY='hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886'
 readonly CONST_ORACLE_JDK_VERSION='8'
-readonly CONST_APT_SOURCE_FILE_PATH='/etc/apt/sources.list.d/oraclejdk.list'
+
+readonly CONST_ORACLE_JDK_REPO_APT='deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
+readonly CONST_ORACLE_JDK_SRC_REPO_APT='deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main'
+readonly CONST_ORACLE_JDK_KEY_APT='hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886'
+readonly CONST_SOURCE_FILE_PATH_APT='/etc/apt/sources.list.d/oraclejdk.list'
+
+readonly CONST_FILE_RPM_URL='http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.rpm'
 
 
 ##private vars
 VAR_LINUX_BASED='' #for checking supported OS
-
+VAR_ORIG_FILE_NAME='' #original file name
+VAR_ORIG_FILE_PATH='' #original file name with local path
 
 ###check autoyes
 
@@ -61,12 +65,12 @@ fi
 
 if isAPTLinux "$VAR_LINUX_BASED"; then
   #check for oracle JDK repo
-  if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
-    sudo apt-key adv --keyserver $CONST_ORACLE_JDK_DEB_KEY
+  if ! isFileExistAndRead "$CONST_SOURCE_FILE_PATH_APT"; then
+    sudo apt-key adv --keyserver $CONST_ORACLE_JDK_KEY_APT
     if ! isRetValOK; then exitError; fi
-    echo "$CONST_ORACLE_JDK_DEB_REPO" | sudo tee $CONST_APT_SOURCE_FILE_PATH
+    echo "$CONST_ORACLE_JDK_REPO_APT" | sudo tee $CONST_SOURCE_FILE_PATH_APT
     if ! isRetValOK; then exitError; fi
-    echo "$CONST_ORACLE_JDK_DEB_SRC_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE_PATH
+    echo "$CONST_ORACLE_JDK_SRC_REPO_APT" | sudo tee -a $CONST_SOURCE_FILE_PATH_APT
     if ! isRetValOK; then exitError; fi
     sudo apt -y update
     if ! isRetValOK; then exitError; fi
@@ -77,7 +81,14 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
   sudo apt -y install oracle-java${PRM_VERSION}-installer
   if ! isRetValOK; then exitError; fi
 elif isRPMLinux "$VAR_LINUX_BASED"; then
-  :
+  VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_FILE_RPM_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
+  VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+  if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
+    wget -O $VAR_ORIG_FILE_PATH --no-cookies --no-check-certificate --header "Cookie: oraclelicense=accept-securebackup-cookie" $CONST_FILE_RPM_URL
+    if ! isRetValOK; then exitError; fi
+  fi
+  sudo yum -y install $VAR_ORIG_FILE_PATH
+  if ! isRetValOK; then exitError; fi
 fi
 
 doneFinalStage
