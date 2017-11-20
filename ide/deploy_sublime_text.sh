@@ -18,10 +18,6 @@ echoHelp $# 0 '' "" "Sublime Text url https://www.sublimetext.com/"
 
 ###check commands
 
-PRM_VERSION=${1:-$CONST_FILE_VERSION}
-
-checkCommandExist 'version' "$PRM_VERSION" ''
-
 ###check body dependencies
 
 checkDependencies 'wget'
