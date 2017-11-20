@@ -36,7 +36,7 @@ checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-checkDependencies 'wget apt-key grep debconf-set-selections dirmngr'
+checkDependencies 'wget grep'
 
 ###check required files
 
@@ -51,7 +51,6 @@ startPrompt
 #check supported OS
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
 if isCommandExist 'java'; then
   java -version 2>&1 | grep "Java HotSpot"
@@ -64,6 +63,7 @@ if isCommandExist 'java'; then
 fi
 
 if isAPTLinux "$VAR_LINUX_BASED"; then
+  checkDependencies 'apt-key debconf-set-selections dirmngr'
   #check for oracle JDK repo
   if ! isFileExistAndRead "$CONST_SOURCE_FILE_PATH_APT"; then
     sudo apt-key adv --keyserver $CONST_ORACLE_JDK_KEY_APT
