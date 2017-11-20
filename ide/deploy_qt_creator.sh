@@ -19,7 +19,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 1 '[version=$CONST_FILE_VERSION]' \
-"$COMMON_CONST_DEFAULT_VERSION 0 $CONST_TOOLSET" "Version format 'X.X.X'. Qt Creator url https://download.qt.io/official_releases/qt/"
+"$COMMON_CONST_DEFAULT_VERSION" "Version format 'X.X.X'. Qt Creator url https://download.qt.io/official_releases/qt/"
 
 ###check commands
 

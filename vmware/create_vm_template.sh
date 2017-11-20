@@ -130,6 +130,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
 -check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
   VAR_SITE_URL='http://www.oracle.com/technetwork/server-storage/solaris11/downloads/vm-templates-2245495.html'
+  exitError 'disabled'
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ]; then
   VAR_SITE_URL='http://www.oracle.com/technetwork/server-storage/solaris11/downloads/install-2245079.html'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
@@ -158,6 +159,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ]; then
 -disconnect all CD-ROM images\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
+  exitError 'disabled'
   VAR_SITE_URL='http://www.osboxes.org/centos/'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set root not empty password by 'passwd', default is 'osboxes.org'\n\
