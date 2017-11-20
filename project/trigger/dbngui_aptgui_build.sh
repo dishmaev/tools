@@ -36,6 +36,13 @@ checkRetVal
 ./deploy_qt_lib_dev.sh -y
 checkRetVal
 
+cd ../ide
+./deploy_netbeans.sh -y
+checkRetVal
+
+#./deploy_netbeans.sh -y
+#checkRetVal
+
 #./deploy_qt_creator.sh -y
 #checkRetVal
 
