@@ -10,6 +10,7 @@ readonly CONST_FILE_VERSION='8.2'
 
 ##private vars
 PRM_VERSION='' #ide version
+VAR_RESULT='' #child return value
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
@@ -53,6 +54,11 @@ if isCommandExist 'netbeans'; then
   doneFinalStage
   exitOK
 fi
+
+#deploy oracle jdk
+echo "Deploy Oracle JDK on current host if not exist"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../framework/deploy_oracle_jdk.sh -y) || exitChildError "$VAR_RESULT"
+echoResult "$VAR_RESULT"
 
 VAR_FILE_URL=$(echo "$CONST_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#g") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"

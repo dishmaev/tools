@@ -37,7 +37,7 @@ checkRetVal
 #checkRetVal
 
 ./deploy_qt_creator.sh -y
-#checkRetVal
+checkRetVal
 
 #./deploy_netbeans.sh -y
 #checkRetVal

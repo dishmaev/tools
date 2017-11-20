@@ -55,22 +55,27 @@ if isCommandExist 'java' && ! [ $(java -version 2>&1 | grep "OpenJDK Runtime") ]
   doneFinalStage
   exitOK
 fi
-#check for oracle JDK repo
-if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
-  sudo apt-key adv --keyserver $CONST_ORACLE_JDK_DEB_KEY
-  if ! isRetValOK; then exitError; fi
-  echo "$CONST_ORACLE_JDK_DEB_REPO" | sudo tee $CONST_APT_SOURCE_FILE_PATH
-  if ! isRetValOK; then exitError; fi
-  echo "$CONST_ORACLE_JDK_DEB_SRC_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE_PATH
-  if ! isRetValOK; then exitError; fi
-  sudo apt update
-  if ! isRetValOK; then exitError; fi
-fi
 
-sudo echo "oracle-java${PRM_VERSION}-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-if ! isRetValOK; then exitError; fi
-sudo apt -y install oracle-java${PRM_VERSION}-installer
-if ! isRetValOK; then exitError; fi
+if ! isAPTLinux "$VAR_LINUX_BASED"; then
+  #check for oracle JDK repo
+  if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
+    sudo apt-key adv --keyserver $CONST_ORACLE_JDK_DEB_KEY
+    if ! isRetValOK; then exitError; fi
+    echo "$CONST_ORACLE_JDK_DEB_REPO" | sudo tee $CONST_APT_SOURCE_FILE_PATH
+    if ! isRetValOK; then exitError; fi
+    echo "$CONST_ORACLE_JDK_DEB_SRC_REPO" | sudo tee -a $CONST_APT_SOURCE_FILE_PATH
+    if ! isRetValOK; then exitError; fi
+    sudo apt -y update
+    if ! isRetValOK; then exitError; fi
+  fi
+  #accepted license
+  sudo echo "oracle-java${PRM_VERSION}-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+  if ! isRetValOK; then exitError; fi
+  sudo apt -y install oracle-java${PRM_VERSION}-installer
+  if ! isRetValOK; then exitError; fi
+elif isRPMLinux "$VAR_LINUX_BASED"; then
+  :
+fi
 
 doneFinalStage
 exitOK
