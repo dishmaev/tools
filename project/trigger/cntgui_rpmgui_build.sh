@@ -36,6 +36,15 @@ checkRetVal
 ./deploy_atom.sh -y
 checkRetVal
 
+#./deploy_qt_creator.sh -y
+#checkRetVal
+
+#./deploy_netbeans.sh -y
+#checkRetVal
+
+#./deploy_sublime_text.sh -y
+#checkRetVal
+
 cd $HOME
 
 ##test
