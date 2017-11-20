@@ -49,11 +49,14 @@ if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
-if isCommandExist 'java' && ! [ $(java -version 2>&1 | grep "OpenJDK Runtime") ]; then
-  echoResult "Already deployed"
-  java -version
-  doneFinalStage
-  exitOK
+if isCommandExist 'java'; then
+  java -version 2>&1 | grep "Java HotSpot"
+  if [ "$?" = "0" ]; then
+    echoResult "Already deployed"
+    java -version
+    doneFinalStage
+    exitOK
+  fi
 fi
 
 if ! isAPTLinux "$VAR_LINUX_BASED"; then

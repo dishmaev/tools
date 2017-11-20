@@ -33,11 +33,11 @@ checkRetVal
 cd ../ide
 checkRetVal
 
-./deploy_atom.sh -y
-checkRetVal
-
-#./deploy_qt_creator.sh -y
+#./deploy_atom.sh -y
 #checkRetVal
+
+./deploy_qt_creator.sh -y
+checkRetVal
 
 #./deploy_netbeans.sh -y
 #checkRetVal
