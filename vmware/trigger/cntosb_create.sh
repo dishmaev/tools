@@ -62,6 +62,8 @@ yum -y install yum-utils
 #add personal repository
 rpm --import https://dishmaev.github.io/repos/linux/linux_signing_key.pub
 yum-config-manager --add-repo https://dishmaev.github.io/public-yum-dishmaev.repo
+#disable automatic download updates
+sed -i /etc/yum.repos.d/CentOS-Base.repo -e '/^name=CentOS-$releasever - Updates/s/$/\nenabled=0/'
 
 ##test
 
