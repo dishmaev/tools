@@ -87,15 +87,15 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   if ! isCommandExist 'gcc'; then
     sudo yum -y install gcc
-    checkRetVal
+    if ! isRetValOK; then exitError; fi
   fi
   if ! isCommandExist 'c++'; then
     sudo yum -y install gcc-c++
-    checkRetVal
+    if ! isRetValOK; then exitError; fi
   fi
   if ! isCommandExist 'rpmbuild'; then
     sudo yum -y install rpm-build
-    checkRetVal
+    if ! isRetValOK; then exitError; fi
   fi
 fi
 

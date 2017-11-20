@@ -28,9 +28,9 @@ readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh
 readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh_keyid.pub; if [ -r $VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
 #default git user
-readonly ENV_GIT_USER_NAME=$(git config user.name)
+readonly ENV_GIT_USER_NAME=$(if [ -x "$(command -v git)" ]; then git config user.name; fi)
 #default git email
-readonly ENV_GIT_USER_EMAIL=$(git config user.email)
+readonly ENV_GIT_USER_EMAIL=$(if [ -x "$(command -v git)" ]; then git config user.email; fi)
 #distrib repository
 readonly ENV_DISTRIB_REPO="git@github.com:$ENV_GIT_USER_NAME/$ENV_GIT_USER_NAME.github.io.git"
 if isEmpty "$ENV_DISTRIB_REPO"; then checkNotEmptyEnvironment "ENV_DISTRIB_REPO"; fi
