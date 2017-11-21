@@ -11,7 +11,7 @@ exec 2>${1}.err
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
@@ -22,37 +22,37 @@ echo "Current build suite: $2"
 uname -a
 
 mkdir build
-checkRetVal
+checkRetValOK
 tar -xvf *.tar.gz -C build/
-checkRetVal
+checkRetValOK
 cd build/common
-checkRetVal
+checkRetValOK
 ./initialize.sh -y
-checkRetVal
+checkRetValOK
 
 cd ../framework
-checkRetVal
+checkRetValOK
 
 #./deploy_qt_lib_dev.sh -y
-#checkRetVal
+#checkRetValOK
 
 cd ../ide
-checkRetVal
+checkRetValOK
 
 #./deploy_netbeans.sh -y
-#checkRetVal
+#checkRetValOK
 
 #./deploy_netbeans.sh -y
-#checkRetVal
+#checkRetValOK
 
 #./deploy_qt_creator.sh -y
-#checkRetVal
+#checkRetValOK
 
 #./deploy_netbeans.sh -y
-#checkRetVal
+#checkRetValOK
 
 #./deploy_sublime_text.sh -y
-#checkRetVal
+#checkRetValOK
 
 cd $HOME
 

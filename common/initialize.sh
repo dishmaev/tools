@@ -22,7 +22,7 @@ VAR_SSH_FILE_NAME=''
 ###function
 
 #$1 message
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exitError "$1"; fi
 }
 
@@ -110,13 +110,13 @@ if [ -z "$PRM_SSH_KEYID" ]; then
     VAR_INPUT=${VAR_INPUT:-'y'}
     if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $VAR_SSH_FILE_NAME not found"; fi
     ssh-keygen -t rsa -N "" -f $VAR_SSH_FILE_NAME
-    checkRetVal "Must generate or install SSH private key"
+    checkRetValOK "Must generate or install SSH private key"
   fi
   echo "Save changes to $(dirname "$0")/data/ssh_keyid.pub"
   ssh-keygen -y -f $VAR_SSH_FILE_NAME > $(dirname "$0")/data/ssh_keyid.pub
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_keyid.pub
   ssh-add $VAR_SSH_FILE_NAME
-  checkRetVal "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_SSH_FILE_NAME' command manually"
+  checkRetValOK "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_SSH_FILE_NAME' command manually"
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 

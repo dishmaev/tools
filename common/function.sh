@@ -924,9 +924,7 @@ put_template_tools_to_esxi(){
 
 #[$1] error message
 checkRetValOK(){
-  if ! isRetValOK; then
-    exitError "$1"
-  fi
+  if [ "$?" != "0" ]; then exitError "$1"; fi
 }
 #$1 return result
 echoResult(){

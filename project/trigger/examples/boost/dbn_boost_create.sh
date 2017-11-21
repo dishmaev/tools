@@ -11,7 +11,7 @@ exec 2>${1}.err
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
@@ -19,17 +19,17 @@ checkRetVal(){
 activeSuiteRepository(){
   #deactivate default repository
   sudo sed '1s/^/# /' -i /etc/apt/sources.list.d/public-apt-dishmaev.list
-  checkRetVal
+  checkRetValOK
   #activate required repository
   if [ "$1" = "rel" ]; then
     cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt stable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-stable.list
-    checkRetVal
+    checkRetValOK
   elif [ "$1" = "tst" ]; then
     cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt testing main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-testing.list
-    checkRetVal
+    checkRetValOK
   elif [ "$1" = "dev" ]; then
     cat /etc/apt/sources.list.d/public-apt-dishmaev.list | grep 'apt unstable main' | sed 's/# //' | sudo tee /etc/apt/sources.list.d/public-apt-dishmaev-unstable.list
-    checkRetVal
+    checkRetValOK
   else #run suite
     return
   fi
@@ -44,9 +44,9 @@ uname -a
 #install packages
 if [ "$2" = "run" ]; then
   sudo apt -y install build-essential
-  checkRetVal
+  checkRetValOK
   sudo apt -y install libboost-all-dev
-  checkRetVal
+  checkRetValOK
 fi
 
 #active suite repository
@@ -56,13 +56,13 @@ activeSuiteRepository "$2"
 
 if [ "$2" = "run" ]; then
   make --version
-  checkRetVal
+  checkRetValOK
   gcc --version
-  checkRetVal
+  checkRetValOK
   c++ --version
-  checkRetVal
+  checkRetValOK
   dpkg-deb --version
-  checkRetVal
+  checkRetValOK
 fi
 
 ###finish

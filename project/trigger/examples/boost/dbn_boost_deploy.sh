@@ -11,7 +11,7 @@ exec 2>${1}.err
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
@@ -22,28 +22,28 @@ echo "Current deploy suite: $2"
 uname -a
 
 sudo apt -y update
-checkRetVal
+checkRetValOK
 
 if [ "$1" = "rel" ]; then
   #install packages from personal repository
   sudo apt -y install cppboost
-  checkRetVal
+  checkRetValOK
 else # tst,dev
   mkdir deploy
-  checkRetVal
+  checkRetValOK
   tar -xvf $3 -C deploy/
-  checkRetVal
+  checkRetValOK
   cd deploy
-  checkRetVal
+  checkRetValOK
   #manually install packages
   for VAR_CUR_PACKAGE in ./*.deb; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
     sudo apt -y install $VAR_CUR_PACKAGE
-#    checkRetVal
+#    checkRetValOK
   done
   #check all dependences
   sudo apt -y install -f
-  checkRetVal
+  checkRetValOK
 
   cd $HOME
 fi
@@ -51,7 +51,7 @@ fi
 ##test
 
 cppboost
-checkRetVal
+checkRetValOK
 
 ###finish
 

@@ -11,7 +11,7 @@ exec 2>${1}.err
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
@@ -19,17 +19,17 @@ checkRetVal(){
 activeSuiteRepository(){
   #deactivate default repository
   sudo sed 's/enabled=1/enabled=0/' -i /etc/yum.repos.d/public-yum-dishmaev-release.repo
-  checkRetVal
+  checkRetValOK
   #activate required repository
   if [ "$1" = "rel" ]; then
     sudo sed 's/enabled=0/enabled=1/' -i /etc/yum.repos.d/public-yum-dishmaev-release.repo
-    checkRetVal
+    checkRetValOK
   elif [ "$1" = "tst" ]; then
     sudo sed 's/enabled=0/enabled=1/' -i /etc/yum.repos.d/public-yum-dishmaev-test.repo
-    checkRetVal
+    checkRetValOK
   elif [ "$1" = "dev" ]; then
     sudo sed 's/enabled=0/enabled=1/' -i /etc/yum.repos.d/public-yum-dishmaev-develop.repo
-    checkRetVal
+    checkRetValOK
   else #run suite
     return
   fi
@@ -44,7 +44,7 @@ uname -a
 #install packages
 if [ "$2" = "run" ]; then
   sudo tdnf -y install boost-devel
-  checkRetVal
+  checkRetValOK
 fi
 
 #active suite repository
@@ -54,13 +54,13 @@ activeSuiteRepository "$2"
 
 if [ "$2" = "run" ]; then
   make --version
-  checkRetVal
+  checkRetValOK
   gcc --version
-  checkRetVal
+  checkRetValOK
   c++ --version
-  checkRetVal
+  checkRetValOK
   rpmbuild --version
-  checkRetVal
+  checkRetValOK
 fi
 
 ###finish

@@ -11,7 +11,7 @@ exec 2>${1}.err
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
@@ -24,23 +24,23 @@ uname -a
 if [ "$1" = "rel" ]; then
   #install packages from personal repository
   sudo yum -y install cppboost
-  checkRetVal
+  checkRetValOK
 else # tst,dev
   mkdir deploy
-  checkRetVal
+  checkRetValOK
   tar -xvf $3 -C deploy/
-  checkRetVal
+  checkRetValOK
   cd deploy
-  checkRetVal
+  checkRetValOK
   #manually install packages
   for VAR_CUR_PACKAGE in ./*.rpm; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
     sudo rpm -i $VAR_CUR_PACKAGE
-    checkRetVal
+    checkRetValOK
   done
   #TO-DO check dependences
   #sudo apt -y install -f
-  #checkRetVal
+  #checkRetValOK
 
   cd $HOME
 fi
@@ -48,7 +48,7 @@ fi
 ##test
 
 cppboost
-checkRetVal
+checkRetValOK
 
 ###finish
 

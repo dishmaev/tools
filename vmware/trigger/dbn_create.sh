@@ -12,7 +12,7 @@ echo "VM $3 OS version:" $4
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 

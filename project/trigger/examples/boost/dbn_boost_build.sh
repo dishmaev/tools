@@ -11,7 +11,7 @@ exec 2>${1}.err
 
 ###function
 
-checkRetVal(){
+checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
@@ -34,19 +34,19 @@ uname -a
 
 VAR_SUITE=$(getConfigName "$2") || exit 1
 mkdir build
-checkRetVal
+checkRetValOK
 tar -xvf *.tar.gz -C build/
-checkRetVal
+checkRetValOK
 cd build
-checkRetVal
+checkRetValOK
 make -f Makefile CONF=${VAR_SUITE}_APT clean
-checkRetVal
+checkRetValOK
 make -f Makefile CONF=${VAR_SUITE}_APT
-checkRetVal
+checkRetValOK
 bash -x nbproject/Package-${VAR_SUITE}_APT.bash
-checkRetVal
+checkRetValOK
 tar -cvf $HOME/$4 -C dist/${VAR_SUITE}_APT/GNU-Linux/package .
-checkRetVal
+checkRetValOK
 
 cd $HOME
 
@@ -57,7 +57,7 @@ if [ ! -f "$4" ]; then echo "Output file $4 not found"; exit 1; fi
 for VAR_CUR_PACKAGE in $HOME/build/dist/${VAR_SUITE}_APT/GNU-Linux/package/*.deb; do
   if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
   dpkg-deb -I $VAR_CUR_PACKAGE
-  checkRetVal
+  checkRetValOK
 done
 
 ###finish
