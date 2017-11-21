@@ -5,8 +5,19 @@
 echo 'Description: Initialize general environment variables of the tools'
 echo ''
 
+##private consts
+readonly CONST_SSH_FILE_NAME=$HOME/.ssh/id_rsa
+readonly CONST_SCRIPT_DIR_NAME=$(dirname "$0")
+
 ##private vars
+PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
+PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
+PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
+VAR_INPUT=''
+VAR_COUNT=''
+VAR_SSH_AGENT=''
 VAR_AUTO_YES=0
+VAR_SSH_FILE_NAME=''
 
 ###function
 
@@ -58,18 +69,6 @@ isAutoYesMode(){
   [ "$VAR_AUTO_YES" = '1' ]
 }
 
-##private consts
-readonly CONST_SSH_FILE_NAME=$HOME/.ssh/id_rsa
-readonly CONST_SCRIPT_DIR_NAME=$(dirname "$0")
-
-##private vars
-PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
-PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
-PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
-VAR_INPUT=''
-VAR_COUNT=''
-VAR_SSH_AGENT=''
-
 ###check autoyes
 
 checkAutoYes "$1" || shift
@@ -96,29 +95,28 @@ if [ -z "$SSH_AGENT_PID" ]; then
 fi
 
 if [ -z "$PRM_SSH_KEYID" ]; then
-  if [ ! -r $CONST_SSH_FILE_NAME ]; then
+  if ! isAutoYesMode; then
+    read -r -p "SSH private key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
+  else
+    VAR_INPUT=''
+  fi
+  VAR_SSH_FILE_NAME=${VAR_INPUT:-$CONST_SSH_FILE_NAME}
+  if [ ! -r $VAR_SSH_FILE_NAME ]; then
     if ! isAutoYesMode; then
       read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
     else
       VAR_INPUT=''
     fi
     VAR_INPUT=${VAR_INPUT:-'y'}
-    if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $CONST_SSH_FILE_NAME not found"; fi
-    ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
+    if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $VAR_SSH_FILE_NAME not found"; fi
+    ssh-keygen -t rsa -N "" -f $VAR_SSH_FILE_NAME
     checkRetVal "Must generate or install SSH private key"
   fi
-  if ! isAutoYesMode; then
-    read -r -p "SSH private key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
-  else
-    VAR_INPUT=''
-  fi
-  VAR_INPUT=${VAR_INPUT:-$CONST_SSH_FILE_NAME}
-  if [ ! -r $VAR_INPUT ]; then exitError "SSH private key file $VAR_INPUT not found"; fi
   echo "Save changes to $(dirname "$0")/data/ssh_keyid.pub"
-  ssh-keygen -y -f $VAR_INPUT > $(dirname "$0")/data/ssh_keyid.pub
+  ssh-keygen -y -f $VAR_SSH_FILE_NAME > $(dirname "$0")/data/ssh_keyid.pub
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_keyid.pub
-  ssh-add $VAR_INPUT
-  checkRetVal "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_INPUT' command manually"
+  ssh-add $VAR_SSH_FILE_NAME
+  checkRetVal "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_SSH_FILE_NAME' command manually"
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
 fi
 
