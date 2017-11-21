@@ -15,10 +15,10 @@ if isEmpty "$ENV_SCRIPT_DIR_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_DIR
 readonly ENV_SUBMODULE_MODE=$(if [ -r $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $COMMON_CONST_TRUE; else echo $COMMON_CONST_FALSE; fi)
 if isEmpty "$ENV_SUBMODULE_MODE"; then checkNotEmptyEnvironment "ENV_SUBMODULE_MODE"; fi
 #project name
-readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; VL=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//'); if [ -z "$VL" ]; then VL=$(getFileNameFromUrlString "$ENV_ROOT_DIR" | tr '[a-z]' '[A-Z]'); fi; echo $VL)
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; VL=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; if [ -x "$(command -v git)" ]; then git -C $VP config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//' ; fi); if [ -z "$VL" ]; then VL=$(getFileNameFromUrlString "$ENV_ROOT_DIR" | tr '[a-z]' '[A-Z]'); fi; echo $VL)
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #project repository
-readonly ENV_PROJECT_REPO=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; git -C $VP config remote.origin.url)
+readonly ENV_PROJECT_REPO=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; if [ -x "$(command -v git)" ]; then git -C $VP config remote.origin.url; fi)
 #default username for connect to hosts, run scripts, etc.
 readonly ENV_SSH_USER_NAME=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/user.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; else echo $(whoami); fi')
 if isEmpty "$ENV_SSH_USER_NAME"; then checkNotEmptyEnvironment "ENV_SSH_USER_NAME"; fi
@@ -35,7 +35,7 @@ readonly ENV_GIT_USER_EMAIL=$(if [ -x "$(command -v git)" ]; then git config use
 readonly ENV_DISTRIB_REPO="git@github.com:$ENV_GIT_USER_NAME/$ENV_GIT_USER_NAME.github.io.git"
 if isEmpty "$ENV_DISTRIB_REPO"; then checkNotEmptyEnvironment "ENV_DISTRIB_REPO"; fi
 #for add tools submodule
-readonly ENV_TOOLS_REPO=$(git config remote.origin.url)
+readonly ENV_TOOLS_REPO=$(if [ -x "$(command -v git)" ]; then git config remote.origin.url; fi)
 #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly ENV_OVFTOOL_USER_PASS=$(getOVFToolPassword "$ENV_SSH_USER_PASS")
 #local directory to save downloads
