@@ -85,7 +85,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   #make temporary directory
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   VAR_DISTRIB_REPO_DIR_PATH=$VAR_TMP_DIR_PATH/repos/linux/rpm/$VAR_CODE_NAME/RPMS
   #list packages
   echo "Begin list"
@@ -123,7 +123,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   done
   echo "End list"
   rm -fR $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
   echo "APT-based Linux repository"
@@ -139,14 +139,14 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   #make temporary directory
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #list packages
   echo "Begin list"
   reprepro -b $VAR_TMP_DIR_PATH/repos/linux/apt list $VAR_CODE_NAME | grep -E "$PRM_FILTER_REGEX" | cat
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   echo "End list"
   rm -fR $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
   echo "Oracle Solaris repository"

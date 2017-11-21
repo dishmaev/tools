@@ -35,7 +35,7 @@ startPrompt
 for VAR_MAC in $PRM_MACS_POOL; do
   echo "MAC host:" $VAR_MAC
   wakeonlan $VAR_MAC
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 done
 
 doneFinalStage

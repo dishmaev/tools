@@ -344,7 +344,7 @@ powerOffVM()
       if [ $VAR_TRY -eq 0 ]; then  #still running, force kill vm
         echo "Failed standard power off the VMID $1 on $2 host, use force power off."
         $SSH_CLIENT $2 "esxcli vm process kill --type force --world-id $VAR_RESULT"
-        if ! isRetValOK; then exitError; fi
+        checkRetValOK
         sleep $COMMON_CONST_ESXI_SLEEP_LONG
         VAR_RESULT=$($SSH_CLIENT $2 "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         if ! isEmpty "$VAR_RESULT"; then
@@ -462,9 +462,9 @@ vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAU
   VAR_VM_IP=$(getIpAddressByVMName "$1" "$2" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   echo "VM ${1} ip address: $VAR_VM_IP"
   $SSH_COPY_ID root@$VAR_VM_IP
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/trigger/${1}_create.sh root@$VAR_VM_IP:
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP on $2 host"
   #exec trigger script
   VAR_RESULT=$($SSH_CLIENT root@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
@@ -901,25 +901,25 @@ put_vmtools_to_esxi(){
   local VAR_TMP_DIR_PATH
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   $SCP_CLIENT -r $VAR_TMP_DIR_PATH/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 }
 #$1 esxi host
 put_ovftool_to_esxi(){
   checkParmsCount $# 1 'put_ovftool_to_esxi'
   $SCP_CLIENT -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $1:$COMMON_CONST_ESXI_TOOLS_PATH/
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   $SSH_CLIENT $1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 }
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
   $SCP_CLIENT -r $ENV_SCRIPT_DIR_NAME/template $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 }
 
 #[$1] error message

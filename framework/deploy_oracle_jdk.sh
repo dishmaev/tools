@@ -67,30 +67,30 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
   #check for oracle JDK repo
   if ! isFileExistAndRead "$CONST_SOURCE_FILE_PATH_APT"; then
     sudo apt-key adv --keyserver $CONST_ORACLE_JDK_KEY_APT
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     echo "$CONST_ORACLE_JDK_REPO_APT" | sudo tee $CONST_SOURCE_FILE_PATH_APT
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     echo "$CONST_ORACLE_JDK_SRC_REPO_APT" | sudo tee -a $CONST_SOURCE_FILE_PATH_APT
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     checkDpkgUnlock
     sudo apt -y update
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
   fi
   #accepted license
   sudo echo "oracle-java${PRM_VERSION}-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   checkDpkgUnlock
   sudo apt -y install oracle-java${PRM_VERSION}-installer
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_FILE_RPM_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
   if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
     wget -O $VAR_ORIG_FILE_PATH --no-cookies --no-check-certificate --header "Cookie: oraclelicense=accept-securebackup-cookie" $CONST_FILE_RPM_URL
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
   fi
   sudo yum -y install $VAR_ORIG_FILE_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 
 doneFinalStage

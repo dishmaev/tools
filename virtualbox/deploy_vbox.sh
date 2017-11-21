@@ -59,37 +59,37 @@ fi
 #check for vbox repo
 if ! isFileExistAndRead "$CONST_APT_SOURCE_FILE_PATH"; then
   wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   echo "$CONST_VBOX_REPO" | sudo tee $CONST_APT_SOURCE_FILE_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo apt update
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 #libvpx3
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBVPX3_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBVPX3_URL
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 checkDpkgUnlock
 sudo apt -y install $VAR_ORIG_FILE_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 #libssl 1.0.0
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBSSL_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBSSL_URL
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   checkDpkgUnlock
 fi
 sudo apt -y install $VAR_ORIG_FILE_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 #install vbox
 sudo apt -y install virtualbox-$PRM_VERSION
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 sudo apt -y install -f
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 
 doneFinalStage
 exitOK

@@ -80,7 +80,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   #make temporary directory
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   VAR_SHORT_FILE_NAME=$(getFileNameFromUrlString "$PRM_PACKAGE_NAME") || exitChildError "$VAR_CUR_FILE_NAME"
   VAR_DISTRIB_REPO_DIR_PATH=$VAR_TMP_DIR_PATH/repos/linux/rpm/$VAR_CODE_NAME/RPMS
   if isFileExistAndRead "$VAR_DISTRIB_REPO_DIR_PATH/x86_64/$VAR_SHORT_FILE_NAME"; then
@@ -96,15 +96,15 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   fi
   if ! isTrue "$VAR_FOUND"; then
     rm -fR $VAR_TMP_DIR_PATH
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     exitError "file $VAR_SHORT_FILE_NAME not found on the repository"
   else
     createrepo --update $VAR_DISTRIB_REPO_DIR_PATH
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     rm $VAR_DISTRIB_REPO_DIR_PATH/repodata/repomd.xml.asc
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     gpg --detach-sign --armor $VAR_DISTRIB_REPO_DIR_PATH/repodata/repomd.xml
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
   fi
   #remove package
   echo "Remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
@@ -113,14 +113,14 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   #git add and commit
   git add *
   git commit -m "remove package $PRM_PACKAGE_NAME from $PRM_SUITE suite of distrib repository"
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   git push --all
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #remote temporary directory
   cd $VAR_CUR_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
   echo "APT-based Linux repository"
@@ -136,24 +136,24 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   #make temporary directory
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #add package
   echo "Remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
   reprepro -b $VAR_TMP_DIR_PATH/repos/linux/apt remove $VAR_CODE_NAME $PRM_PACKAGE_NAME
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   VAR_CUR_DIR_PATH=$PWD
   cd $VAR_TMP_DIR_PATH
   #git add and commit
   git add *
   git commit -m "remove package $PRM_PACKAGE_NAME from $PRM_SUITE suite of distrib repository"
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   git push --all
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #remote temporary directory
   cd $VAR_CUR_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
   echo "Oracle Solaris repository"

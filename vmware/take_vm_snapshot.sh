@@ -72,7 +72,7 @@ if ! isTrue "$PRM_INCLUDE_MEMORY"; then
   echoResult "$VAR_RESULT"
 fi
 $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.create $VAR_VM_ID $PRM_SNAPSHOT_NAME \"$PRM_SNAPSHOT_DESCRIPTION\" $PRM_INCLUDE_MEMORY $PRM_QUIESCED"
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 
 doneFinalStage
 exitOK

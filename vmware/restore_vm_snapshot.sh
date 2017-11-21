@@ -70,12 +70,12 @@ if isTrue "$PRM_REMOVE_CHILD"; then
   for VAR_CHILD_SNAPSHOT_ID in $VAR_CHILD_SNAPSHOTS_POOL; do
     echo "Delete child snapshot:" $VAR_CHILD_SNAPSHOT_ID
     $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_CHILD_SNAPSHOT_ID 1"
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
   done
 fi
 #revert VAR_SS_ID snapshot
 $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.revert $VAR_VM_ID $VAR_SS_ID 0"
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 
 doneFinalStage
 exitOK

@@ -46,24 +46,24 @@ fi
 if isAPTLinux "$VAR_LINUX_BASED"; then
   checkDpkgUnlock
   sudo apt -y install apt-transport-https
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo apt -y update
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo apt -y install sublime-text
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo yum -y install yum-utils
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo yum -y install sublime-text
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 
 doneFinalStage

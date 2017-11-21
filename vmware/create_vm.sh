@@ -90,7 +90,7 @@ fi
 #create new vm on remote esxi host
 $SSH_CLIENT $PRM_ESXI_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_DATASTORE -dm=thin --acceptAllEulas \
     --noSSLVerify -n=$VAR_VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_ESXI_HOST"
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 #take base template snapshot
 echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
@@ -99,7 +99,7 @@ VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "
 #set autostart new vm
 if isTrue "$PRM_AUTOSTART"; then
   $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 #echo result
 echo 'vmname:esxihost:vmid' $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID

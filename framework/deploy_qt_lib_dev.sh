@@ -47,26 +47,26 @@ if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
     checkDpkgUnlock
     sudo apt -y install qt5-default
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo apt -y install qt5-doc
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo apt -y install qt5-doc-html
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo apt -y install qttools5-dev-tools
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
   elif isRPMLinux "$VAR_LINUX_BASED"; then
     sudo yum -y install qt5-qtbase-devel
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo yum -y install qt5-qtbase-doc
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo yum -y install qt5-qtbase-examples
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo yum -y install qt5-qttools-devel
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo yum -y install qt5-qttools-doc
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     sudo yum -y install qt5-qttools-examples
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
   fi
 else
   echo "TO-DO custom version install with downgrade"

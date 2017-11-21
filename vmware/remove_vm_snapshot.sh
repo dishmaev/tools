@@ -67,7 +67,7 @@ VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_ESXI_HOST") || exitChildError "$VAR_R
 echoResult "$VAR_RESULT"
 #remove vm
 $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_SS_ID $PRM_REMOVE_CHILD"
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 
 doneFinalStage
 exitOK

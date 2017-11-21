@@ -49,44 +49,44 @@ startPrompt
 beginStage $CONST_STAGE_COUNT 'Clone remote repository to temporary directory'
 VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
 git clone $PRM_REMOTE_REPO $VAR_TMP_DIR_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 VAR_CUR_DIR_PATH=$PWD
 cd $VAR_TMP_DIR_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Init gitflow branching model with default settings'
 #init gitflow repository with default settings
 git flow init -d
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Add tools submodule'
 #add tools submodule
 mkdir tools
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 cd tools
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 git submodule add --name tools $PRM_TOOLS_REPO bin
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 #mkdir data
-#if ! isRetValOK; then exitError; fi
+#checkRetValOK
 #mkdir trigger
-#if ! isRetValOK; then exitError; fi
+#checkRetValOK
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Commit changes and push to remote'
 git commit -m 'add gitflow branching model, tools submodule'
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 git push --all
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Delete temporary directory'
 cd $VAR_CUR_DIR_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 rm -fR $VAR_TMP_DIR_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 doneFinalStage
 
 echo ''

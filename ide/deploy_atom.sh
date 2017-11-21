@@ -69,28 +69,28 @@ VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 if isAPTLinux "$VAR_LINUX_BASED"; then
   checkDpkgUnlock
   sudo apt -y install $VAR_ORIG_FILE_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   sudo apt -y install -f
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   sudo yum -y install $VAR_ORIG_FILE_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 apm install atom-ide-ui
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 apm install ide-java
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 apm install git-plus
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 apm install tree-view-git-status
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 apm install termination
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 
 doneFinalStage
 exitOK

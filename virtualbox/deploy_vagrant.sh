@@ -66,11 +66,11 @@ VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 checkDpkgUnlock
 sudo apt -y install $VAR_ORIG_FILE_PATH
-if ! isRetValOK; then exitError; fi
+checkRetValOK
 
 doneFinalStage
 exitOK
