@@ -763,8 +763,9 @@ getTrace(){
     fi
     VAR_CP=$VAR_PP
   done
+  VAR_TRACE=$(echo "$VAR_TRACE" | tac | grep -n ":" | tac) # using tac to "print in reverse" [3]
   echo "Begin trace"
-  echo -n "$VAR_TRACE" | tac | grep -n ":" | tac # using tac to "print in reverse" [3]
+  printf "$VAR_TRACE\n"
   echo "End trace"
 }
 #$1 message
@@ -919,6 +920,13 @@ put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
   $SCP_CLIENT -r $ENV_SCRIPT_DIR_NAME/template $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   if ! isRetValOK; then exitError; fi
+}
+
+#[$1] error message
+checkRetValOK(){
+  if ! isRetValOK; then
+    exitError "$1"
+  fi
 }
 #$1 return result
 echoResult(){

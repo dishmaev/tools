@@ -77,10 +77,10 @@ mkdir $COMMON_CONST_ESXI_PATCHES_PATH; \
 mkdir $COMMON_CONST_ESXI_IMAGES_PATH;
 mkdir $COMMON_CONST_ESXI_VMTOOLS_PATH;
 mkdir $COMMON_CONST_ESXI_DATA_PATH"
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     #copy version tag
     $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME $VAR_HOST:$COMMON_CONST_ESXI_TEMPLATES_PATH/
-    if ! isRetValOK; then exitError; fi
+    checkRetValOK
     #put templates
     put_template_tools_to_esxi "$VAR_HOST"
     #put vmtools
@@ -95,12 +95,12 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
       echo "Upgrade template tools to version $VAR_LOCAL_TOOLS_VER on $VAR_HOST host"
       #remove old version templates
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TEMPLATES_PATH"
-      if ! isRetValOK; then exitError; fi
+      checkRetValOK
       #put new version templates
       put_template_tools_to_esxi "$VAR_HOST"
       #put new version tag
       $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME $VAR_HOST:$COMMON_CONST_ESXI_TEMPLATES_PATH/
-      if ! isRetValOK; then exitError; fi
+      checkRetValOK
     else
       echo "Newest template tools version on $VAR_HOST host, skip upgrade"
     fi
@@ -111,7 +111,7 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
       echo "Upgrade OVF Tool to version $VAR_LOCAL_OVFTOOLS_VER on $VAR_HOST host"
       #remove old version ofvtool
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TOOLS_PATH"
-      if ! isRetValOK; then exitError; fi
+      checkRetValOK
       #put new version ofvtool
       put_ovftool_to_esxi "$VAR_HOST"
     else
