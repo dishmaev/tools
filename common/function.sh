@@ -899,7 +899,7 @@ put_template_tools_to_esxi(){
 echoResult(){
   checkParmsCount $# 1 'echoResult'
   if ! isEmpty "$1"; then
-    echo "$1"
+    echo -e "$1"
   fi
 }
 #$1 message
