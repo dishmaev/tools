@@ -15,16 +15,41 @@ checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
 
+checkDpkgUnlock(){
+  local CONST_LOCK_FILE='/var/lib/dpkg/lock'
+  local VAR_COUNT=10
+  local VAR_TRY=3
+  echo "Check /var/lib/dpkg/lock"
+  while sudo fuser $CONST_LOCK_FILE >/dev/null 2>&1; do
+    echo -n '.'
+    sleep 3
+    VAR_COUNT=$((VAR_COUNT-1))
+    if [ $VAR_COUNT -eq 0 ]; then
+      VAR_TRY=$((VAR_TRY-1))
+      if [ $VAR_TRY -eq 0 ]; then  #still not powered on, force kill vm
+        echo "failed wait while unlock $CONST_LOCK_FILE. Check another long process using it"
+        exit 1
+      else
+        echo ''
+        echo "Still locked $CONST_LOCK_FILE, left $VAR_TRY attempts"
+      fi;
+      VAR_COUNT=3
+    fi
+  done
+  echo ''
+  return 0
+}
+
 ###body
 
 echo "Current deploy suite: $2"
 
 uname -a
 
-sudo apt -y update
-checkRetValOK
-
+checkDpkgUnlock
 if [ "$1" = "rel" ]; then
+  sudo apt -y update
+  checkRetValOK
   #install packages from personal repository
   sudo apt -y install cppqt5
   checkRetValOK
