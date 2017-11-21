@@ -118,24 +118,24 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   else
     git clone -b $PRM_VERSION $ENV_PROJECT_REPO $VAR_TMP_DIR_PATH
   fi
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   VAR_CUR_DIR_PATH=$PWD
   cd $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #make archive
   git archive --format=tar.gz -o $VAR_SRC_TAR_FILE_PATH HEAD
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #remote temporary directory
   cd $VAR_CUR_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #copy git archive on vm
   $SCP_CLIENT $VAR_SRC_TAR_FILE_PATH $VAR_VM_IP:$VAR_SRC_TAR_FILE_NAME
   #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
   #exec trigger script
   echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $PRM_VERSION $VAR_BIN_TAR_FILE_NAME; \
@@ -153,7 +153,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     if isTrue "$VAR_RESULT"; then
       echoResult "Get build file from VM $VAR_VM_NAME ip $VAR_VM_IP and put it in $VAR_BIN_TAR_FILE_PATH"
       $SCP_CLIENT $VAR_VM_IP:$VAR_BIN_TAR_FILE_NAME $VAR_BIN_TAR_FILE_PATH
-      if ! isRetValOK; then exitError; fi
+      checkRetValOK
     else
       echoWarning "Build file $VAR_BIN_TAR_FILE_NAME on VM $VAR_VM_NAME ip $VAR_VM_IP not found"
     fi

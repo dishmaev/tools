@@ -66,7 +66,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echoResult "$VAR_RESULT"
   echo "Remove config file $VAR_CONFIG_FILE_PATH"
   rm $VAR_CONFIG_FILE_PATH
-  if ! isRetValOK; then exitError; fi
+  checkRetValOK
 fi
 
 doneFinalStage
