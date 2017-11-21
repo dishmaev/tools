@@ -32,7 +32,7 @@ checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-checkDependencies 'wget dpkg'
+checkDependencies 'wget'
 
 ###check required files
 
@@ -68,7 +68,8 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
   if ! isRetValOK; then exitError; fi
 fi
-sudo dpkg -i $VAR_ORIG_FILE_PATH
+checkDpkgUnlock
+sudo apt -y install $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 
 doneFinalStage

@@ -72,6 +72,7 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   if ! isRetValOK; then exitError; fi
 fi
 if isAPTLinux "$VAR_LINUX_BASED"; then
+  checkDpkgUnlock
   sudo apt -y install $VAR_ORIG_FILE_PATH
   if ! isRetValOK; then exitError; fi
   sudo apt -y install -f

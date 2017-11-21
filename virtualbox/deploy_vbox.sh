@@ -33,7 +33,7 @@ checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-checkDependencies 'wget apt dpkg apt-key dirmngr'
+checkDependencies 'wget apt apt-key dirmngr'
 
 ###check required files
 
@@ -72,7 +72,8 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBVPX3_URL
   if ! isRetValOK; then exitError; fi
 fi
-sudo dpkg -i $VAR_ORIG_FILE_PATH
+checkDpkgUnlock
+sudo apt -y install $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 #libssl 1.0.0
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$CONST_LIBSSL_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
@@ -80,17 +81,13 @@ VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   wget -O $VAR_ORIG_FILE_PATH $CONST_LIBSSL_URL
   if ! isRetValOK; then exitError; fi
+  checkDpkgUnlock
 fi
-sudo dpkg -i $VAR_ORIG_FILE_PATH
+sudo apt -y install $VAR_ORIG_FILE_PATH
 if ! isRetValOK; then exitError; fi
 #install vbox
-if ! isAutoYesMode; then
-  sudo apt install virtualbox-$PRM_VERSION
-  if ! isRetValOK; then exitError; fi
-else
-  sudo apt -y install virtualbox-$PRM_VERSION
-  if ! isRetValOK; then exitError; fi
-fi
+sudo apt -y install virtualbox-$PRM_VERSION
+if ! isRetValOK; then exitError; fi
 sudo apt -y install -f
 if ! isRetValOK; then exitError; fi
 

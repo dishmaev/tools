@@ -545,6 +545,7 @@ checkDependencies(){
         VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
         if isAPTLinux "$VAR_LINUX_BASED"
         then
+          checkDpkgUnlock
           sudo apt -y install $VAR_DEPENDENCE
         elif isRPMLinux "$VAR_LINUX_BASED"
         then
@@ -568,13 +569,37 @@ checkDependencies(){
 checkRequiredFiles() {
   checkParmsCount $# 1 'checkRequiredFiles'
   local VAR_FILE=''
-  for VAR_FILE in $1
-  do
+  for VAR_FILE in $1; do
     if ! isFileExistAndRead $VAR_FILE
     then
       exitError "file $VAR_FILE not found"
     fi
   done
+}
+
+checkDpkgUnlock(){
+  checkParmsCount $# 0 'checkDpkgUnlock'
+  local CONST_LOCK_FILE='/var/lib/dpkg/lock'
+  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  echo "Check /var/lib/dpkg/lock"
+  while sudo fuser $CONST_LOCK_FILE >/dev/null 2>&1; do
+    echo -n '.'
+    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+    VAR_COUNT=$((VAR_COUNT-1))
+    if [ $VAR_COUNT -eq 0 ]; then
+      VAR_TRY=$((VAR_TRY-1))
+      if [ $VAR_TRY -eq 0 ]; then  #still not powered on, force kill vm
+        exitError "failed wait while unlock $CONST_LOCK_FILE. Check another long process using it"
+      else
+        echo ''
+        echo "Still locked $CONST_LOCK_FILE, left $VAR_TRY attempts"
+      fi;
+      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+    fi
+  done
+  echo ''
+  return $COMMON_CONST_EXIT_SUCCESS
 }
 
 checkLinuxAptOrRpm(){

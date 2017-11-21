@@ -69,6 +69,7 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   if ! isRetValOK; then exitError; fi
 fi
 if isAPTLinux "$VAR_LINUX_BASED"; then
+  checkDpkgUnlock
   #for prevent Gtk-Message: Failed to load module "canberra-gtk-module"
   if ! apt list --installed | grep -qF "libcanberra-gtk-module"; then
     sudo apt -y install libcanberra-gtk-module

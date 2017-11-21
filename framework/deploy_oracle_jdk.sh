@@ -72,12 +72,14 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
     if ! isRetValOK; then exitError; fi
     echo "$CONST_ORACLE_JDK_SRC_REPO_APT" | sudo tee -a $CONST_SOURCE_FILE_PATH_APT
     if ! isRetValOK; then exitError; fi
+    checkDpkgUnlock
     sudo apt -y update
     if ! isRetValOK; then exitError; fi
   fi
   #accepted license
   sudo echo "oracle-java${PRM_VERSION}-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
   if ! isRetValOK; then exitError; fi
+  checkDpkgUnlock
   sudo apt -y install oracle-java${PRM_VERSION}-installer
   if ! isRetValOK; then exitError; fi
 elif isRPMLinux "$VAR_LINUX_BASED"; then

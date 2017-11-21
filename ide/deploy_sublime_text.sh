@@ -44,6 +44,7 @@ if isCommandExist 'subl'; then
 fi
 
 if isAPTLinux "$VAR_LINUX_BASED"; then
+  checkDpkgUnlock
   sudo apt -y install apt-transport-https
   if ! isRetValOK; then exitError; fi
   wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -

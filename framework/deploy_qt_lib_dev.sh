@@ -45,6 +45,7 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 
 if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
+    checkDpkgUnlock
     sudo apt -y install qt5-default
     if ! isRetValOK; then exitError; fi
     sudo apt -y install qt5-doc

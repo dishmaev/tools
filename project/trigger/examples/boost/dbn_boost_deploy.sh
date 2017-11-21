@@ -38,7 +38,7 @@ else # tst,dev
   #manually install packages
   for VAR_CUR_PACKAGE in ./*.deb; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    sudo dpkg -i $VAR_CUR_PACKAGE
+    sudo apt -y install $VAR_CUR_PACKAGE
 #    checkRetVal
   done
   #check all dependences

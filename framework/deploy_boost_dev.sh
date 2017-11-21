@@ -56,6 +56,7 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 
 if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
+    checkDpkgUnlock
     sudo apt -y install libboost-all-dev
   elif isRPMLinux "$VAR_LINUX_BASED"; then
     sudo yum -y install boost-devel
