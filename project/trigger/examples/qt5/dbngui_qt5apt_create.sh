@@ -73,7 +73,7 @@ if [ "$2" = "run" ]; then
   checkRetValOK
   sudo apt -y install qt5-default
   checkRetValOK
-else
+elif [ "$2" = "tst" ] || [ "$2" = "dev" ]; then
   sudo apt -y install libqt5svg5
   checkRetValOK
 fi
