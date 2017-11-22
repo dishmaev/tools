@@ -225,7 +225,7 @@ getVMSnapshotCount(){
 #$1 vm template, $2 vm version
 getVMUrl() {
   checkParmsCount $# 2 'getVMUrl'
-  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.cfg"
+  local CONST_FILE_PATH="./../common/data/${1}_ver_url.cfg"
   local VAR_RESULT=''
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
@@ -239,7 +239,7 @@ getVMUrl() {
 #$1 vm template
 getAvailableVMTemplateVersions(){
   checkParmsCount $# 1 'getAvailableVMTemplateVersions'
-  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.cfg"
+  local CONST_FILE_PATH="./../common/data/${1}_ver_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -264,7 +264,7 @@ getAvailableVMTemplateVersions(){
 #$1 vm template
 getDefaultVMTemplateVersion(){
   checkParmsCount $# 1 'getDefaultVMTemplateVersion'
-  local CONST_FILE_PATH="./../vmware/data/${1}_ver_url.cfg"
+  local CONST_FILE_PATH="./../common/data/${1}_ver_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
