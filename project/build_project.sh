@@ -64,8 +64,6 @@ checkProjectRepository
 
 ###check required files
 
-checkRequiredFiles "$PRM_BUILD_FILE"
-
 ###start prompt
 
 startPrompt

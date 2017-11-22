@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Make set of empty packages repositories for some OS: Linux (apt,rpm),
+targetDescription 'Create set of empty packages repositories for some OS: Linux (apt,rpm),
                     FreeBSD (TO-DO)'
 
 ##private consts
