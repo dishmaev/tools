@@ -283,10 +283,10 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
       if ! isFileExistAndRead "$VAR_TMP_FILE_PATH2"; then
         #check virtual box deploy
-        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
+        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
         echoResult "$VAR_RESULT"
         #check vagrant deploy
-        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
+        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
         echoResult "$VAR_RESULT"
         #create temporary directory
         VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
@@ -354,7 +354,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url $VAR_SITE_URL"
     fi
     #check virtual box deploy
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../virtualbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #create temporary directory
     VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
