@@ -39,7 +39,7 @@ readonly ENV_TOOLS_REPO=$(if [ -x "$(command -v git)" ]; then git config remote.
 #default password, used by ovftool, password with escaped special characters using %, for instance %40 = @, %5c = \
 readonly ENV_OVFTOOL_USER_PASS=$(getOVFToolPassword "$ENV_SSH_USER_PASS")
 #local directory to save downloads
-readonly ENV_DOWNLOAD_PATH=$(if [ ! -d "$HOME/Downloads" ]; then mkdir "$HOME/Downloads"; fi; echo "$HOME/Downloads")
+readonly ENV_DOWNLOAD_PATH=$(if [ ! -d "$HOME/Downloads/tools" ]; then mkdir -p "$HOME/Downloads/tools"; fi; echo "$HOME/Downloads/tools")
 if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi
 #directory for project data
 readonly ENV_PROJECT_DATA_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/data; else echo ${ENV_ROOT_DIR}/project/data; fi;)

@@ -222,24 +222,24 @@ getVMSnapshotCount(){
   VAR_RESULT=${VAR_RESULT:-"0"}
   echo "$VAR_RESULT"
 }
-#$1 vm template, $2 vm version
+#$1 vm template, $2 vm type, $3 vm version
 getVMUrl() {
-  checkParmsCount $# 2 'getVMUrl'
-  local CONST_FILE_PATH="./../common/data/${1}_ver_url.cfg"
+  checkParmsCount $# 3 'getVMUrl'
+  local CONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
   local VAR_RESULT=''
   if ! isFileExistAndRead "$CONST_FILE_PATH"; then
     exitError "file $CONST_FILE_PATH not found"
   fi
-  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$2$COMMON_CONST_DATA_CFG_SEPARATOR" | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$3$COMMON_CONST_DATA_CFG_SEPARATOR" | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
   if isEmpty "$VAR_RESULT"; then
-    exitError "missing url for VM template $1 version $2 in file $CONST_FILE_PATH"
+    exitError "missing url for VM template $1 version $3 in file $CONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
-#$1 vm template
+#$1 vm template, $2 vm type
 getAvailableVMTemplateVersions(){
-  checkParmsCount $# 1 'getAvailableVMTemplateVersions'
-  local CONST_FILE_PATH="./../common/data/${1}_ver_url.cfg"
+  checkParmsCount $# 2 'getAvailableVMTemplateVersions'
+  local CONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -261,10 +261,10 @@ getAvailableVMTemplateVersions(){
   fi
   echo "$VAR_RESULT"
 }
-#$1 vm template
+#$1 vm template, $2 vm type
 getDefaultVMTemplateVersion(){
-  checkParmsCount $# 1 'getDefaultVMTemplateVersion'
-  local CONST_FILE_PATH="./../common/data/${1}_ver_url.cfg"
+  checkParmsCount $# 2 'getDefaultVMTemplateVersion'
+  local CONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
@@ -273,7 +273,7 @@ getDefaultVMTemplateVersion(){
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F: '{print $1}') || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -453,7 +453,7 @@ checkTriggerTemplateVM(){
   local VAR_RESULT=''
   local VAR_LOG=''
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM $1 on $2 host. Typically for Linux without GUI: \
-vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - $COMMON_CONST_ESXI_DEFAULT_MEMORY_SIZE, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
+vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
   VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"

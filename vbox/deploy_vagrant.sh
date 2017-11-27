@@ -72,5 +72,7 @@ checkDpkgUnlock
 sudo apt -y install $VAR_ORIG_FILE_PATH
 checkRetValOK
 
+vagrant --version
+
 doneFinalStage
 exitOK

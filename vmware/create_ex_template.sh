@@ -26,7 +26,8 @@ VAR_TMP_FILE_PATH2='' #extracted file name with local path
 VAR_PAUSE_MESSAGE='' #for show message before paused
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_TMP_DIR_PATH='' #temporary directory name
-VAR_SITE_URL='' # url for manually download
+VAR_SITE_URL='' #url for manually download
+VAR_DOWNLOAD_PATH='' #local download path for templates
 
 ###check autoyes
 
@@ -51,9 +52,9 @@ checkCommandExist 'esxiHost' "$PRM_ESXI_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'vmDataStore' "$PRM_VM_DATASTORE" ''
 
 if [ "$PRM_VM_TEMPLATE_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
-  VAR_VM_TEMPLATE_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_TEMPLATE_VER"
+  VAR_VM_TEMPLATE_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VMWARE_VM_TYPE") || exitChildError "$VAR_VM_TEMPLATE_VER"
 else
-  VAR_VM_TEMPLATE_VER=$(getAvailableVMTemplateVersions "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_TEMPLATE_VER"
+  VAR_VM_TEMPLATE_VER=$(getAvailableVMTemplateVersions "$PRM_VM_TEMPLATE" "$COMMON_CONST_VMWARE_VM_TYPE") || exitChildError "$VAR_VM_TEMPLATE_VER"
   checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" "$VAR_VM_TEMPLATE_VER"
   VAR_VM_TEMPLATE_VER=$PRM_VM_TEMPLATE_VERSION
 fi
@@ -75,7 +76,7 @@ startPrompt
 ###body
 
 #get url for current vm template version
-VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$VAR_VM_TEMPLATE_VER") || exitChildError "$VAR_FILE_URL"
+VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$COMMON_CONST_VMWARE_VM_TYPE" "$VAR_VM_TEMPLATE_VER") || exitChildError "$VAR_FILE_URL"
 VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
 VAR_DISC_DIR_PATH="/vmfs/volumes/$PRM_VM_DATASTORE/$PRM_VM_TEMPLATE"
 VAR_DISC_FILE_PATH="$VAR_DISC_DIR_PATH/$PRM_VM_TEMPLATE.vmdk"
@@ -187,10 +188,12 @@ if isTrue "$VAR_RESULT"; then
   doneFinalStage
   exitOK
 fi
-VAR_OVA_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
+VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMWARE_VM_TYPE
+if ! isDirectoryExist "$VAR_DOWNLOAD_PATH"; then mkdir -p "$VAR_DOWNLOAD_PATH"; fi
+VAR_OVA_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
 if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
-  VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
+  VAR_ORIG_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 #ptn
   if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ]; then
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then

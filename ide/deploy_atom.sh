@@ -92,5 +92,7 @@ checkRetValOK
 apm install termination
 checkRetValOK
 
+atom --version
+
 doneFinalStage
 exitOK

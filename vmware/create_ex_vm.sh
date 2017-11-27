@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create new VM on remote esxi host'
+targetDescription 'Create esxi VM'
 
 ##private consts
 
@@ -59,7 +59,7 @@ startPrompt
 ###body
 
 #get vm template current version
-VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_VER"
+VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VMWARE_VM_TYPE") || exitChildError "$VAR_VM_VER"
 VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
 #check tools exist
 echo "Checking exist tools on $PRM_ESXI_HOST host"
@@ -70,7 +70,7 @@ fi
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME not found on $PRM_ESXI_HOST host. Exec 'create_vm_template.sh $PRM_VM_TEMPLATE $PRM_ESXI_HOST' previously"
+  exitError "VM template ova package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME not found on $PRM_ESXI_HOST host. Exec 'create_${COMMON_CONST_VMWARE_VM_TYPE}_template.sh $PRM_VM_TEMPLATE $PRM_ESXI_HOST' previously"
 fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then

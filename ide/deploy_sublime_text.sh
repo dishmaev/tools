@@ -66,5 +66,7 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
   checkRetValOK
 fi
 
+subl --version
+
 doneFinalStage
 exitOK

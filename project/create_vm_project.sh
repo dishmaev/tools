@@ -94,7 +94,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   if ! isTrue "$VAR_FOUND"; then
     echo "Not found, required new VM"
     VAR_HOST=$COMMON_CONST_ESXI_HOST
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/create_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/create_${COMMON_CONST_VMWARE_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:esxihost:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:esxihost:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
