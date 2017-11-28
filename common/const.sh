@@ -116,12 +116,14 @@ readonly COMMON_CONST_ESXI_TRY_LONG=30 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=5 #sleep long
 readonly COMMON_CONST_ESXI_DEFAULT_HDD_SIZE='20G' #default hdd disc size for template vm
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
+readonly COMMON_CONST_ESXI_BASE_USER_NAME='root' #default user name for ssh connect when create template VM
 
 #readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter
 #readonly COMMON_CONST_ESXI_LINUX_RPM_VMTYPES_POOL='oracleLinux64Guest other3xLinux64Guest' #RPM-based Linux vm types pool, list with space delimiter
 #readonly COMMON_CONST_ESXI_FREEBSD_VMTYPES_POOL='freebsd64Guest' #FreeBSD vm types pool, list with space delimiter
 
 #virtualbox
-readonly COMMON_CONST_VAGRANT_USER_NAME='vagrant'
-readonly COMMON_CONST_VAGRANT_FILE_NAME='Vagrantfile'
-readonly COMMON_CONST_VAGRANT_IP_ADDRESS='127.0.0.1'
+readonly COMMON_CONST_VAGRANT_BASE_USER_NAME='vagrant' #default user name for ssh connect when create template VM
+readonly COMMON_CONST_VAGRANT_FILE_NAME='Vagrantfile' #vagrant config file name
+readonly COMMON_CONST_VAGRANT_IP_ADDRESS='127.0.0.1' #default interface for local VM
+readonly COMMON_CONST_VAGRANT_GUEST_SSH_PORT='22' #default guest ssh port

@@ -142,7 +142,9 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   checkRetValOK
   echoResult "$VAR_PAUSE_MESSAGE"
   pausePrompt "Pause 2 of 3: Manually make changes on template VM ${PRM_VM_TEMPLATE}"
-  $SSH_COPY_ID $COMMON_CONST_VAGRANT_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS
+  VAR_VM_PORT=$(vagrant port --guest $COMMON_CONST_VAGRANT_GUEST_SSH_PORT) || exitChildError "$VAR_VM_PORT"
+  if isEmpty "$VAR_VM_PORT"; then exitError "host machine port, mapped to the guest port $COMMON_CONST_VAGRANT_GUEST_SSH_PORT of VM ${PRM_VM_TEMPLATE}, not found"; fi
+  $SSH_COPY_ID -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS
   checkRetValOK
   echo "Start ${PRM_VM_TEMPLATE}_create.sh executing on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_VM_PORT"
   pausePrompt "Pause 3 of 3: Last check template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_VM_PORT"
