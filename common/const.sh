@@ -49,6 +49,7 @@ readonly COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE='ors' #Oracle Solaris withou
 readonly COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE='orsbox' #Oracle Solaris from ova package for Virtual Box
 readonly COMMON_CONST_FREEBSD_VM_TEMPLATE='fbd' # FreeBSD
 readonly COMMON_CONST_DEFAULT_MEMORY_SIZE='512' #default memory size in MB for template vm
+readonly COMMON_CONST_DEFAULT_VCPU_COUNT='1' #default vCPUs for template vm
 
 # available vm templates pool
 readonly COMMON_CONST_VM_TEMPLATES_POOL="\
@@ -113,7 +114,6 @@ readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #
 readonly COMMON_CONST_ESXI_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_ESXI_TRY_LONG=30 #one try long
 readonly COMMON_CONST_ESXI_SLEEP_LONG=5 #sleep long
-readonly COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT='1' #default vCPUs for template vm
 readonly COMMON_CONST_ESXI_DEFAULT_HDD_SIZE='20G' #default hdd disc size for template vm
 readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 
@@ -122,4 +122,6 @@ readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapsh
 #readonly COMMON_CONST_ESXI_FREEBSD_VMTYPES_POOL='freebsd64Guest' #FreeBSD vm types pool, list with space delimiter
 
 #virtualbox
+readonly COMMON_CONST_VAGRANT_USER_NAME='vagrant'
 readonly COMMON_CONST_VAGRANT_FILE_NAME='Vagrantfile'
+readonly COMMON_CONST_VAGRANT_IP_ADDRESS='127.0.0.1'

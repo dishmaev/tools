@@ -3,5 +3,7 @@ Vagrant.configure(2) do |config|
   config.vm.provider :virtualbox do |vb|
     vb.name = "@PRM_VM_TEMPLATE@"
     vb.memory = "512"
+    vb.cpus = "1"
   end
+  config.vm.provision :shell, :path => "/home/dmitry/Projects/tools/vbox/template/install_guest_add.sh"
 end

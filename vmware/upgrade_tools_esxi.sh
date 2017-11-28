@@ -84,9 +84,9 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
     #put templates
     put_template_tools_to_esxi "$VAR_HOST"
     #put vmtools
-    put_vmtools_to_esxi "$VAR_HOST"
+    putVmtoolsToEsxi "$VAR_HOST"
     #put ofvtool
-    put_ovftool_to_esxi "$VAR_HOST"
+    putOvftoolToEsxi "$VAR_HOST"
   else
     #get remote template tools version
     VAR_REMOTE_TOOLS_VER=$($SSH_CLIENT $VAR_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/$CONST_TOOLSVER_FILENAME") || exitChildError "$VAR_REMOTE_TOOLS_VER"
@@ -113,7 +113,7 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TOOLS_PATH"
       checkRetValOK
       #put new version ofvtool
-      put_ovftool_to_esxi "$VAR_HOST"
+      putOvftoolToEsxi "$VAR_HOST"
     else
       echo "Newest OVF Tool version on $VAR_HOST host, skip upgrade"
     fi

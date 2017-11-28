@@ -453,7 +453,7 @@ checkTriggerTemplateVM(){
   local VAR_RESULT=''
   local VAR_LOG=''
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM $1 on $2 host. Typically for Linux without GUI: \
-vCPUs - $COMMON_CONST_ESXI_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
+vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
   VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
@@ -605,9 +605,9 @@ checkDpkgUnlock(){
 checkLinuxAptOrRpm(){
   checkParmsCount $# 0 'checkLinuxAptOrRpm'
   if isFileExistAndRead "/etc/debian_version"; then
-    echo 'apt'
+    echo "$COMMON_CONST_LINUX_APT"
   elif isFileExistAndRead "/etc/redhat-release"; then
-    echo 'rpm'
+    echo "$COMMON_CONST_LINUX_RPM"
   else
     exitError "unknown Linux based package system"
   fi
@@ -896,8 +896,8 @@ checkParmsCount(){
   fi
 }
 #$1 esxi host
-put_vmtools_to_esxi(){
-  checkParmsCount $# 1 'put_vmtools_to_esxi'
+putVmtoolsToEsxi(){
+  checkParmsCount $# 1 'putVmtoolsToEsxi'
   local VAR_TMP_DIR_PATH
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
   tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIR_PATH
@@ -908,8 +908,8 @@ put_vmtools_to_esxi(){
   checkRetValOK
 }
 #$1 esxi host
-put_ovftool_to_esxi(){
-  checkParmsCount $# 1 'put_ovftool_to_esxi'
+putOvftoolToEsxi(){
+  checkParmsCount $# 1 'putOvftoolToEsxi'
   $SCP_CLIENT -r $COMMON_CONST_LOCAL_OVFTOOL_PATH $1:$COMMON_CONST_ESXI_TOOLS_PATH/
   checkRetValOK
   $SSH_CLIENT $1 "sed -i 's@^#!/bin/bash@#!/bin/sh@' $COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool"
