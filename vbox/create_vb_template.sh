@@ -81,7 +81,7 @@ startPrompt
 
 if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
--set $COMMON_CONST_VAGRANT_BASE_USER_NAME not empty password by 'passwd'\n\
+-set $COMMON_CONST_VAGRANT_BASE_USER_NAME not empty password by 'passwd', default is 'vagrant'\n\
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
 -sudo systemctl reload sshd\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
@@ -159,7 +159,7 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   echo "VM ${PRM_VM_TEMPLATE} ip address: $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   $SSH_COPY_ID -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS
   checkRetValOK
-  $SCP_CLIENT -p $VAR_VM_PORT $ENV_SCRIPT_DIR_NAME/../common/trigger/${PRM_VM_TEMPLATE}_create.sh $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS:
+  $SCP_CLIENT -P $VAR_VM_PORT "$ENV_ROOT_DIR/common/trigger/${PRM_VM_TEMPLATE}_create.sh" $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS:
   checkRetValOK
   echo "Start ${PRM_VM_TEMPLATE}_create.sh executing on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   #exec trigger script

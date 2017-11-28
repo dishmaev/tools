@@ -463,7 +463,7 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   echo "VM ${1} ip address: $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT"
   $SSH_COPY_ID $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP
   checkRetValOK
-  $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/../common/trigger/${1}_create.sh $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP:
+  $SCP_CLIENT "$ENV_ROOT_DIR/common/trigger/${1}_create.sh" $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP:
   checkRetValOK
   echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
   #exec trigger script
