@@ -92,6 +92,9 @@ cd /media/cdrom
 sudo sh VBoxLinuxAdditions.run
 checkRetValOK
 
+sudo systemctl start vboxadd-service
+checkRetValOK
+
 cd $HOME
 
 sudo umount /media/cdrom

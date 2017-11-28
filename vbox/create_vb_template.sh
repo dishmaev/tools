@@ -132,15 +132,13 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   if isEmpty "$VAR_CONTROLLER_NAME"; then exitError "storage controller VM ${PRM_VM_TEMPLATE} not found"; fi
   vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 1 --type dvddrive --medium "$VAR_DISC_FILE_PATH"
   checkRetValOK
-  vboxmanage startvm "$PRM_VM_TEMPLATE" --type headless
+  vagrant up --provision-with shell
   checkRetValOK
-  vagrant provision --provision-with shell
-  checkRetValOK
-  vboxmanage controlvm "$PRM_VM_TEMPLATE" acpipowerbutton
+  vagrant halt
   checkRetValOK
   vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 1 --type dvddrive --medium "none"
   checkRetValOK
-  vboxmanage startvm "$PRM_VM_TEMPLATE" --type headless
+  vagrant up --no-provision
   checkRetValOK
   echoResult "$VAR_PAUSE_MESSAGE"
   pausePrompt "Pause 2 of 3: Manually make changes on template VM ${PRM_VM_TEMPLATE}"
@@ -156,7 +154,7 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   #destroy and remove
   vagrant destroy -f
   checkRetValOK
-#  vagrant box remove --force $PRM_VM_TEMPLATE
+#  vagrant box remove --force $VAR_FILE_URL
 #  checkRetValOK
   #remove temporary directory
   cd $VAR_CUR_DIR_PATH
