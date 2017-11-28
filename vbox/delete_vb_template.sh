@@ -11,13 +11,11 @@ targetDescription 'Delete VM template from repository and local directory'
 PRM_VM_TEMPLATE='' #vm template
 PRM_VM_TEMPLATE_VERSION='' #vm version
 PRM_RESET_COUNTER='' # reset counter for vm name generate
-VAR_RESULT='' #child return value
-VAR_VBOX_VERSION='' #vbox version without build number
 VAR_VM_TEMPLATE_VER='' #current vm template version
-VAR_OVA_FILE_NAME='' # ova package name
-VAR_OVA_FILE_PATH='' # ova package name with local path
-VAR_FILE_URL='' # url for download
-VAR_DOWNLOAD_PATH='' #local download path for templates
+VAR_BOX_FILE_NAME='' #box package name
+VAR_BOX_FILE_PATH='' #box package name with local path
+VAR_COUNTER_FILE_NAME='' # counter file name
+VAR_COUNTER_FILE_PATH='' # counter file name with local path
 
 ###check autoyes
 
@@ -53,7 +51,7 @@ fi
 
 ###check required files
 
-#checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/trigger/${PRM_VM_TEMPLATE}_create.sh"
+#checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/../common/trigger/${PRM_VM_TEMPLATE}_create.sh"
 
 ###start prompt
 
@@ -61,12 +59,18 @@ startPrompt
 
 ###body
 
-VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
+VAR_BOX_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.box"
+VAR_BOX_FILE_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE/$VAR_BOX_FILE_NAME
+VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_num.cfg"
+VAR_COUNTER_FILE_PATH="$ENV_TOOLS_HIDDEN_PATH/data/$VAR_COUNTER_FILE_NAME"
 
-VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
-if isFileExistAndRead "$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"; then
-  echo "Deleting local file $VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
-  rm "$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
+if isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
+  echo "Deleting local package file $VAR_BOX_FILE_PATH"
+  rm "$VAR_BOX_FILE_PATH"
+fi
+if isTrue "$PRM_RESET_COUNTER" && isFileExistAndRead "$VAR_COUNTER_FILE_PATH"; then
+  echo "Deleting counter file $VAR_COUNTER_FILE_PATH"
+  rm "$VAR_COUNTER_FILE_PATH"
 fi
 
 doneFinalStage

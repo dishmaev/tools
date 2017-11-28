@@ -1,5 +1,6 @@
 /common/data/user.txt
 /common/data/ssh_pwd.txt
 /common/data/ssh_keyid.pub
+/common/data/ssh_id_file.txt
 /test/
 /repo/repos

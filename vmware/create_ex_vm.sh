@@ -18,6 +18,8 @@ VAR_VM_NUM='' #current number of vm
 VAR_VM_NAME='' #new vm name
 VAR_VM_ID='' #vm VMID
 VAR_OVA_FILE_NAME='' # ova package name
+VAR_COUNTER_FILE_NAME='' # counter file name
+VAR_COUNTER_FILE_PATH='' # counter file name with local esxi host path
 
 ###check autoyes
 
@@ -61,6 +63,8 @@ startPrompt
 #get vm template current version
 VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VMWARE_VM_TYPE") || exitChildError "$VAR_VM_VER"
 VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
+VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VMWARE_VM_TYPE}_num.cfg"
+VAR_COUNTER_FILE_PATH="$COMMON_CONST_ESXI_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 #check tools exist
 echo "Checking exist tools on $PRM_ESXI_HOST host"
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -75,10 +79,10 @@ fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
   #get vm number
-  VAR_VM_NUM=$($SSH_CLIENT $PRM_ESXI_HOST "if [ ! -f $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg ]; \
-  then echo 0 > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg; fi; \
-  echo \$((\$(cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg)+1)) > $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg; \
-  cat $COMMON_CONST_ESXI_DATA_PATH/${PRM_VM_TEMPLATE}.cfg") || exitChildError "$VAR_VM_NUM"
+  VAR_VM_NUM=$($SSH_CLIENT $PRM_ESXI_HOST "if [ ! -f $VAR_COUNTER_FILE_PATH ]; \
+  then echo 0 > $VAR_COUNTER_FILE_PATH; fi; \
+  echo \$((\$(cat $VAR_COUNTER_FILE_PATH)+1)) > $VAR_COUNTER_FILE_PATH; \
+  cat $VAR_COUNTER_FILE_PATH") || exitChildError "$VAR_VM_NUM"
   #set new vm name
   VAR_VM_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_NUM}"
 else

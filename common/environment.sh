@@ -27,6 +27,9 @@ readonly ENV_SSH_USER_PASS=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh
 #ssh public keyID
 readonly ENV_SSH_KEYID=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh_keyid.pub; if [ -r $VAR_FILE_NAME ]; then echo $VAR_FILE_NAME; fi')
 if isEmpty "$ENV_SSH_KEYID"; then checkNotEmptyEnvironment "ENV_SSH_KEYID"; fi
+#ssh identity file name
+readonly ENV_SSH_IDENTITY_FILE_NAME=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/ssh_id_file.txt; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; fi')
+if isEmpty "$ENV_SSH_IDENTITY_FILE_NAME"; then checkNotEmptyEnvironment "ENV_SSH_IDENTITY_FILE_NAME"; fi
 #default git user
 readonly ENV_GIT_USER_NAME=$(if [ -x "$(command -v git)" ]; then git config user.name; fi)
 #default git email
@@ -47,6 +50,8 @@ if isEmpty "$ENV_PROJECT_DATA_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_
 #directory for project triggers
 readonly ENV_PROJECT_TRIGGER_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
 if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
+readonly ENV_TOOLS_HIDDEN_PATH=$(if [ ! -d "$HOME/.tools" ]; then mkdir -p "$HOME/.tools"; fi; echo "$HOME/.tools")
+if isEmpty "$ENV_TOOLS_HIDDEN_PATH"; then checkNotEmptyEnvironment "ENV_TOOLS_HIDDEN_PATH"; fi
 
 #vmware tools local directory
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"

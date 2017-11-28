@@ -2,6 +2,8 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
+targetDescription 'Delete VM from the esxi host'
+
 ##private consts
 
 

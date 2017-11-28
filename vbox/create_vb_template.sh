@@ -5,9 +5,10 @@
 targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 
 #https://www.freshports.org/emulators/virtualbox-ose-additions
+#https://openedx.atlassian.net/wiki/spaces/OXA/pages/157802739/Vagrant+is+stuck+Authentication+failure.+Retrying...
+#https://stackoverflow.com/questions/22922891/vagrant-ssh-authentication-failure
 
-#yum install gcc kernel-devel kernel-headers dkms make bzip2 perl
-#sudo sh VBoxLinuxAdditions.run --nox11
+#config.ssh.private_key_path = "~/.ssh/id_idax_rsa"
 
 ##private consts
 readonly CONST_VBOX_GUESTADD_URL='http://download.virtualbox.org/virtualbox/@PRM_VERSION@/VBoxGuestAdditions_@PRM_VERSION@.iso' #url for download
@@ -20,8 +21,8 @@ VAR_VBOX_VERSION='' #vbox version without build number
 VAR_DISC_FILE_NAME='' #vbox guest add file name
 VAR_DISC_FILE_PATH='' #vbox guest add file name with local path
 VAR_VM_TEMPLATE_VER='' #current vm template version
-VAR_OVA_FILE_NAME='' #ova package name
-VAR_OVA_FILE_PATH='' #ova package name with local path
+VAR_BOX_FILE_NAME='' #box package name
+VAR_BOX_FILE_PATH='' #box package name with local path
 VAR_FILE_URL='' #url for download
 VAR_DOWNLOAD_PATH='' #local download path for templates
 VAR_CUR_DIR_PATH='' #current directory name
@@ -63,7 +64,7 @@ fi
 
 ###check required files
 
-checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/trigger/${PRM_VM_TEMPLATE}_create.sh"
+checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/../common/trigger/${PRM_VM_TEMPLATE}_create.sh"
 
 ###start prompt
 
@@ -100,13 +101,13 @@ fi
 
 #get url for current vm template version
 VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE" "$VAR_VM_TEMPLATE_VER") || exitChildError "$VAR_FILE_URL"
-VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.ova"
+VAR_BOX_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.box"
 
 VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
 if ! isDirectoryExist "$VAR_DOWNLOAD_PATH"; then mkdir -p "$VAR_DOWNLOAD_PATH"; fi
-VAR_OVA_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
+VAR_BOX_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_BOX_FILE_NAME
 
-if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
+if ! isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
   VAR_VAGRANT_FILE_PATH=$ENV_SCRIPT_DIR_NAME/template/${COMMON_CONST_VAGRANT_FILE_NAME}_${PRM_VM_TEMPLATE}
   if ! isFileExistAndRead "$VAR_VAGRANT_FILE_PATH"; then
     printf "Vagrant.configure("2") do |config|\n  config.vm.box = \"@VAR_FILE_URL@\"\n  \
@@ -114,6 +115,7 @@ config.vm.provider :virtualbox do |vb|\n    vb.name = \"@PRM_VM_TEMPLATE@\"\n   
 vb.memory = \"$COMMON_CONST_DEFAULT_MEMORY_SIZE\"\n    vb.cpus = \"$COMMON_CONST_DEFAULT_VCPU_COUNT\"\n  end\n  \
 config.vm.provision :shell, :path => \"$ENV_ROOT_DIR/vbox/template/install_guest_add.sh\"\n\
 end\n" > $VAR_VAGRANT_FILE_PATH
+#config.ssh.private_key_path = \"$ENV_SSH_IDENTITY_FILE_NAME\"\n  \
   fi
   #create temporary directory
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
@@ -127,9 +129,10 @@ end\n" > $VAR_VAGRANT_FILE_PATH
   vboxmanage controlvm "$PRM_VM_TEMPLATE" acpipowerbutton
   checkRetValOK
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM ${PRM_VM_TEMPLATE}. Typically for Linux without GUI: \
-vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
+vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - ${COMMON_CONST_DEFAULT_HDD_SIZE}G"
   VAR_CONTROLLER_NAME=$(vboxmanage showvminfo $PRM_VM_TEMPLATE | grep -i 'storage controller name' | sed -n 1p | awk '{print $(NF)}') || exitChildError "$VAR_CONTROLLER_NAME"
   if isEmpty "$VAR_CONTROLLER_NAME"; then exitError "storage controller VM ${PRM_VM_TEMPLATE} not found"; fi
+  sleep $COMMON_CONST_SLEEP_LONG
   vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 1 --type dvddrive --medium "$VAR_DISC_FILE_PATH"
   checkRetValOK
   vagrant up --provision-with shell
@@ -150,14 +153,13 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   pausePrompt "Pause 3 of 3: Last check template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_VM_PORT"
   vagrant halt
   checkRetValOK
-  #export ova
-  vboxmanage export --ovf10 --manifest --options manifest $PRM_VM_TEMPLATE -o $VAR_OVA_FILE_PATH
+  #export box
+  vagrant package --base $PRM_VM_TEMPLATE --output $VAR_BOX_FILE_PATH
   checkRetValOK
-  #destroy and remove
   vagrant destroy -f
   checkRetValOK
-#  vagrant box remove --force $VAR_FILE_URL
-#  checkRetValOK
+  vagrant box remove --force $VAR_FILE_URL
+  checkRetValOK
   #remove temporary directory
   cd $VAR_CUR_DIR_PATH
   checkRetValOK

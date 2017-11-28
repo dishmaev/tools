@@ -67,7 +67,7 @@ checkUserPassword
 
 ###check required files
 
-checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/trigger/${PRM_VM_TEMPLATE}_create.sh"
+checkRequiredFiles "$ENV_SCRIPT_DIR_NAME/../common/trigger/${PRM_VM_TEMPLATE}_create.sh"
 
 ###start prompt
 
@@ -265,7 +265,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     fi
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
     #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
+    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c ${COMMON_CONST_DEFAULT_HDD_SIZE}G -d thin $VAR_DISC_FILE_PATH"
     checkRetValOK
     $SSH_CLIENT $PRM_ESXI_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     checkRetValOK
@@ -344,7 +344,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     fi
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
     #make vm template directory, copy vmdk disk
-    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE -d thin $VAR_DISC_FILE_PATH"
+    $SSH_CLIENT $PRM_ESXI_HOST "mkdir $VAR_DISC_DIR_PATH; vmkfstools -c ${COMMON_CONST_DEFAULT_HDD_SIZE}G -d thin $VAR_DISC_FILE_PATH"
     checkRetValOK
     $SSH_CLIENT $PRM_ESXI_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/${PRM_VM_TEMPLATE}.vmx | sed -e \"s#@VAR_DISC_FILE_PATH@#$VAR_TMP_FILE_PATH#;s#@DISC_VMTOOLS_FILE_PATH@#$COMMON_CONST_ESXI_VMTOOLS_PATH/solaris.iso#\" > $VAR_DISC_DIR_PATH/${PRM_VM_TEMPLATE}.vmx"
     checkRetValOK

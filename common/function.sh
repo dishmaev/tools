@@ -296,14 +296,14 @@ powerOnVM()
 {
   checkParmsCount $# 2 'powerOnVM'
   local VAR_RESULT=''
-  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  local VAR_COUNT=$COMMON_CONST_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_TRY_NUM
   echo "Required power on VMID $1 on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
     echo -n '.'
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+    sleep $COMMON_CONST_SLEEP_LONG
     #check status
     VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
@@ -316,7 +316,7 @@ powerOnVM()
         echo ''
         echo "Still cannot power on the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+      VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
   done
   echo ''
@@ -327,14 +327,14 @@ powerOffVM()
 {
   checkParmsCount $# 2 'powerOffVM'
   local VAR_RESULT=''
-  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  local VAR_COUNT=$COMMON_CONST_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_TRY_NUM
   echo "Required power off VMID $1 on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
     echo -n '.'
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+    sleep $COMMON_CONST_SLEEP_LONG
     #check status
     VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
@@ -345,7 +345,7 @@ powerOffVM()
         echo "Failed standard power off the VMID $1 on $2 host, use force power off."
         $SSH_CLIENT $2 "esxcli vm process kill --type force --world-id $VAR_RESULT"
         checkRetValOK
-        sleep $COMMON_CONST_ESXI_SLEEP_LONG
+        sleep $COMMON_CONST_SLEEP_LONG
         VAR_RESULT=$($SSH_CLIENT $2 "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         if ! isEmpty "$VAR_RESULT"; then
           exitError "failed force power off the VMID $1 on $2 host"
@@ -354,7 +354,7 @@ powerOffVM()
         echo ''
         echo "Still cannot standard power off the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+      VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
   done
   echo ''
@@ -365,8 +365,8 @@ getIpAddressByVMName()
 {
   checkParmsCount $# 3 'getIpAddressByVMName'
   local VAR_RESULT=''
-  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  local VAR_COUNT=$COMMON_CONST_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_TRY_NUM
   local VAR_VM_ID=''
   VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   while true
@@ -383,9 +383,9 @@ getIpAddressByVMName()
       #else
         #echo "Still cannot get ip address of the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+      VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+    sleep $COMMON_CONST_SLEEP_LONG
   done
   echo "$VAR_RESULT"
 }
@@ -453,7 +453,7 @@ checkTriggerTemplateVM(){
   local VAR_RESULT=''
   local VAR_LOG=''
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM $1 on $2 host. Typically for Linux without GUI: \
-vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - $COMMON_CONST_ESXI_DEFAULT_HDD_SIZE"
+vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - ${COMMON_CONST_DEFAULT_HDD_SIZE}G"
   VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
   VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
@@ -580,12 +580,12 @@ checkRequiredFiles() {
 checkDpkgUnlock(){
   checkParmsCount $# 0 'checkDpkgUnlock'
   local CONST_LOCK_FILE='/var/lib/dpkg/lock'
-  local VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
-  local VAR_TRY=$COMMON_CONST_ESXI_TRY_NUM
+  local VAR_COUNT=$COMMON_CONST_TRY_LONG
+  local VAR_TRY=$COMMON_CONST_TRY_NUM
   echo "Check /var/lib/dpkg/lock"
   while sudo fuser $CONST_LOCK_FILE >/dev/null 2>&1; do
     echo -n '.'
-    sleep $COMMON_CONST_ESXI_SLEEP_LONG
+    sleep $COMMON_CONST_SLEEP_LONG
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
@@ -595,7 +595,7 @@ checkDpkgUnlock(){
         echo ''
         echo "Still locked $CONST_LOCK_FILE, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=$COMMON_CONST_ESXI_TRY_LONG
+      VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
   done
   echo ''

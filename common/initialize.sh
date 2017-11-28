@@ -6,13 +6,14 @@ echo 'Description: Initialize general environment variables of the tools'
 echo ''
 
 ##private consts
-readonly CONST_SSH_FILE_NAME=$HOME/.ssh/id_rsa
+readonly CONST_SSH_IDENTITY_FILE_NAME=$HOME/.ssh/id_rsa
 readonly CONST_SCRIPT_DIR_NAME=$(dirname "$0")
 
 ##private vars
 PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
 PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
+PRM_SSH_IDENTITY_FILE_NAME=$(eval 'if [ -r $(dirname "$0")/data/ssh_id_file.txt ]; then cat $(dirname "$0")/data/ssh_id_file.txt; fi')
 VAR_INPUT=''
 VAR_COUNT=''
 VAR_SSH_AGENT=''
@@ -95,12 +96,13 @@ if [ -z "$SSH_AGENT_PID" ]; then
 fi
 
 if [ -z "$PRM_SSH_KEYID" ]; then
+  VAR_SSH_FILE_NAME=${PRM_SSH_IDENTITY_FILE_NAME:-$CONST_SSH_IDENTITY_FILE_NAME}
   if ! isAutoYesMode; then
-    read -r -p "SSH private key file? [$CONST_SSH_FILE_NAME] " VAR_INPUT
+    read -r -p "SSH private key file? [$VAR_SSH_FILE_NAME] " VAR_INPUT
   else
     VAR_INPUT=''
   fi
-  VAR_SSH_FILE_NAME=${VAR_INPUT:-$CONST_SSH_FILE_NAME}
+  VAR_SSH_FILE_NAME=${VAR_INPUT:-$CONST_SSH_IDENTITY_FILE_NAME}
   if [ ! -r $VAR_SSH_FILE_NAME ]; then
     if ! isAutoYesMode; then
       read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
@@ -118,6 +120,8 @@ if [ -z "$PRM_SSH_KEYID" ]; then
   ssh-add $VAR_SSH_FILE_NAME
   checkRetValOK "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_SSH_FILE_NAME' command manually"
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
+  echo "$VAR_SSH_FILE_NAME" > $(dirname "$0")/data/ssh_id_file.txt
+  chmod u=rw,g=,o= $(dirname "$0")/data/ssh_id_file.txt
 fi
 
 PRM_SSH_KEYID=$(echo $PRM_SSH_KEYID | awk '{print $1" "$2}')
