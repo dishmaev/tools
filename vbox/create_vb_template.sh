@@ -4,14 +4,19 @@
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
 targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 
-#https://www.freshports.org/emulators/virtualbox-ose-additions
+#https://www.freshports.org/emulators/virtualbox-ose-additions on FreeBSD
+#https://www.vagrantup.com/docs/virtualbox/boxes.html on Debian
 #https://openedx.atlassian.net/wiki/spaces/OXA/pages/157802739/Vagrant+is+stuck+Authentication+failure.+Retrying...
 #https://stackoverflow.com/questions/22922891/vagrant-ssh-authentication-failure
+#https://eax.me/vboxmanage/
+#https://www.virtualbox.org/manual/ch07.html
+#https://www.virtualbox.org/manual/ch08.html#vboxmanage-registervm
 
 #config.ssh.private_key_path = "~/.ssh/id_idax_rsa"
 
 ##private consts
 readonly CONST_VBOX_GUESTADD_URL='http://download.virtualbox.org/virtualbox/@PRM_VERSION@/VBoxGuestAdditions_@PRM_VERSION@.iso' #url for download
+readonly CONST_VBOX_GUESTADD_SCRIPT='install_guest_add.sh'
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
@@ -31,6 +36,8 @@ VAR_VAGRANT_FILE_PATH='' #vagrant config file name with local path
 VAR_PAUSE_MESSAGE='' #for show message before paused
 VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vm by ssh
 VAR_CONTROLLER_NAME='' #storage controller name
+VAR_SCRIPT_FILE_PATH='' #install guest add script file name with local path
+VAR_LOG='' #log execute script
 
 ###check autoyes
 
@@ -74,9 +81,10 @@ startPrompt
 
 if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
-  -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
-  -sudo systemctl reload sshd\n\
-  -check that ssh and vm tools are correct working, by connect and ping from outside"
+-set $COMMON_CONST_VAGRANT_BASE_USER_NAME not empty password by 'passwd'\n\
+-set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
+-sudo systemctl reload sshd\n\
+-check that ssh and vm tools are correct working, by connect and ping from outside"
 fi
 
 #check virtual box deploy
@@ -94,6 +102,7 @@ VAR_VBOX_VERSION=$(vboxmanage --version | awk -Fr '{print $1}')
 VAR_FILE_URL=$(echo "$CONST_VBOX_GUESTADD_URL" | sed -e "s#@PRM_VERSION@#$VAR_VBOX_VERSION#g") || exitChildError "$VAR_FILE_URL"
 VAR_DISC_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_DISC_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_DISC_FILE_NAME
+VAR_SCRIPT_FILE_PATH="$ENV_ROOT_DIR/vbox/template/$CONST_VBOX_GUESTADD_SCRIPT"
 if ! isFileExistAndRead "$VAR_DISC_FILE_PATH"; then
   wget -O $VAR_DISC_FILE_PATH $VAR_FILE_URL
   checkRetValOK
@@ -113,13 +122,13 @@ if ! isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
     printf "Vagrant.configure("2") do |config|\n  config.vm.box = \"@VAR_FILE_URL@\"\n  \
 config.vm.provider :virtualbox do |vb|\n    vb.name = \"@PRM_VM_TEMPLATE@\"\n    \
 vb.memory = \"$COMMON_CONST_DEFAULT_MEMORY_SIZE\"\n    vb.cpus = \"$COMMON_CONST_DEFAULT_VCPU_COUNT\"\n  end\n  \
-config.vm.provision :shell, :path => \"$ENV_ROOT_DIR/vbox/template/install_guest_add.sh\"\n\
+config.vm.provision :shell, :path => \"@VAR_SCRIPT_FILE_PATH@\"\n\
 end\n" > $VAR_VAGRANT_FILE_PATH
 #config.ssh.private_key_path = \"$ENV_SSH_IDENTITY_FILE_NAME\"\n  \
   fi
   #create temporary directory
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
-  cat $VAR_VAGRANT_FILE_PATH | sed -e "s#@VAR_FILE_URL@#$VAR_FILE_URL#;s#@PRM_VM_TEMPLATE@#$PRM_VM_TEMPLATE#" > $VAR_TMP_DIR_PATH/$COMMON_CONST_VAGRANT_FILE_NAME
+  cat $VAR_VAGRANT_FILE_PATH | sed -e "s#@VAR_FILE_URL@#$VAR_FILE_URL#;s#@PRM_VM_TEMPLATE@#$PRM_VM_TEMPLATE#;s#@VAR_SCRIPT_FILE_PATH@#$VAR_SCRIPT_FILE_PATH#" > $VAR_TMP_DIR_PATH/$COMMON_CONST_VAGRANT_FILE_NAME
   checkRetValOK
   VAR_CUR_DIR_PATH=$PWD
   cd $VAR_TMP_DIR_PATH
@@ -145,12 +154,27 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   checkRetValOK
   echoResult "$VAR_PAUSE_MESSAGE"
   pausePrompt "Pause 2 of 3: Manually make changes on template VM ${PRM_VM_TEMPLATE}"
-  VAR_VM_PORT=$(vagrant port --guest $COMMON_CONST_VAGRANT_GUEST_SSH_PORT) || exitChildError "$VAR_VM_PORT"
-  if isEmpty "$VAR_VM_PORT"; then exitError "host machine port, mapped to the guest port $COMMON_CONST_VAGRANT_GUEST_SSH_PORT of VM ${PRM_VM_TEMPLATE}, not found"; fi
+  VAR_VM_PORT=$(vagrant port --guest $COMMON_CONST_DEFAULT_SSH_PORT) || exitChildError "$VAR_VM_PORT"
+  if isEmpty "$VAR_VM_PORT"; then exitError "host machine port, mapped to the guest port $COMMON_CONST_DEFAULT_SSH_PORT of VM ${PRM_VM_TEMPLATE}, not found"; fi
+  echo "VM ${PRM_VM_TEMPLATE} ip address: $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   $SSH_COPY_ID -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS
   checkRetValOK
-  echo "Start ${PRM_VM_TEMPLATE}_create.sh executing on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_VM_PORT"
-  pausePrompt "Pause 3 of 3: Last check template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_VM_PORT"
+  $SCP_CLIENT -p $VAR_VM_PORT $ENV_SCRIPT_DIR_NAME/../common/trigger/${PRM_VM_TEMPLATE}_create.sh $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS:
+  checkRetValOK
+  echo "Start ${PRM_VM_TEMPLATE}_create.sh executing on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
+  #exec trigger script
+  VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${PRM_VM_TEMPLATE}_create.sh;./${PRM_VM_TEMPLATE}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $PRM_VM_TEMPLATE $VAR_VM_TEMPLATE_VER; \
+if [ -r ${PRM_VM_TEMPLATE}_create.ok ]; then cat ${PRM_VM_TEMPLATE}_create.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${PRM_VM_TEMPLATE}_create.log ]; then cat ${PRM_VM_TEMPLATE}_create.log; fi") || exitChildError "$VAR_LOG"
+    if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
+  fi
+  VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${PRM_VM_TEMPLATE}_create.err ]; then cat ${PRM_VM_TEMPLATE}_create.err; fi") || exitChildError "$VAR_LOG"
+  if ! isEmpty "$VAR_LOG"; then echo "Stderr:\n$VAR_LOG"; fi
+  if ! isTrue "$VAR_RESULT"; then
+    exitError "failed execute ${PRM_VM_TEMPLATE}_create.sh on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
+  fi
+  pausePrompt "Pause 3 of 3: Last check template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   vagrant halt
   checkRetValOK
   #export box
@@ -158,8 +182,8 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   checkRetValOK
   vagrant destroy -f
   checkRetValOK
-  vagrant box remove --force $VAR_FILE_URL
-  checkRetValOK
+#  vagrant box remove --force $VAR_FILE_URL
+#  checkRetValOK
   #remove temporary directory
   cd $VAR_CUR_DIR_PATH
   checkRetValOK

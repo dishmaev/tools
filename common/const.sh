@@ -23,6 +23,7 @@ readonly COMMON_CONST_LINUX_APT='apt'
 readonly COMMON_CONST_LINUX_RPM='rpm'
 readonly COMMON_CONST_NULL='<null>' #null value
 readonly COMMON_CONST_ALL='*' #all
+readonly COMMON_CONST_DEFAULT_SSH_PORT='22' #default guest ssh port
 readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
 readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
@@ -123,7 +124,6 @@ readonly COMMON_CONST_ESXI_BASE_USER_NAME='root' #default user name for ssh conn
 #readonly COMMON_CONST_ESXI_FREEBSD_VMTYPES_POOL='freebsd64Guest' #FreeBSD vm types pool, list with space delimiter
 
 #virtualbox
-readonly COMMON_CONST_VAGRANT_BASE_USER_NAME='vagrant' #default user name for ssh connect when create template VM
+readonly COMMON_CONST_VAGRANT_BASE_USER_NAME='root' #default user name for ssh connect when create template VM
 readonly COMMON_CONST_VAGRANT_FILE_NAME='Vagrantfile' #vagrant config file name
 readonly COMMON_CONST_VAGRANT_IP_ADDRESS='127.0.0.1' #default interface for local VM
-readonly COMMON_CONST_VAGRANT_GUEST_SSH_PORT='22' #default guest ssh port

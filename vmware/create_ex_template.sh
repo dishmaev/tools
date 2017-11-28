@@ -84,7 +84,7 @@ VAR_DISC_FILE_PATH="$VAR_DISC_DIR_PATH/$PRM_VM_TEMPLATE.vmdk"
 if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -clear default notes from general information\n\
--set root not empty password by 'passwd', default is 'changeme'\n\
+-set $COMMON_CONST_ESXI_BASE_USER_NAME not empty password by 'passwd', default is 'changeme'\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
@@ -96,7 +96,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ]; then
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
   VAR_SITE_URL='http://www.osboxes.org/debian/'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
--set root not empty password by 'passwd', default is 'osboxes.org'\n\
+-set $COMMON_CONST_ESXI_BASE_USER_NAME not empty password by 'passwd', default is 'osboxes.org'\n\
 -rm /etc/apt/trusted.gpg.d/*\n\
 -apt-key add /usr/share/keyrings/debian-archive-keyring.gpg\n\
 -echo 'deb http://deb.debian.org/debian/ stretch main' >> /etc/apt/sources.list\n\
@@ -123,7 +123,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ]; then
 -check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
--set root not empty password by 'passwd', default is ''\n\
+-set $COMMON_CONST_ESXI_BASE_USER_NAME not empty password by 'passwd', default is ''\n\
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
 -systemctl reload sshd\n\
 -yum -y install open-vm-tools\n\
@@ -163,13 +163,13 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
   exitError 'disabled'
   VAR_SITE_URL='http://www.osboxes.org/centos/'
   VAR_PAUSE_MESSAGE="Manually must be:\n\
--set root not empty password by 'passwd', default is 'osboxes.org'\n\
+-set $COMMON_CONST_ESXI_BASE_USER_NAME not empty password by 'passwd', default is 'osboxes.org'\n\
 -yum -y install open-vm-tools\n\
 -check that ssh and vm tools are working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
--set root not empty password by 'passwd', default is ''\n\
--change root shell by 'chsh -s /bin/sh'\n\
+-set $COMMON_CONST_ESXI_BASE_USER_NAME not empty password by 'passwd', default is ''\n\
+-change $COMMON_CONST_ESXI_BASE_USER_NAME shell by 'chsh -s /bin/sh'\n\
 -echo sshd_enable=\"YES\" >> in /etc/rc.conf\n\
 -set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
 -export ASSUME_ALWAYS_YES=yes\n\
