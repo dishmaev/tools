@@ -24,7 +24,6 @@ echoHelp $# 1 '<vmName>' "myvm" ""
 ###check commands
 
 PRM_VM_NAME=$1
-PRM_ESXI_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 

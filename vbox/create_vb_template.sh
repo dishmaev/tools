@@ -5,17 +5,22 @@
 targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 
 #https://forums.virtualbox.org/viewtopic.php?f=7&t=39967 error locked VM
+#https://stackoverflow.com/questions/35169724/vm-in-virtualbox-is-already-locked-for-a-session-or-being-unlocked
 
 #https://www.freshports.org/emulators/virtualbox-ose-additions on FreeBSD
-#https://www.vagrantup.com/docs/virtualbox/boxes.html on Debian
+
 #https://openedx.atlassian.net/wiki/spaces/OXA/pages/157802739/Vagrant+is+stuck+Authentication+failure.+Retrying...
 #https://stackoverflow.com/questions/22922891/vagrant-ssh-authentication-failure
+
+#https://www.sitepoint.com/create-share-vagrant-base-box/ how create base box
+#https://www.vagrantup.com/docs/virtualbox/boxes.html creating base box with Debian
+
+#https://unix.stackexchange.com/questions/176687/set-storage-size-on-creation-of-vm-virtualbox resize hdd
+
 #https://eax.me/vboxmanage/
 #https://www.virtualbox.org/manual/ch07.html
 #https://www.virtualbox.org/manual/ch08.html#vboxmanage-registervm
 #https://superuser.com/questions/741734/virtualbox-how-can-i-add-mount-a-iso-image-file-from-command-line
-
-#config.ssh.private_key_path = "~/.ssh/id_idax_rsa"
 
 ##private consts
 readonly CONST_VBOX_GUESTADD_URL='http://download.virtualbox.org/virtualbox/@PRM_VERSION@/VBoxGuestAdditions_@PRM_VERSION@.iso' #url for download
@@ -199,8 +204,6 @@ if [ -r ${PRM_VM_TEMPLATE}_create.ok ]; then cat ${PRM_VM_TEMPLATE}_create.ok; e
   checkRetValOK
   vagrant destroy -f
   checkRetValOK
-#  vagrant box remove --force $PRM_VM_TEMPLATE
-#  checkRetValOK
   #remove temporary directory
   cd $VAR_CUR_DIR_PATH
   checkRetValOK

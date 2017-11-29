@@ -60,7 +60,7 @@ for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
     VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
     VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_TRUE") || exitChildError "$VAR_VM_IP"
     if isEmpty "$VAR_VM_IP"; then VAR_VM_IP="<unset>"; fi
-    VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"
+    VAR_SS_ID=$(getVMSnapshotIDByNameEx "$VAR_VM_ID" "$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"
     #check snapshotName
     if isEmpty "$VAR_SS_ID"
     then

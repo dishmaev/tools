@@ -58,7 +58,7 @@ if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VM_NAME not found on $PRM_ESXI_HOST host"
 fi
 #check snapshotName
-VAR_SS_ID=$(getVMSnapshotIDByName "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_SS_ID"
+VAR_SS_ID=$(getVMSnapshotIDByNameEx "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_SS_ID"
 if isEmpty "$VAR_SS_ID"; then
   exitError "snapshot $PRM_SNAPSHOT_NAME not found for VM $PRM_VM_NAME on $PRM_ESXI_HOST host"
 fi

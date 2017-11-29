@@ -189,9 +189,16 @@ getVMSnapshotNameByID(){
   fi
   echo "$VAR_RESULT"
 }
+#$1 VMID, $2 snapshotName
+getVMSnapshotIDByNameVb(){
+  checkParmsCount $# 2 'getVMSnapshotIDByNameVb'
+  local VAR_RESULT=''
+  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | sed -n "/${2}/,+1p" | sed 1d | awk -F= '{print $2}' | sed 's/["]//g')
+  echo "$VAR_RESULT"
+}
 #$1 VMID, $2 snapshotName, $3 host
-getVMSnapshotIDByName(){
-  checkParmsCount $# 3 'getVMSnapshotIDByName'
+getVMSnapshotIDByNameEx(){
+  checkParmsCount $# 3 'getVMSnapshotIDByNameEx'
   local VAR_RESULT=''
   local VAR_CUR_STR=''
   local VAR_CUR_SSNAME=''
@@ -1146,7 +1153,7 @@ isRetValOK(){
 isVMExistVb(){
   checkParmsCount $# 1 'isVMExistVb'
   local VAR_RESULT=''
-#  VAR_RESULT=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
 }
 #$1 vm name, $2 host
@@ -1156,11 +1163,19 @@ isVMExistEx(){
   VAR_RESULT=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
 }
-#$1 VMID, $2 snapshotName, $3 host
-isSnapshotVMExist(){
-  checkParmsCount $# 3 'isSnapshotVMExist'
+#$1 VMID, $2 snapshotName
+isSnapshotVMExistVb(){
+  checkParmsCount $# 2 'isSnapshotVMExistVb'
   local VAR_RESULT=''
   local VAR_VM_ID=''
-  VAR_RESULT=$(getVMSnapshotIDByName "$1" "$2" "$3") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(getVMSnapshotIDByNameVb "$1" "$2") || exitChildError "$VAR_RESULT"
+  ! isEmpty "$VAR_RESULT"
+}
+#$1 VMID, $2 snapshotName, $3 host
+isSnapshotVMExistEx(){
+  checkParmsCount $# 3 'isSnapshotVMExistEx'
+  local VAR_RESULT=''
+  local VAR_VM_ID=''
+  VAR_RESULT=$(getVMSnapshotIDByNameEx "$1" "$2" "$3") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
 }

@@ -111,6 +111,8 @@ config.vm.provider :virtualbox do |vb|\n    vb.name = \"$VAR_VM_NAME\"\n  end"
 checkRetValOK
 vagrant up
 checkRetValOK
+vagrant halt
+checkRetValOK
 cd $VAR_CUR_DIR_PATH
 checkRetValOK
 

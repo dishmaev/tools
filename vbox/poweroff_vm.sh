@@ -18,7 +18,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '[vmsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ""
+echoHelp $# 1 '[vmsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ""
 
 ###check commands
 
