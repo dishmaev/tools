@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Remove target VM snapshot on esxi host'
+targetDescription 'Remove VM snapshot on esxi host'
 
 ##private consts
 
@@ -65,7 +65,7 @@ fi
 #power off
 VAR_RESULT=$(powerOffVMEx "$PRM_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
-#remove vm
+#remove snapshot
 $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.remove $VAR_VM_ID $VAR_SS_ID $PRM_REMOVE_CHILD"
 checkRetValOK
 

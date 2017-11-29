@@ -120,9 +120,26 @@ getElapsedTime(){
 
   echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_END"
 }
+#$1 VMID, $2 snapshotName, $3 snapshotId
+getChildSnapshotsPoolVb(){
+  checkParmsCount $# 3 'getChildSnapshotsPoolVb'
+  local VAR_RESULT=''
+  local VAR_CUR_SSID=''
+  local VAR_CUR_SSNAME=''
+  local VAR_SS_LIST=''
+  VAR_CUR_SSNAME=$(vboxmanage snapshot ${1} list --machinereadable | grep ${3} | awk -F= '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
+  if isEmpty "$VAR_CUR_SSNAME"; then
+    exitError "snapshot $2 ID $3 not found for VMID $1"
+  fi
+  VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | sed 's/["]//g' | tac) || exitChildError "$VAR_CUR_SSNAME"
+  for VAR_CUR_SSID in $VAR_SS_LIST; do
+    VAR_RESULT="$VAR_RESULT $VAR_CUR_SSID"
+  done
+  echo "$VAR_RESULT"
+}
 #$1 VMID, $2 snapshotName, $3 snapshotId, $4 host
-getChildSnapshotsPool(){
-  checkParmsCount $# 4 'getChildSnapshotsPool'
+getChildSnapshotsPoolEx(){
+  checkParmsCount $# 4 'getChildSnapshotsPoolEx'
   local VAR_RESULT=''
   local VAR_CUR_STR=''
   local VAR_CUR_SSNAME=''
@@ -160,7 +177,7 @@ getChildSnapshotsPool(){
     fi
   done
   if ! isTrue $VAR_FOUND; then
-    exitError "snapshot $2 Id $3 not found for VMID $1 on $4 host"
+    exitError "snapshot $2 ID $3 not found for VMID $1 on $4 host"
   fi
   echo "$VAR_RESULT"
 }
