@@ -14,13 +14,17 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[MACsPool=$COMMON_CONST_ESXI_MACS_POOL]' "'$COMMON_CONST_ESXI_MACS_POOL'" ''
+echoHelp $# 1 '[MACsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ''
 
 ###check commands
 
-PRM_MACS_POOL=${1:-$COMMON_CONST_ESXI_MACS_POOL}
+PRM_MACS_POOL=${1:-$COMMON_CONST_ALL}
 
-checkCommandExist 'MACsPool' "$PRM_MACS_POOL" ''
+if ! isEmpty "$1"; then
+  checkCommandExist 'MACsPool' "$PRM_MACS_POOL" "$COMMON_CONST_ESXI_MACS_POOL"
+else
+  checkCommandExist 'MACsPool' "$PRM_MACS_POOL" ''
+fi
 
 ###check body dependencies
 
@@ -31,6 +35,10 @@ checkDependencies 'wakeonlan'
 startPrompt
 
 ###body
+
+if [ "$PRM_MACS_POOL" = "$COMMON_CONST_ALL" ]; then
+  PRM_MACS_POOL=$COMMON_CONST_ESXI_MACS_POOL
+fi
 
 for VAR_MAC in $PRM_MACS_POOL; do
   echo "MAC host:" $VAR_MAC

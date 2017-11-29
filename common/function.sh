@@ -612,22 +612,25 @@ if [ -r ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE
   VAR_RESULT=$(powerOffVMEx "$1" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
 }
-#$1 title, $2 value, $3 allowed values
+#$1 title, $2 values pool, $3 allowed values
 checkCommandValue() {
   checkParmsCount $# 3 'checkCommandValue'
+  local VAR_VALUE=''
   local VAR_COMMAND=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  for VAR_COMMAND in $3
-  do
-    if [ "$VAR_COMMAND" = "$2" ]
+  for VAR_VALUE in $2; do
+    VAR_FOUND=$COMMON_CONST_FALSE
+    for VAR_COMMAND in $3; do
+      if [ "$VAR_COMMAND" = "$VAR_VALUE" ]
+      then
+        VAR_FOUND=$COMMON_CONST_TRUE
+      fi
+    done
+    if ! isTrue "$VAR_FOUND"
     then
-      VAR_FOUND=$COMMON_CONST_TRUE
+      exitError "option $1 value '$VAR_VALUE' invalid. Allowed values: $3"
     fi
   done
-  if ! isTrue "$VAR_FOUND"
-  then
-    exitError "option $1 value $2 invalid. Allowed values: $3"
-  fi
 }
 #$1 directory name, $2 error message prefix
 checkDirectoryForExist() {

@@ -16,13 +16,17 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[esxiHostsPool=$COMMON_CONST_ESXI_HOSTS_POOL]' "'$COMMON_CONST_ESXI_HOSTS_POOL'" ''
+echoHelp $# 1 '[esxiHostsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ''
 
 ###check commands
 
-PRM_ESXI_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
+PRM_ESXI_HOSTS_POOL=${1:-$COMMON_CONST_ALL}
 
-checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
+if ! isEmpty "$1"; then
+  checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" "$COMMON_CONST_ESXI_HOSTS_POOL"
+else
+  checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
+fi
 
 ###check body dependencies
 
@@ -33,6 +37,10 @@ checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
 startPrompt
 
 ###body
+
+if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
+  PRM_ESXI_HOSTS_POOL=$COMMON_CONST_ESXI_HOSTS_POOL
+fi
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   echo "Esxi host:" $VAR_HOST

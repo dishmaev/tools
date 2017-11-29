@@ -87,17 +87,17 @@ $COMMON_CONST_DOCKER_VM_TYPE \
 $COMMON_CONST_KUBERNETES_VM_TYPE"
 
 #suites
-readonly COMMON_CONST_RELEASE_SUITE='rel' #release
-readonly COMMON_CONST_TEST_SUITE='tst' #test
-readonly COMMON_CONST_DEVELOP_SUITE='dev' #develop
 readonly COMMON_CONST_RUNNER_SUITE='run' #runner, for build of project
+readonly COMMON_CONST_DEVELOP_SUITE='dev' #develop
+readonly COMMON_CONST_TEST_SUITE='tst' #test
+readonly COMMON_CONST_RELEASE_SUITE='rel' #release
 
 # available suites pool
 readonly COMMON_CONST_SUITES_POOL="\
+$COMMON_CONST_RUNNER_SUITE \
 $COMMON_CONST_DEVELOP_SUITE \
 $COMMON_CONST_TEST_SUITE \
-$COMMON_CONST_RELEASE_SUITE \
-$COMMON_CONST_RUNNER_SUITE"
+$COMMON_CONST_RELEASE_SUITE"
 
 #ci
 #readonly COMMON_CONST_GITLABCE_APT_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh'
