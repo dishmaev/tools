@@ -103,6 +103,7 @@ mkdir "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"
 checkRetValOK
 VAR_CUR_DIR_PATH=$PWD
 cd "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"
+checkRetValOK
 vagrant init $PRM_VM_TEMPLATE $VAR_BOX_FILE_PATH
 checkRetValOK
 sed -i Vagrantfile -e "/config.vm.box = \"$PRM_VM_TEMPLATE\"/ a\ \n\  config.ssh.private_key_path = \"$ENV_SSH_IDENTITY_FILE_NAME\"\n  \

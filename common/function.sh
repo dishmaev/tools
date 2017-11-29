@@ -14,7 +14,7 @@ VAR_START_TIME='' #start execution script
 #$1 regular string
 getOVFToolPassword(){
   checkParmsCount $# 1 'getOVFToolPassword'
-  local CONST_SPEC_SYMBOLS="@!#$^&*?[(){}<>~;'\"\`\|=,"
+  local FCONST_SPEC_SYMBOLS="@!#$^&*?[(){}<>~;'\"\`\|=,"
   local VAR_LENGTH=0
   local VAR_RESULT=''
   local VAR_INDEX=0;
@@ -25,7 +25,7 @@ getOVFToolPassword(){
     VAR_INDEX=$((VAR_INDEX+1))
     if [ $VAR_INDEX -gt ${#1} ]; then break; fi
     VAR_CHAR=$(echo "$1" | cut -b $VAR_INDEX)
-    VAR_TEST=$(echo "$VAR_CHAR" | grep -E '['$CONST_SPEC_SYMBOLS']')
+    VAR_TEST=$(echo "$VAR_CHAR" | grep -E '['$FCONST_SPEC_SYMBOLS']')
     if [ ! -z $VAR_TEST ]; then
       VAR_CHAR=$(printf '%%%x' "'$VAR_TEST")
     fi
@@ -225,30 +225,30 @@ getVMSnapshotCount(){
 #$1 vm template, $2 vm type, $3 vm version
 getVMUrl() {
   checkParmsCount $# 3 'getVMUrl'
-  local CONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
+  local FCONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
   local VAR_RESULT=''
-  if ! isFileExistAndRead "$CONST_FILE_PATH"; then
-    exitError "file $CONST_FILE_PATH not found"
+  if ! isFileExistAndRead "$FCONST_FILE_PATH"; then
+    exitError "file $FCONST_FILE_PATH not found"
   fi
-  VAR_RESULT=$(cat $CONST_FILE_PATH | grep "$3$COMMON_CONST_DATA_CFG_SEPARATOR" | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(cat $FCONST_FILE_PATH | grep "$3$COMMON_CONST_DATA_CFG_SEPARATOR" | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_RESULT"
   if isEmpty "$VAR_RESULT"; then
-    exitError "missing url for VM template $1 version $3 in file $CONST_FILE_PATH"
+    exitError "missing url for VM template $1 version $3 in file $FCONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
 #$1 vm template, $2 vm type
 getAvailableVMTemplateVersions(){
   checkParmsCount $# 2 'getAvailableVMTemplateVersions'
-  local CONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
+  local FCONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  if ! isFileExistAndRead "$CONST_FILE_PATH"; then
-    exitError "file $CONST_FILE_PATH not found"
+  if ! isFileExistAndRead "$FCONST_FILE_PATH"; then
+    exitError "file $FCONST_FILE_PATH not found"
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed 1d $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$(sed 1d $FCONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -257,23 +257,23 @@ getAvailableVMTemplateVersions(){
     exitError "VM template $1 not found"
   fi
   if isEmpty "$VAR_RESULT"; then
-    exitError "cannot found any version for VM template $1 in file $CONST_FILE_PATH"
+    exitError "cannot found any version for VM template $1 in file $FCONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
 #$1 vm template, $2 vm type
 getDefaultVMTemplateVersion(){
   checkParmsCount $# 2 'getDefaultVMTemplateVersion'
-  local CONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
+  local FCONST_FILE_PATH="./../common/data/${1}_${2}_url.cfg"
   local VAR_RESULT=''
   local VAR_VM_TEMPLATE=''
   local VAR_FOUND=$COMMON_CONST_FALSE
-  if ! isFileExistAndRead "$CONST_FILE_PATH"; then
-    exitError "file $CONST_FILE_PATH not found"
+  if ! isFileExistAndRead "$FCONST_FILE_PATH"; then
+    exitError "file $FCONST_FILE_PATH not found"
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed -n 2p $CONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$(sed -n 2p $FCONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -282,7 +282,7 @@ getDefaultVMTemplateVersion(){
     exitError "VM template $1 not found"
   fi
   if isEmpty "$VAR_RESULT"; then
-    exitError "missing default version for VM template $1 in file $CONST_FILE_PATH"
+    exitError "missing default version for VM template $1 in file $FCONST_FILE_PATH"
   fi
   echo "$VAR_RESULT"
 }
@@ -295,7 +295,7 @@ getParentDirectoryPath(){
 powerOnVMVb()
 {
   checkParmsCount $# 1 'powerOnVMVb'
-  local CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
   local VAR_RESULT=''
   local VAR_VM_ID=''
   local VAR_CUR_DIR_PATH='' #current directory name
@@ -307,7 +307,7 @@ powerOnVMVb()
   if isEmpty "$VAR_RESULT"; then
     echo "Required power on VM $1 ID $VAR_VM_ID"
     VAR_CUR_DIR_PATH=$PWD
-    cd "$CONST_LOCAL_VMS_PATH/$1"
+    cd "$FCONST_LOCAL_VMS_PATH/$1"
     checkRetValOK
     vagrant up
     checkRetValOK
@@ -356,7 +356,7 @@ powerOnVMEx()
 powerOffVMVb()
 {
   checkParmsCount $# 1 'powerOffVMVb'
-  local CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
   local VAR_RESULT=''
   local VAR_VM_ID=''
   local VAR_CUR_DIR_PATH='' #current directory name
@@ -368,7 +368,7 @@ powerOffVMVb()
   if ! isEmpty "$VAR_RESULT"; then
     echo "Required power off VM $1 ID $VAR_VM_ID"
     VAR_CUR_DIR_PATH=$PWD
-    cd "$CONST_LOCAL_VMS_PATH/$1"
+    cd "$FCONST_LOCAL_VMS_PATH/$1"
     checkRetValOK
     vagrant halt
     checkRetValOK
@@ -424,7 +424,7 @@ powerOffVMEx()
 getPortAddressByVMNameVb()
 {
   checkParmsCount $# 1 'getPortAddressByVMNameVb'
-  local CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
   local VAR_RESULT=''
   local VAR_VM_ID=''
   local VAR_CUR_DIR_PATH='' #current directory name
@@ -437,7 +437,7 @@ getPortAddressByVMNameVb()
     exitError "VM $1 not running"
   fi
   VAR_CUR_DIR_PATH=$PWD
-  cd "$CONST_LOCAL_VMS_PATH/$1"
+  cd "$FCONST_LOCAL_VMS_PATH/$1"
   checkRetValOK
   VAR_RESULT=$(vagrant port --guest $COMMON_CONST_DEFAULT_SSH_PORT) || exitChildError "$VAR_RESULT"
   cd $VAR_CUR_DIR_PATH
@@ -679,21 +679,21 @@ checkRequiredFiles() {
 
 checkDpkgUnlock(){
   checkParmsCount $# 0 'checkDpkgUnlock'
-  local CONST_LOCK_FILE='/var/lib/dpkg/lock'
+  local FCONST_LOCK_FILE='/var/lib/dpkg/lock'
   local VAR_COUNT=$COMMON_CONST_TRY_LONG
   local VAR_TRY=$COMMON_CONST_TRY_NUM
   echo "Check /var/lib/dpkg/lock"
-  while sudo fuser $CONST_LOCK_FILE >/dev/null 2>&1; do
+  while sudo fuser $FCONST_LOCK_FILE >/dev/null 2>&1; do
     echo -n '.'
     sleep $COMMON_CONST_SLEEP_LONG
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then  #still not powered on, force kill vm
-        exitError "failed wait while unlock $CONST_LOCK_FILE. Check another long process using it"
+        exitError "failed wait while unlock $FCONST_LOCK_FILE. Check another long process using it"
       else
         echo ''
-        echo "Still locked $CONST_LOCK_FILE, left $VAR_TRY attempts"
+        echo "Still locked $FCONST_LOCK_FILE, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
@@ -724,7 +724,7 @@ checkNotEmptyEnvironment(){
 #$1 host
 checkSSHKeyExistEsxi(){
   checkParmsCount $# 1 'checkSSHKeyExistEsxi'
-  local CONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
+  local FCONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"
   local VAR_RESULT="$COMMON_CONST_FALSE"
   local VAR_TMP_FILE_PATH=''
   local VAR_TMP_FILE_NAME=''
@@ -732,11 +732,11 @@ checkSSHKeyExistEsxi(){
   VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
 
   checkRequiredFiles "$ENV_SSH_KEYID"
-  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $CONST_HV_SSHKEYS_DIRNAME ]; then mkdir $CONST_HV_SSHKEYS_DIRNAME; fi; \
-if [ ! -r $CONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
-cat > $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
-cat $CONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME || cat $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME >> $CONST_HV_SSHKEYS_DIRNAME/authorized_keys; \
-rm $CONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
+if [ ! -r $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
+cat > $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
+cat $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME || cat $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME >> $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; \
+rm $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
 
