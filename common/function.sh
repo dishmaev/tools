@@ -127,7 +127,7 @@ getChildSnapshotsPoolVb(){
   local VAR_CUR_SSID=''
   local VAR_CUR_SSNAME=''
   local VAR_SS_LIST=''
-  VAR_CUR_SSNAME=$(vboxmanage snapshot ${1} list --machinereadable | grep ${3} | awk -F= '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
+  VAR_CUR_SSNAME=$(vboxmanage snapshot ${1} list --machinereadable | grep ${3} | sed -n 1p | awk -F= '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
   if isEmpty "$VAR_CUR_SSNAME"; then
     exitError "snapshot $2 ID $3 not found for VMID $1"
   fi
@@ -181,9 +181,16 @@ getChildSnapshotsPoolEx(){
   fi
   echo "$VAR_RESULT"
 }
+#$1 VMID, $2 snapshotID
+getVMSnapshotNameByIDVb(){
+  checkParmsCount $# 2 'getVMSnapshotNameByIDVb'
+  local VAR_RESULT=''
+  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | sed -n "/${2}/{g;1!p;};h" | sed -n 1p | awk -F= '{print $2}' | sed 's/["]//g') || exitChildError "$VAR_RESULT"
+  echo "$VAR_RESULT"
+}
 #$1 VMID, $2 snapshotID, $3 host
-getVMSnapshotNameByID(){
-  checkParmsCount $# 3 'getVMSnapshotNameByID'
+getVMSnapshotNameByIDEx(){
+  checkParmsCount $# 3 'getVMSnapshotNameByIDEx'
   local VAR_RESULT=''
   local VAR_CUR_STR=''
   local VAR_CUR_SS_ID=''
@@ -210,7 +217,7 @@ getVMSnapshotNameByID(){
 getVMSnapshotIDByNameVb(){
   checkParmsCount $# 2 'getVMSnapshotIDByNameVb'
   local VAR_RESULT=''
-  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | sed -n "/${2}/,+1p" | sed 1d | awk -F= '{print $2}' | sed 's/["]//g')
+  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | sed -n "/${2}/,+1p" | sed -n 2p | awk -F= '{print $2}' | sed 's/["]//g') || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 snapshotName, $3 host
@@ -457,15 +464,14 @@ getPortAddressByVMNameVb()
     exitError "VM $1 not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
-  if isEmpty "$VAR_RESULT"; then
-    exitError "VM $1 not running"
+  if ! isEmpty "$VAR_RESULT"; then
+    VAR_CUR_DIR_PATH=$PWD
+    cd "$FCONST_LOCAL_VMS_PATH/$1"
+    checkRetValOK
+    VAR_RESULT=$(vagrant port --guest $COMMON_CONST_DEFAULT_SSH_PORT) || exitChildError "$VAR_RESULT"
+    cd $VAR_CUR_DIR_PATH
+    checkRetValOK
   fi
-  VAR_CUR_DIR_PATH=$PWD
-  cd "$FCONST_LOCAL_VMS_PATH/$1"
-  checkRetValOK
-  VAR_RESULT=$(vagrant port --guest $COMMON_CONST_DEFAULT_SSH_PORT) || exitChildError "$VAR_RESULT"
-  cd $VAR_CUR_DIR_PATH
-  checkRetValOK
   echo "$VAR_RESULT"
 }
 #$1 vm name, $2 esxi host, $3 fast mode bool value

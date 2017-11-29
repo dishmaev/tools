@@ -55,6 +55,7 @@ readonly COMMON_CONST_DEFAULT_HDD_SIZE='20' #default hdd disc size in Gb for tem
 readonly COMMON_CONST_TRY_NUM=3 #try num for long operation
 readonly COMMON_CONST_TRY_LONG=30 #one try long
 readonly COMMON_CONST_SLEEP_LONG=5 #sleep long
+readonly COMMON_CONST_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 
 # available vm templates pool
 readonly COMMON_CONST_VM_TEMPLATES_POOL="\
@@ -116,7 +117,6 @@ readonly COMMON_CONST_ESXI_TEMPLATES_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/templat
 readonly COMMON_CONST_ESXI_DATA_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/data" #notupgradable data directory on esxi host
 readonly COMMON_CONST_ESXI_OVFTOOL_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmware-ovftool" #ovf tools directory on esxi host
 readonly COMMON_CONST_ESXI_VMTOOLS_PATH="$COMMON_CONST_ESXI_TOOLS_PATH/vmtool" #vmware tools directory on esxi host
-readonly COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME='template' #template vm snapshot name
 readonly COMMON_CONST_ESXI_BASE_USER_NAME='root' #default user name for ssh connect when create template VM
 
 #readonly COMMON_CONST_ESXI_LINUX_APT_VMTYPES_POOL='debian9_64Guest' #APT-based Linux vm types pool, list with space delimiter

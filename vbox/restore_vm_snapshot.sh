@@ -23,9 +23,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 "<vmName> <snapshotName=\$ENV_PROJECT_NAME | \$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME> [removeChildren=1]" \
+echoHelp $# 3 "<vmName> <snapshotName=\$ENV_PROJECT_NAME | \$COMMON_CONST_SNAPSHOT_TEMPLATE_NAME> [removeChildren=1]" \
 "myvm $ENV_PROJECT_NAME 1" \
-"Required allowing SSH access on the remote host. Available standard snapshotName: $ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+"Required allowing SSH access on the remote host. Available standard snapshotName: $ENV_PROJECT_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 
 ###check commands
 
@@ -34,7 +34,7 @@ PRM_SNAPSHOT_NAME=$2
 PRM_REMOVE_CHILD=${3:-$COMMON_CONST_TRUE}
 
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$ENV_PROJECT_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 checkCommandExist 'removeChildren' "$PRM_REMOVE_CHILD" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies

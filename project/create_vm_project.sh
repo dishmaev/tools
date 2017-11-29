@@ -79,13 +79,13 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_HOST"
     VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
-    VAR_SS_ID=$(getVMSnapshotIDByNameEx "$VAR_VM_ID" "$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"
+    VAR_SS_ID=$(getVMSnapshotIDByNameEx "$VAR_VM_ID" "$COMMON_CONST_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"
     #check snapshotName
     if isEmpty "$VAR_SS_ID"
     then
-      exitError "snapshot $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME not found for VM $VAR_VM_NAME on $VAR_HOST host"
+      exitError "snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME not found for VM $VAR_VM_NAME on $VAR_HOST host"
     fi
-    VAR_CHILD_SNAPSHOTS_POOL=$(getChildSnapshotsPoolEx "$VAR_VM_ID" "$COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME" "$VAR_SS_ID" "$VAR_HOST") || exitChildError "$VAR_CHILD_SNAPSHOTS_POOL"
+    VAR_CHILD_SNAPSHOTS_POOL=$(getChildSnapshotsPoolEx "$VAR_VM_ID" "$COMMON_CONST_SNAPSHOT_TEMPLATE_NAME" "$VAR_SS_ID" "$VAR_HOST") || exitChildError "$VAR_CHILD_SNAPSHOTS_POOL"
     if isEmpty "$VAR_CHILD_SNAPSHOTS_POOL"; then
       VAR_FOUND=$COMMON_CONST_TRUE
       break
@@ -102,7 +102,7 @@ if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     echo "New VM name: $VAR_VM_NAME"
   else
     echo "Current VM name: $VAR_VM_NAME"
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   fi
   VAR_RESULT=$(powerOnVMEx "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_RESULT"

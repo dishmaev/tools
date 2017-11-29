@@ -5,14 +5,13 @@
 targetDescription 'Get packages list from a personal distrib repository'
 
 ##private consts
-CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
-CONST_RELEASE_CODE_NAME_APT='stable'
-CONST_TEST_CODE_NAME_APT='testing'
-CONST_DEVELOP_CODE_NAME_APT='unstable'
-CONST_RELEASE_CODE_NAME_RPM='release'
-CONST_TEST_CODE_NAME_RPM='test'
-CONST_DEVELOP_CODE_NAME_RPM='develop'
-CONST_SHOW_ALL='*'
+readonly CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
+readonly CONST_RELEASE_CODE_NAME_APT='stable'
+readonly CONST_TEST_CODE_NAME_APT='testing'
+readonly CONST_DEVELOP_CODE_NAME_APT='unstable'
+readonly CONST_RELEASE_CODE_NAME_RPM='release'
+readonly CONST_TEST_CODE_NAME_RPM='test'
+readonly CONST_DEVELOP_CODE_NAME_RPM='develop'
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
@@ -36,14 +35,14 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4  '<vmTemplate> [filterRegex=$CONST_SHOW_ALL] [suite=$COMMON_CONST_DEVELOP_SUITE] [distribRepository=$ENV_DISTRIB_REPO]' \
-"$COMMON_CONST_PHOTONMINI_VM_TEMPLATE '$CONST_SHOW_ALL' $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
+echoHelp $# 4  '<vmTemplate> [filterRegex=$COMMON_CONST_ALL] [suite=$COMMON_CONST_DEVELOP_SUITE] [distribRepository=$ENV_DISTRIB_REPO]' \
+"$COMMON_CONST_PHOTONMINI_VM_TEMPLATE '$COMMON_CONST_ALL' $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
 "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $CONST_SUITES_POOL"
 
 ###check commands
 
 PRM_VM_TEMPLATE=$1
-PRM_FILTER_REGEX=${2:-$CONST_SHOW_ALL}
+PRM_FILTER_REGEX=${2:-$COMMON_CONST_ALL}
 PRM_SUITE=${3:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_DISTRIB_REPO=${4:-$ENV_DISTRIB_REPO}
 
@@ -92,7 +91,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   for VAR_CUR_FILE_PATH in $VAR_DISTRIB_REPO_DIR_PATH/x86_64/*.rpm; do
     if [ ! -r "$VAR_CUR_FILE_PATH" ]; then continue; fi
     VAR_CUR_FILE_NAME=$(getFileNameFromUrlString "$VAR_CUR_FILE_PATH") || exitChildError "$VAR_CUR_FILE_NAME"
-    if [ "$PRM_FILTER_REGEX" != "$CONST_SHOW_ALL" ]; then
+    if [ "$PRM_FILTER_REGEX" != "$COMMON_CONST_ALL" ]; then
       VAR_CHECK_REGEX=$(echo "$VAR_CUR_FILE_NAME" | grep -E "$PRM_FILTER_REGEX" | cat) || exitChildError "$VAR_CHECK_REGEX"
       if isEmpty "$VAR_CHECK_REGEX"; then continue; fi
     fi
@@ -108,7 +107,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   for VAR_CUR_FILE_PATH in $VAR_DISTRIB_REPO_DIR_PATH/noarch/*.rpm; do
     if [ ! -r "$VAR_CUR_FILE_PATH" ]; then continue; fi
     VAR_CUR_FILE_NAME=$(getFileNameFromUrlString "$VAR_CUR_FILE_PATH") || exitChildError "$VAR_CUR_FILE_NAME"
-    if [ "$PRM_FILTER_REGEX" != "$CONST_SHOW_ALL" ]; then
+    if [ "$PRM_FILTER_REGEX" != "$COMMON_CONST_ALL" ]; then
       VAR_CHECK_REGEX=$(echo "$VAR_CUR_FILE_NAME" | grep -E "$PRM_FILTER_REGEX" | cat) || exitChildError "$VAR_CHECK_REGEX"
       if isEmpty "$VAR_CHECK_REGEX"; then continue; fi
     fi

@@ -25,7 +25,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 6 '<vmName> <snapshotName> [snapshotDescription] [esxiHost=$COMMON_CONST_ESXI_HOST] [includeMemory=0] [quiesced=0]' \
       "myvm snapshot1 'my description' $COMMON_CONST_ESXI_HOST 0 0" \
-      "Required allowing SSH access on the remote host. Available standard snapshotName: $ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+      "Required allowing SSH access on the remote host. Available standard snapshotName: $ENV_PROJECT_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 
 ###check commands
 
@@ -37,7 +37,7 @@ PRM_INCLUDE_MEMORY=${5:-$COMMON_CONST_FALSE}
 PRM_QUIESCED=${6:-$COMMON_CONST_FALSE}
 
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
-checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$ENV_PROJECT_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
+checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$ENV_PROJECT_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 checkCommandExist 'snapshotDescription' "$PRM_SNAPSHOT_DESCRIPTION" ''
 checkCommandExist 'esxiHost' "$PRM_ESXI_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 checkCommandExist 'includeMemory' "$PRM_INCLUDE_MEMORY" "$COMMON_CONST_BOOL_VALUES"
