@@ -88,7 +88,7 @@ if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
 else
   VAR_VM_NAME=$PRM_VM_NAME
 fi
-if isExVMExist "$VAR_VM_NAME" "$PRM_ESXI_HOST"; then
+if isVMExistEx "$VAR_VM_NAME" "$PRM_ESXI_HOST"; then
   exitError "VM with name $VAR_VM_NAME already exist on $PRM_ESXI_HOST host"
 fi
 #create new vm on remote esxi host
@@ -99,7 +99,7 @@ checkRetValOK
 echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_ESXI_SNAPSHOT_TEMPLATE_NAME "$VAR_OVA_FILE_NAME" $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
-VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMNameEx "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
 #set autostart new vm
 if isTrue "$PRM_AUTOSTART"; then
   $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd hostsvc/autostartmanager/update_autostartentry $VAR_VM_ID powerOn 120 1 systemDefault 120 systemDefault"

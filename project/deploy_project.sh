@@ -22,7 +22,6 @@ VAR_VM_TYPE='' #vm type
 VAR_VM_TEMPLATE='' #vm template
 VAR_VM_NAME='' #vm name
 VAR_HOST='' #esxi host
-VAR_VM_ID='' #vm id
 VAR_VM_IP='' #vm ip address
 VAR_BUILD_FILE_NAME='' #short file name of $PRM_BUILD_FILE
 
@@ -79,19 +78,14 @@ checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
-  #get vm id
-  VAR_VM_ID=$(getVMIDByVMName "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_VM_ID"
-  if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $VAR_VM_NAME not found on $VAR_HOST host"
-  fi
   #restore project snapshot
   echo "Restore VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #power on
-  VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$VAR_HOST") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(powerOnVMEx "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
-  VAR_VM_IP=$(getIpAddressByVMName "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
+  VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   #copy build file on vm
   VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_BUILD_FILE_NAME"
   $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_BUILD_FILE_NAME

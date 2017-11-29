@@ -6,12 +6,11 @@ targetDescription 'Power on VMs pool'
 
 ##private vars
 PRM_VMS_POOL='' # vms pool
-PRM_ESXI_HOST='' #host
 VAR_RESULT='' #child return value
 VAR_VM_NAME='' #current vm
 VAR_VM_ID='' #VMID target virtual machine
-VAR_VM_IP='' #vm ip address
 VAR_TMP_VMS_POOL='' # temp vms pool
+VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vm by ssh
 
 ###check autoyes
 
@@ -19,15 +18,13 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '[vmsPool=$COMMON_CONST_ALL] [esxiHost=$COMMON_CONST_ESXI_HOST]' "$COMMON_CONST_ALL $COMMON_CONST_ESXI_HOST" ""
+echoHelp $# 2 '[vmsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ""
 
 ###check commands
 
 PRM_VMS_POOL=${1:-$COMMON_CONST_ALL}
-PRM_ESXI_HOST=${2:-$COMMON_CONST_ESXI_HOST}
 
 checkCommandExist 'vmsPool' "$PRM_VMS_POOL" ''
-checkCommandExist 'esxiHost' "$PRM_ESXI_HOST" "$COMMON_CONST_ESXI_HOSTS_POOL"
 
 ###check body dependencies
 
@@ -39,10 +36,8 @@ startPrompt
 
 ###body
 
-checkSSHKeyExistEsxi "$PRM_ESXI_HOST"
-
 if [ "$PRM_VMS_POOL" = "$COMMON_CONST_ALL" ]; then
-  VAR_TMP_VMS_POOL=$(getVmsPoolEx "$COMMON_CONST_ALL" "$PRM_ESXI_HOST") || exitChildError "$PRM_VMS_POOL"
+  VAR_TMP_VMS_POOL=$(getVmsPoolVb "$COMMON_CONST_ALL") || exitChildError "$VAR_TMP_VMS_POOL"
   PRM_VMS_POOL=''
   for CUR_VM in $VAR_TMP_VMS_POOL; do
     VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
@@ -52,19 +47,19 @@ fi
 
 for VAR_VM_NAME in $PRM_VMS_POOL; do
   #check vm name
-  VAR_VM_ID=$(getVMIDByVMNameEx "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
+  VAR_VM_ID=$(getVMIDByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $VAR_VM_NAME not found on $PRM_ESXI_HOST host"
+    exitError "VM $VAR_VM_NAME not found"
   fi
-  #power on
-  VAR_TMP_VMS_POOL=$(powerOnVMEx "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_TMP_VMS_POOL"
+  #power off
+  VAR_TMP_VMS_POOL=$(powerOnVMVb "$VAR_VM_NAME") || exitChildError "$VAR_TMP_VMS_POOL"
   echoResult "$VAR_TMP_VMS_POOL"
-  #get ip address
-  VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$PRM_ESXI_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
+  #get port address
+  VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
   if ! isEmpty "$VAR_RESULT"; then
     VAR_RESULT="${VAR_RESULT}\n"
   fi
-  VAR_RESULT="${VAR_RESULT}vmname:esxihost:vmid:ip $VAR_VM_NAME:$PRM_ESXI_HOST:$VAR_VM_ID:$VAR_VM_IP"
+  VAR_RESULT="${VAR_RESULT}vmname:vmid:port $VAR_VM_NAME:$VAR_VM_ID:$VAR_VM_PORT"
 done
 #echo result
 echoResult "$VAR_RESULT"

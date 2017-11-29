@@ -55,7 +55,7 @@ startPrompt
 ###body
 
 #check vm name
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VMNAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMNameEx "$PRM_VMNAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VMNAME not found on $PRM_ESXI_HOST host"
 fi

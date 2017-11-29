@@ -58,7 +58,7 @@ startPrompt
 ###body
 
 #check vm name
-VAR_VM_ID=$(getVMIDByVMName "$PRM_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
+VAR_VM_ID=$(getVMIDByVMNameEx "$PRM_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
 if isEmpty "$VAR_VM_ID"; then
   exitError "VM $PRM_VM_NAME not found on $PRM_ESXI_HOST host"
 fi
@@ -68,7 +68,7 @@ if isSnapshotVMExist "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$PRM_ESXI_HOST"; then
 fi
 #power off
 if ! isTrue "$PRM_INCLUDE_MEMORY"; then
-  VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$PRM_ESXI_HOST") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(powerOffVMEx "$PRM_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
 fi
 $SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/snapshot.create $VAR_VM_ID $PRM_SNAPSHOT_NAME \"$PRM_SNAPSHOT_DESCRIPTION\" $PRM_INCLUDE_MEMORY $PRM_QUIESCED"

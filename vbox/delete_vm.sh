@@ -41,7 +41,17 @@ startPrompt
 
 ###body
 
-
+#check vm name
+VAR_VM_ID=$(getVMIDByVMNameVb "$PRM_VM_NAME") || exitChildError "$VAR_VM_ID"
+if isEmpty "$VAR_VM_ID"; then
+  exitError "VM $PRM_VM_NAME not found"
+fi
+#power off
+VAR_RESULT=$(powerOffVMVb "$PRM_VM_NAME") || exitChildError "$VAR_RESULT"
+echoResult "$VAR_RESULT"
+#delete vm
+$SSH_CLIENT $PRM_ESXI_HOST "vim-cmd vmsvc/destroy $VAR_VM_ID"
+checkRetValOK
 
 doneFinalStage
 exitOK

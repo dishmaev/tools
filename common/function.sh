@@ -291,14 +291,44 @@ getParentDirectoryPath(){
   checkParmsCount $# 1 'getParentDirectoryPath'
   echo $1 | rev | sed 's!/!:!' | rev | awk -F: '{print $1}'
 }
-#$1 VMID, $2 esxi host
-powerOnVM()
+#$1 vm name
+powerOnVMVb()
 {
-  checkParmsCount $# 2 'powerOnVM'
+  checkParmsCount $# 1 'powerOnVMVb'
+  local CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local VAR_RESULT=''
+  local VAR_VM_ID=''
+  local VAR_CUR_DIR_PATH='' #current directory name
+  VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
+  if isEmpty "$VAR_VM_ID"; then
+    exitError "VM $1 not found"
+  fi
+  VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
+  if isEmpty "$VAR_RESULT"; then
+    echo "Required power on VM $1 ID $VAR_VM_ID"
+    VAR_CUR_DIR_PATH=$PWD
+    cd "$CONST_LOCAL_VMS_PATH/$1"
+    checkRetValOK
+    vagrant up
+    checkRetValOK
+    cd $VAR_CUR_DIR_PATH
+    checkRetValOK
+  fi
+  return $COMMON_CONST_EXIT_SUCCESS
+}
+#$1 vm name, $2 esxi host
+powerOnVMEx()
+{
+  checkParmsCount $# 2 'powerOnVMEx'
+  local VAR_VM_ID=''
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_TRY_LONG
   local VAR_TRY=$COMMON_CONST_TRY_NUM
-  echo "Required power on VMID $1 on $2 host"
+  VAR_VM_ID=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_VM_ID"
+  if isEmpty "$VAR_VM_ID"; then
+    exitError "VM $1 not found on $2 host"
+  fi
+  echo "Required power on VM $1 ID $VAR_VM_ID on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
@@ -322,14 +352,44 @@ powerOnVM()
   echo ''
   return $COMMON_CONST_EXIT_SUCCESS
 }
-#$1 VMID, $2 esxi host
-powerOffVM()
+#$1 vm name
+powerOffVMVb()
 {
-  checkParmsCount $# 2 'powerOffVM'
+  checkParmsCount $# 1 'powerOffVMVb'
+  local CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local VAR_RESULT=''
+  local VAR_VM_ID=''
+  local VAR_CUR_DIR_PATH='' #current directory name
+  VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
+  if isEmpty "$VAR_VM_ID"; then
+    exitError "VM $1 not found"
+  fi
+  VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
+  if ! isEmpty "$VAR_RESULT"; then
+    echo "Required power off VM $1 ID $VAR_VM_ID"
+    VAR_CUR_DIR_PATH=$PWD
+    cd "$CONST_LOCAL_VMS_PATH/$1"
+    checkRetValOK
+    vagrant halt
+    checkRetValOK
+    cd $VAR_CUR_DIR_PATH
+    checkRetValOK
+  fi
+  return $COMMON_CONST_EXIT_SUCCESS
+}
+#$1 vm name, $2 esxi host
+powerOffVMEx()
+{
+  checkParmsCount $# 2 'powerOffVMEx'
+  local VAR_VM_ID=''
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_TRY_LONG
   local VAR_TRY=$COMMON_CONST_TRY_NUM
-  echo "Required power off VMID $1 on $2 host"
+  VAR_VM_ID=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_VM_ID"
+  if isEmpty "$VAR_VM_ID"; then
+    exitError "VM $1 not found on $2 host"
+  fi
+  echo "Required power off VM $1 ID $VAR_VM_ID on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
@@ -360,15 +420,39 @@ powerOffVM()
   echo ''
   return $COMMON_CONST_EXIT_SUCCESS
 }
-#$1 vm name, $2 esxi host, $3 fast mode bool value
-getIpAddressByVMName()
+#$1 vm name
+getPortAddressByVMNameVb()
 {
-  checkParmsCount $# 3 'getIpAddressByVMName'
+  checkParmsCount $# 1 'getPortAddressByVMNameVb'
+  local CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local VAR_RESULT=''
+  local VAR_VM_ID=''
+  local VAR_CUR_DIR_PATH='' #current directory name
+  VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
+  if isEmpty "$VAR_VM_ID"; then
+    exitError "VM $1 not found"
+  fi
+  VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
+  if isEmpty "$VAR_RESULT"; then
+    exitError "VM $1 not running"
+  fi
+  VAR_CUR_DIR_PATH=$PWD
+  cd "$CONST_LOCAL_VMS_PATH/$1"
+  checkRetValOK
+  VAR_RESULT=$(vagrant port --guest $COMMON_CONST_DEFAULT_SSH_PORT) || exitChildError "$VAR_RESULT"
+  cd $VAR_CUR_DIR_PATH
+  checkRetValOK
+  echo "$VAR_RESULT"
+}
+#$1 vm name, $2 esxi host, $3 fast mode bool value
+getIpAddressByVMNameEx()
+{
+  checkParmsCount $# 3 'getIpAddressByVMNameEx'
   local VAR_RESULT=''
   local VAR_COUNT=$COMMON_CONST_TRY_LONG
   local VAR_TRY=$COMMON_CONST_TRY_NUM
   local VAR_VM_ID=''
-  VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
+  VAR_VM_ID=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_VM_ID"
   while true
   do
     VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/get.guest $VAR_VM_ID | grep 'ipAddress = \"' | \
@@ -389,9 +473,20 @@ getIpAddressByVMName()
   done
   echo "$VAR_RESULT"
 }
+#$1 vm template pool. Return value format 'vmname:vmid'
+getVmsPoolVb(){
+  checkParmsCount $# 1 'getVmsPoolVb'
+  local VAR_RESULT=''
+  if [ "$1" = "$COMMON_CONST_ALL" ]; then
+    VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | sed 's/["{}]//g') || exitChildError "$VAR_RESULT"
+  else
+    VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | grep "${1}-" | sed 's/["{}]//g') || exitChildError "$VAR_RESULT"
+  fi
+  echo "$VAR_RESULT"
+}
 #$1 vm template pool, $2 esxi host pool. Return value format 'vmname:esxihost:vmid'
-getVmsPoolEsxi(){
-  checkParmsCount $# 2 'getVmsPoolEsxi'
+getVmsPoolEx(){
+  checkParmsCount $# 2 'getVmsPoolEx'
   local VAR_CUR_ESXI=''
   local VAR_RESULT=''
   local VAR_ESXI_HOSTS_POOL=$2
@@ -412,9 +507,16 @@ awk '{print \$1\":\"\$2}' | grep ':'$1'-' | awk -F: '{print \$2\":$VAR_CUR_ESXI:
   done
   echo "$VAR_RESULT"
 }
+#$1 vm name
+getVMIDByVMNameVb() {
+  checkParmsCount $# 1 'getVMIDByVMNameVb'
+  local VAR_RESULT
+  VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | grep -e "\"${1}\":" | awk -F: '{print $2}' |  sed 's/[{}]//g') || exitChildError "$VAR_RESULT"
+  echo "$VAR_RESULT"
+}
 #$1 vm name, $2 esxi host
-getVMIDByVMName() {
-  checkParmsCount $# 2 'getVMIDByVMName'
+getVMIDByVMNameEx() {
+  checkParmsCount $# 2 'getVMIDByVMNameEx'
   local VAR_RESULT
   VAR_RESULT=$($SSH_CLIENT $2 "vim-cmd vmsvc/getallvms | sed -e '1d' -e 's/ \[.*$//' \
 | awk '\$1 ~ /^[0-9]+$/ {print \$1\":\"\$2\":\"}' | grep ':'$1':' | awk -F: '{print \$1}'") || exitChildError "$VAR_RESULT"
@@ -447,19 +549,17 @@ checkCommandExist() {
 #$1 vm name , $2 esxi host, $3 vm OS version, $4 pause message
 checkTriggerTemplateVM(){
   checkParmsCount $# 4 'checkTriggerTemplateVM'
-  local VAR_VM_ID=''
   local VAR_VM_IP=''
   local VAR_INPUT=''
   local VAR_RESULT=''
   local VAR_LOG=''
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM $1 on $2 host. Typically for Linux without GUI: \
 vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - ${COMMON_CONST_DEFAULT_HDD_SIZE}G"
-  VAR_VM_ID=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_VM_ID"
-  VAR_RESULT=$(powerOnVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(powerOnVMEx "$1" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   echoResult "$4"
   pausePrompt "Pause 2 of 3: Manually make changes on template VM $1 on $2 host"
-  VAR_VM_IP=$(getIpAddressByVMName "$1" "$2" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
+  VAR_VM_IP=$(getIpAddressByVMNameEx "$1" "$2" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   echo "VM ${1} ip address: $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT"
   $SSH_COPY_ID $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP
   checkRetValOK
@@ -479,7 +579,7 @@ if [ -r ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE
     exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
   fi
   pausePrompt "Pause 3 of 3: Last check template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
-  VAR_RESULT=$(powerOffVM "$VAR_VM_ID" "$2") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(powerOffVMEx "$1" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
 }
 #$1 title, $2 value, $3 allowed values
@@ -1043,17 +1143,17 @@ isRetValOK(){
   [ "$?" = "$COMMON_CONST_EXIT_SUCCESS" ]
 }
 #$1 vm name
-isVbVMExist(){
-  checkParmsCount $# 1 'isVbVMExist'
+isVMExistVb(){
+  checkParmsCount $# 1 'isVMExistVb'
   local VAR_RESULT=''
-#  VAR_RESULT=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_RESULT"
+#  VAR_RESULT=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
 }
 #$1 vm name, $2 host
-isExVMExist(){
-  checkParmsCount $# 2 'isExVMExist'
+isVMExistEx(){
+  checkParmsCount $# 2 'isVMExistEx'
   local VAR_RESULT=''
-  VAR_RESULT=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(getVMIDByVMNameEx "$1" "$2") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
 }
 #$1 VMID, $2 snapshotName, $3 host

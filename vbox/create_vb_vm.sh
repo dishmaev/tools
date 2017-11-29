@@ -18,8 +18,6 @@ VAR_BOX_FILE_PATH='' #box package name with local path
 VAR_FILE_URL='' #url for download
 VAR_DOWNLOAD_PATH='' #local download path for templates
 VAR_CUR_DIR_PATH='' #current directory name
-VAR_TMP_DIR_PATH='' #temporary directory name
-VAR_VAGRANT_FILE_PATH='' #vagrant config file name with local path
 VAR_COUNTER_FILE_NAME='' # counter file name
 VAR_COUNTER_FILE_PATH='' # counter file name with local esxi host path
 
@@ -94,7 +92,7 @@ if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
 else
   VAR_VM_NAME=$PRM_VM_NAME
 fi
-if isVbVMExist "$VAR_VM_NAME"; then
+if isVMExistVb "$VAR_VM_NAME"; then
   exitError "VM with name $VAR_VM_NAME already exist"
 fi
 if isDirectoryExist "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"; then
