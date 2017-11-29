@@ -10,7 +10,6 @@ readonly CONST_LINUX_RPM='rpm'
 
 ##private vars
 VAR_LINUX_BASED=''
-VAR_
 
 ###function
 
