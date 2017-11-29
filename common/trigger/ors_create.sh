@@ -56,9 +56,8 @@ if [ ! -s /etc/sudoers ]; then
   exit 1
 fi
 #add sudo group without password setting
-chmod u+w /etc/sudoers
-echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-chmod u-w /etc/sudoers
+echo '%sudo ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/sudo
+chmod u=r,g=r,o= /etc/sudoers.d/sudo
 
 #install standard packages
 #pkg install developer/versioning/git

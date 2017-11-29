@@ -55,9 +55,8 @@ if [ ! -s /etc/sudoers ]; then
   exit 1
 fi
 #add sudo group without password setting
-chmod u+w /etc/sudoers
-echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-chmod u-w /etc/sudoers
+echo '%sudo ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/sudo
+chmod u=r,g=r,o= /etc/sudoers.d/sudo
 #add personal repository
 wget -O - https://dishmaev.github.io/repos/linux/linux_signing_key.pub | sudo apt-key add -
 wget -P /etc/apt/sources.list.d/ https://dishmaev.github.io/public-apt-dishmaev.list

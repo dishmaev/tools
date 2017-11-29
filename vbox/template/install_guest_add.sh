@@ -10,6 +10,7 @@ readonly CONST_LINUX_RPM='rpm'
 
 ##private vars
 VAR_LINUX_BASED=''
+VAR_
 
 ###function
 
@@ -73,10 +74,10 @@ if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitError "$VAR_LINUX_BASED"
 
 if [ ! -e /dev/cdrom ]; then exitError 'CD-ROM not found'; fi
-if [ -d /media/cdrom ]; then exitError 'directory /media/cdrom already exist'; fi
-
-sudo mkdir /media/cdrom
-checkRetValOK
+if [ ! -d /media/cdrom ]; then
+  sudo mkdir /media/cdrom
+  checkRetValOK
+fi
 sudo mount /dev/cdrom /media/cdrom -o loop
 checkRetValOK
 
@@ -98,6 +99,5 @@ checkRetValOK
 cd $HOME
 
 sudo umount /media/cdrom
-sudo rmdir /media/cdrom
 
 exit 0

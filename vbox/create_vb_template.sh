@@ -4,6 +4,8 @@
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
 targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 
+#https://forums.virtualbox.org/viewtopic.php?f=7&t=39967 error locked VM
+
 #https://www.freshports.org/emulators/virtualbox-ose-additions on FreeBSD
 #https://www.vagrantup.com/docs/virtualbox/boxes.html on Debian
 #https://openedx.atlassian.net/wiki/spaces/OXA/pages/157802739/Vagrant+is+stuck+Authentication+failure.+Retrying...
@@ -11,6 +13,7 @@ targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 #https://eax.me/vboxmanage/
 #https://www.virtualbox.org/manual/ch07.html
 #https://www.virtualbox.org/manual/ch08.html#vboxmanage-registervm
+#https://superuser.com/questions/741734/virtualbox-how-can-i-add-mount-a-iso-image-file-from-command-line
 
 #config.ssh.private_key_path = "~/.ssh/id_idax_rsa"
 
@@ -85,6 +88,14 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
 -sudo systemctl reload sshd\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
+  VAR_PAUSE_MESSAGE="Manually must be:\n\
+-set $COMMON_CONST_VAGRANT_BASE_USER_NAME not empty password by 'sudo passwd $COMMON_CONST_VAGRANT_BASE_USER_NAME'\n\
+-set 'PermitRootLogin yes' in /etc/ssh/sshd_config\n\
+-set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
+-sudo systemctl reload sshd\n\
+-set '127.0.0.1       $COMMON_CONST_DEBIANMINI_VM_TEMPLATE' in /etc/hosts\n\
+-check that ssh and vm tools are correct working, by connect and ping from outside"
 fi
 
 #check virtual box deploy
@@ -139,16 +150,22 @@ end\n" > $VAR_VAGRANT_FILE_PATH
   checkRetValOK
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM ${PRM_VM_TEMPLATE}. Typically for Linux without GUI: \
 vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - ${COMMON_CONST_DEFAULT_HDD_SIZE}G"
-  VAR_CONTROLLER_NAME=$(vboxmanage showvminfo $PRM_VM_TEMPLATE | grep -i 'storage controller name' | sed -n 1p | awk '{print $(NF)}') || exitChildError "$VAR_CONTROLLER_NAME"
+  VAR_CONTROLLER_NAME=$(vboxmanage showvminfo "$PRM_VM_TEMPLATE" | grep -i 'storage controller name' | sed -n 1p | awk -F: '{print $2}' | sed 's/^[ \t]*//') || exitChildError "$VAR_CONTROLLER_NAME"
   if isEmpty "$VAR_CONTROLLER_NAME"; then exitError "storage controller VM ${PRM_VM_TEMPLATE} not found"; fi
   sleep $COMMON_CONST_SLEEP_LONG
-  vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 1 --type dvddrive --medium "$VAR_DISC_FILE_PATH"
+  echo "Set VM $PRM_VM_TEMPLATE portcount=2 in storage controller '$VAR_CONTROLLER_NAME' for ISO image file with VirtualBox Guest Additions"
+  vboxmanage storagectl "$PRM_VM_TEMPLATE" --name "$VAR_CONTROLLER_NAME" --portcount 2
+  checkRetValOK
+  sleep $COMMON_CONST_SLEEP_LONG
+  echo "Attach $VAR_DISC_FILE_PATH on VM $PRM_VM_TEMPLATE"
+  vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 0 --type dvddrive --medium "$VAR_DISC_FILE_PATH"
   checkRetValOK
   vagrant up --provision-with shell
   checkRetValOK
   vagrant halt
   checkRetValOK
-  vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 1 --type dvddrive --medium "none"
+  echo "Detach $VAR_DISC_FILE_PATH on VM $PRM_VM_TEMPLATE"
+  vboxmanage storageattach "$PRM_VM_TEMPLATE" --storagectl "$VAR_CONTROLLER_NAME" --port 1 --device 0 --type dvddrive --medium "none"
   checkRetValOK
   vagrant up --no-provision
   checkRetValOK

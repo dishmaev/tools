@@ -53,9 +53,8 @@ if [ ! -s /etc/sudoers ]; then
   exit 1
 fi
 #add sudo group without password setting
-chmod u+w /etc/sudoers
-echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-chmod u-w /etc/sudoers
+echo '%sudo ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/sudo
+chmod u=r,g=r,o= /etc/sudoers.d/sudo
 #install packages
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
 yum -y install yum-utils
