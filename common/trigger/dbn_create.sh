@@ -46,6 +46,10 @@ fi
 cp $HOME/.ssh/authorized_keys /home/${1}/.ssh/
 chown ${1}:${1} /home/${1}/.ssh/authorized_keys
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
+#copy ssh key file to vagrant directory
+if [ -r /home/vagrant/.ssh/authorized_keys ]; then
+ cat $HOME/.ssh/authorized_keys >> /home/vagrant/.ssh/authorized_keys
+fi
 #install standard packages
 apt -y install sudo
 apt -y install apt-transport-https

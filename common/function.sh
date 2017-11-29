@@ -1042,9 +1042,16 @@ isFileSystemMounted(){
 isRetValOK(){
   [ "$?" = "$COMMON_CONST_EXIT_SUCCESS" ]
 }
+#$1 vm name
+isVbVMExist(){
+  checkParmsCount $# 1 'isVbVMExist'
+  local VAR_RESULT=''
+#  VAR_RESULT=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_RESULT"
+  ! isEmpty "$VAR_RESULT"
+}
 #$1 vm name, $2 host
-isVMExist(){
-  checkParmsCount $# 2 'isVMExist'
+isExVMExist(){
+  checkParmsCount $# 2 'isExVMExist'
   local VAR_RESULT=''
   VAR_RESULT=$(getVMIDByVMName "$1" "$2") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"

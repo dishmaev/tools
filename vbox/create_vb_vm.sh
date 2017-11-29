@@ -5,23 +5,21 @@
 targetDescription 'Create new virtual box VM'
 
 ##private consts
+readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
 PRM_VM_NAME='' #vm name
 PRM_AUTOSTART=$COMMON_CONST_FALSE #enable autostart
 VAR_RESULT='' #child return value
-VAR_VBOX_VERSION='' #vbox version without build number
-VAR_VBOX_GUESTADD_FILE_NAME='' #vbox guest add file name
 VAR_VM_TEMPLATE_VER='' #current vm template version
-VAR_OVA_FILE_NAME='' #ova package name
-VAR_OVA_FILE_PATH='' #ova package name with local path
+VAR_BOX_FILE_NAME='' #box package name
+VAR_BOX_FILE_PATH='' #box package name with local path
 VAR_FILE_URL='' #url for download
 VAR_DOWNLOAD_PATH='' #local download path for templates
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_TMP_DIR_PATH='' #temporary directory name
 VAR_VAGRANT_FILE_PATH='' #vagrant config file name with local path
-
 VAR_COUNTER_FILE_NAME='' # counter file name
 VAR_COUNTER_FILE_PATH='' # counter file name with local esxi host path
 
@@ -33,7 +31,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 3 '<vmTemplate> [vmName=$COMMON_CONST_DEFAULT_VM_NAME] [autoStart=$COMMON_CONST_FALSE]' \
-    "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VM_NAME $COMMON_CONST_FALSE" \
+    "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VM_NAME $COMMON_CONST_FALSE" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
@@ -69,18 +67,53 @@ if ! isCommandExist 'vagrant'; then
   echoResult "$VAR_RESULT"
 fi
 
+if ! isDirectoryExist "$CONST_LOCAL_VMS_PATH"; then
+  mkdir -p "$CONST_LOCAL_VMS_PATH"
+fi
 #get vm template current version
 VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE") || exitChildError "$VAR_VM_VER"
-VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
+VAR_BOX_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.box"
 VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_num.cfg"
-VAR_COUNTER_FILE_PATH="$COMMON_CONST_ESXI_DATA_PATH/$VAR_COUNTER_FILE_NAME"
-
+VAR_COUNTER_FILE_PATH="$COMMON_CONST_LOCAL_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
-VAR_OVA_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME
-
-if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
-  exitError "VM template ova package $VAR_OVA_FILE_PATH not found. Exec 'create_${COMMON_CONST_VMWARE_VM_TYPE}_template.sh $PRM_VM_TEMPLATE' previously"
+VAR_BOX_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_BOX_FILE_NAME
+#check required ova package on remote esxi host
+if ! isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
+  exitError "VM template package $VAR_BOX_FILE_PATH not found. Exec 'create_${COMMON_CONST_VMWARE_VM_TYPE}_template.sh $PRM_VM_TEMPLATE' previously"
 fi
+#check vm name
+if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
+  #get vm number
+  if ! isFileExistAndRead "$VAR_COUNTER_FILE_PATH"; then
+    echo 0 > $VAR_COUNTER_FILE_PATH
+  fi
+  echo $(($(cat $VAR_COUNTER_FILE_PATH)+1)) > $VAR_COUNTER_FILE_PATH
+  VAR_VM_NUM=$(cat $VAR_COUNTER_FILE_PATH)
+  #set new vm name
+  VAR_VM_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_NUM}"
+else
+  VAR_VM_NAME=$PRM_VM_NAME
+fi
+if isVbVMExist "$VAR_VM_NAME"; then
+  exitError "VM with name $VAR_VM_NAME already exist"
+fi
+if isDirectoryExist "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"; then
+  rm -fR "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"
+  checkRetValOK
+fi
+mkdir "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"
+checkRetValOK
+VAR_CUR_DIR_PATH=$PWD
+cd "$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"
+vagrant init $PRM_VM_TEMPLATE $VAR_BOX_FILE_PATH
+checkRetValOK
+sed -i Vagrantfile -e "/config.vm.box = \"$PRM_VM_TEMPLATE\"/ a\ \n\  config.ssh.private_key_path = \"$ENV_SSH_IDENTITY_FILE_NAME\"\n  \
+config.vm.provider :virtualbox do |vb|\n    vb.name = \"$VAR_VM_NAME\"\n  end"
+checkRetValOK
+vagrant up
+checkRetValOK
+cd $VAR_CUR_DIR_PATH
+checkRetValOK
 
 doneFinalStage
 exitOK
