@@ -64,6 +64,7 @@ VAR_BOX_FILE_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE/$VAR_BOX_F
 VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_num.cfg"
 VAR_COUNTER_FILE_PATH="$COMMON_CONST_LOCAL_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 
+
 if isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
   echo "Deleting local package file $VAR_BOX_FILE_PATH"
   rm "$VAR_BOX_FILE_PATH"
@@ -72,6 +73,8 @@ if isTrue "$PRM_RESET_COUNTER" && isFileExistAndRead "$VAR_COUNTER_FILE_PATH"; t
   echo "Deleting counter file $VAR_COUNTER_FILE_PATH"
   rm "$VAR_COUNTER_FILE_PATH"
 fi
+
+vagrant box remove --force $PRM_VM_TEMPLATE
 
 doneFinalStage
 exitOK

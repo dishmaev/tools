@@ -199,7 +199,7 @@ if [ -r ${PRM_VM_TEMPLATE}_create.ok ]; then cat ${PRM_VM_TEMPLATE}_create.ok; e
   checkRetValOK
   vagrant destroy -f
   checkRetValOK
-#  vagrant box remove --force $VAR_FILE_URL
+#  vagrant box remove --force $PRM_VM_TEMPLATE
 #  checkRetValOK
   #remove temporary directory
   cd $VAR_CUR_DIR_PATH
