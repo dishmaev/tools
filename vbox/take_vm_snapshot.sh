@@ -30,7 +30,7 @@ echoHelp $# 4 '<vmName> <snapshotName> [snapshotDescription] [includeMemory=0]' 
 PRM_VM_NAME=$1
 PRM_SNAPSHOT_NAME=$2
 PRM_SNAPSHOT_DESCRIPTION=${3:-'text'}
-PRM_INCLUDE_MEMORY=${3:-$COMMON_CONST_FALSE}
+PRM_INCLUDE_MEMORY=${4:-$COMMON_CONST_FALSE}
 
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
 checkCommandExist 'snapshotName' "$PRM_SNAPSHOT_NAME" "$ENV_PROJECT_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
