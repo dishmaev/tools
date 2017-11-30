@@ -33,7 +33,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 4 '<packageFile> <vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [distribRepository=$ENV_DISTRIB_REPO]' \
-"myFile $COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
+"myFile $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
 "Required gpg secret keyID $COMMON_CONST_GPG_KEYID. Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $CONST_SUITES_POOL"
 
 ###check commands

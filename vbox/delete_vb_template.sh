@@ -24,7 +24,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 3 '<vmTemplate> [vmTemplateVersion=$COMMON_CONST_DEFAULT_VERSION] [resetCounter=$COMMON_CONST_FALSE]' \
-    "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VERSION" \
+    "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
