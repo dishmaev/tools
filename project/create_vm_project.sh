@@ -116,7 +116,7 @@ for CUR_SUITE in $PRM_SUITES_POOL; do
     if ! isTrue "$VAR_FOUND"; then
       echoInfo "not found, required new VM"
       VAR_HOST=$COMMON_CONST_ESXI_HOST
-      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/create_${COMMON_CONST_VMWARE_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/create_${PRM_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
       VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:esxihost:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
       VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:esxihost:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
@@ -176,7 +176,7 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
     done
     if ! isTrue "$VAR_FOUND"; then
       echoInfo "not found, required new VM"
-      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/create_${COMMON_CONST_VMWARE_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE) || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/create_${PRM_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
       VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
       VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:vmid' | awk '{print $2}' | awk -F: '{print $2}') || exitChildError "$VAR_VM_ID"
