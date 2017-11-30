@@ -59,6 +59,7 @@ if isEmpty "$ENV_SHELL_WITH_ESC"; then checkNotEmptyEnvironment "ENV_SHELL_WITH_
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"
 readonly COMMON_CONST_LOCAL_VMS_PATH="$ENV_TOOLS_HIDDEN_PATH/vms"
 readonly COMMON_CONST_LOCAL_DATA_PATH="$ENV_TOOLS_HIDDEN_PATH/data"
+readonly COMMON_CONST_LOCAL_BUILD_PATH="$ENV_TOOLS_HIDDEN_PATH/build"
 
 #aliases
 readonly SSH_CLIENT="ssh -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
@@ -70,4 +71,6 @@ readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $ENV_SSH_KEY
 #create directories if not exist
 if [ ! -d "$ENV_PROJECT_DATA_PATH" ]; then mkdir $ENV_PROJECT_DATA_PATH; fi
 if [ ! -d "$ENV_PROJECT_TRIGGER_PATH" ]; then mkdir $ENV_PROJECT_TRIGGER_PATH; fi
+if [ ! -d "$COMMON_CONST_LOCAL_VMS_PATH" ]; then mkdir -p $COMMON_CONST_LOCAL_VMS_PATH; fi
 if [ ! -d "$COMMON_CONST_LOCAL_DATA_PATH" ]; then mkdir -p $COMMON_CONST_LOCAL_DATA_PATH; fi
+if [ ! -d "$COMMON_CONST_LOCAL_BUILD_PATH" ]; then mkdir -p $COMMON_CONST_LOCAL_BUILD_PATH; fi

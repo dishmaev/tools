@@ -69,10 +69,6 @@ if ! isCommandExist 'vagrant'; then
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
 fi
-
-if ! isDirectoryExist "$CONST_LOCAL_VMS_PATH"; then
-  mkdir -p "$CONST_LOCAL_VMS_PATH"
-fi
 #get vm template current version
 VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE") || exitChildError "$VAR_VM_VER"
 VAR_BOX_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.box"
