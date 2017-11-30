@@ -201,7 +201,7 @@ if [ -r ${PRM_VM_TEMPLATE}_create.ok ]; then cat ${PRM_VM_TEMPLATE}_create.ok; e
   VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${PRM_VM_TEMPLATE}_create.err ]; then cat ${PRM_VM_TEMPLATE}_create.err; fi") || exitChildError "$VAR_LOG"
   if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
   VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${PRM_VM_TEMPLATE}_create.tst ]; then cat ${PRM_VM_TEMPLATE}_create.tst; fi") || exitChildError "$VAR_LOG"
-  if ! isEmpty "$RET_LOG"; then echoInfo "stdtst\n$RET_LOG"; fi
+  if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${PRM_VM_TEMPLATE}_create.sh on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   fi
