@@ -12,10 +12,12 @@ PRM_VM_TEMPLATE='' #vm template
 PRM_VM_NAME='' #vm name
 PRM_AUTOSTART=$COMMON_CONST_FALSE #enable autostart
 VAR_RESULT='' #child return value
-VAR_VM_TEMPLATE_VER='' #current vm template version
+VAR_VM_VER='' #current vm version
+VAR_VM_NUM='' #current number of vm
+VAR_VM_NAME='' #new vm name
+VAR_VM_ID='' #vm VMID
 VAR_BOX_FILE_NAME='' #box package name
 VAR_BOX_FILE_PATH='' #box package name with local path
-VAR_FILE_URL='' #url for download
 VAR_DOWNLOAD_PATH='' #local download path for templates
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_COUNTER_FILE_NAME='' # counter file name
@@ -119,6 +121,9 @@ checkRetValOK
 echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_BOX_FILE_NAME) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
+VAR_VM_ID=$(getVMIDByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_ID"
+#echo result
+echo 'vmname:vmid' $VAR_VM_NAME:$VAR_VM_ID
 
 doneFinalStage
 exitOK
