@@ -57,7 +57,7 @@ checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check body dependencies
 
-checkDependencies 'git'
+checkDependencies 'git tar'
 checkProjectRepository
 
 ###check required files
@@ -71,12 +71,22 @@ startPrompt
 #$1 $VAR_BIN_TAR_FILE_PATH, $2 $VAR_VM_TEMPLATE, $3 $PRM_SUITE, $4 $PRM_DISTRIB_REPO
 addToDistribRepotory(){
   local VAR_TMP_DIR_PATH='' #temporary directory name
+  local VAR_PACKAGE_EXT='' #extention package
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
-  for VAR_CUR_PACKAGE in $HOME/build/dist/${VAR_SUITE}_RPM/GNU-Linux/package/*.rpm; do
+  tar -xvf ${1} -C $VAR_TMP_DIR_PATH/
+  checkRetValOK
+  for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.${COMMON_CONST_LINUX_APT}; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $2 $3 $4) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
+  for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.${COMMON_CONST_LINUX_RPM}; do
+    if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    echoResult "$VAR_RESULT"
+  done
+  echoInfo "TO-DO add Oracle Solaris packages"
+  echoInfo "TO-DO add FreeBSD packages"
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
   return $COMMON_CONST_EXIT_SUCCESS
@@ -146,6 +156,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   #power on
   VAR_RESULT=$(powerOnVMEx "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
+  echoInfo "create the archive file $VAR_SRC_TAR_FILE_PATH with sources"
   packSourceFiles "$PRM_VERSION" "$VAR_SRC_TAR_FILE_PATH"
   checkRetValOK
   #copy git archive on vm
@@ -186,6 +197,7 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
   #power on
   VAR_RESULT=$(powerOnVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
+  echoInfo "create the archive file $VAR_SRC_TAR_FILE_PATH with sources"
   packSourceFiles "$PRM_VERSION" "$VAR_SRC_TAR_FILE_PATH"
   checkRetValOK
   #copy git archive on vm
