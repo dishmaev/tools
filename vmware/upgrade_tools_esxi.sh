@@ -56,9 +56,7 @@ if ! isFileExistAndRead "$ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME"
   echo 1 > "$ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME"
 fi
 #remove known_hosts file to prevent future script errors
-if isFileExistAndRead "$HOME/.ssh/known_hosts"; then
-  rm $HOME/.ssh/known_hosts
-fi
+removeKnownHosts
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   echo "Esxi host:" $VAR_HOST

@@ -56,6 +56,9 @@ startPrompt
 
 ###body
 
+#remove known_hosts file to prevent future script errors
+removeKnownHosts
+
 #check virtual box deploy
 if ! isCommandExist 'vboxmanage'; then
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"

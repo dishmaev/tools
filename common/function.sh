@@ -11,6 +11,13 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+removeKnownHosts(){
+  checkParmsCount $# 0 'removeKnownHosts'
+  if isFileExistAndRead "$HOME/.ssh/known_hosts"; then
+    rm $HOME/.ssh/known_hosts
+  fi
+}
+
 #$1 regular string
 getOVFToolPassword(){
   checkParmsCount $# 1 'getOVFToolPassword'
