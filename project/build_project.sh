@@ -78,12 +78,12 @@ addToDistribRepotory(){
   checkRetValOK
   for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.deb; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_CUR_PACKAGE $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
   for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.rpm; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_CUR_PACKAGE $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
   echoInfo "TO-DO add Oracle Solaris packages"
