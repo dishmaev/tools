@@ -71,7 +71,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
-  echo "RPM-based Linux repository"
+  echoInfo "RPM-based Linux repository"
   checkDependencies 'createrepo'
   #get target code name
   if [ "$PRM_SUITE" = "$COMMON_CONST_DEVELOP_SUITE" ]; then
@@ -87,7 +87,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   checkRetValOK
   VAR_DISTRIB_REPO_DIR_PATH=$VAR_TMP_DIR_PATH/repos/linux/rpm/$VAR_CODE_NAME/RPMS
   #list packages
-  echo "Begin list"
+  echoInfo "begin list"
   for VAR_CUR_FILE_PATH in $VAR_DISTRIB_REPO_DIR_PATH/x86_64/*.rpm; do
     if [ ! -r "$VAR_CUR_FILE_PATH" ]; then continue; fi
     VAR_CUR_FILE_NAME=$(getFileNameFromUrlString "$VAR_CUR_FILE_PATH") || exitChildError "$VAR_CUR_FILE_NAME"
@@ -120,12 +120,12 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
     fi
     echo "${VAR_CODE_NAME}|RPMS|${VAR_PACKAGE_ARCH}: $VAR_PACKAGE_NAME $VAR_PACKAGE_VERSION $VAR_CUR_FILE_NAME"
   done
-  echo "End list"
+  echoInfo "end list"
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
-  echo "APT-based Linux repository"
+  echoInfo "APT-based Linux repository"
   checkDependencies 'reprepro'
   #get target code name
   if [ "$PRM_SUITE" = "$COMMON_CONST_DEVELOP_SUITE" ]; then
@@ -140,17 +140,17 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
   checkRetValOK
   #list packages
-  echo "Begin list"
+  echoInfo "begin list"
   reprepro -b $VAR_TMP_DIR_PATH/repos/linux/apt list $VAR_CODE_NAME | grep -E "$PRM_FILTER_REGEX" | cat
   checkRetValOK
-  echo "End list"
+  echoInfo "end list"
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
-  echo "Oracle Solaris repository"
+  echo "TO-DO Oracle Solaris repository"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
-  echo "FreeBSD repository"
+  echo "TO-DO FreeBSD repository"
 fi
 doneFinalStage
 exitOK

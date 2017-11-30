@@ -89,9 +89,6 @@ checkRetValOK
 VAR_TMP_USB_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_USB_DIR_NAME"
 VAR_TMP_ISO_DIR_NAME=$(mktemp -d) || exitChildError "$VAR_TMP_ISO_DIR_NAME"
 
-echo "VAR_TMP_ISO_DIR_NAME $VAR_TMP_ISO_DIR_NAME"
-echo "VAR_TMP_USB_DIR_NAME $VAR_TMP_USB_DIR_NAME"
-
 sudo mount $PRM_DEVICE\1 $VAR_TMP_USB_DIR_NAME -o rw,uid=$USER
 checkRetValOK
 sudo mount -r -o loop $PRM_FILEISO $VAR_TMP_ISO_DIR_NAME

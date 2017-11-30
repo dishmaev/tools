@@ -65,7 +65,7 @@ fi
 if isTrue "$PRM_REMOVE_CHILD"; then
   VAR_CHILD_SNAPSHOTS_POOL=$(getChildSnapshotsPoolVb "$VAR_VM_ID" "$PRM_SNAPSHOT_NAME" "$VAR_SS_ID") || exitChildError "$VAR_CHILD_SNAPSHOTS_POOL"
   for VAR_CHILD_SNAPSHOT_ID in $VAR_CHILD_SNAPSHOTS_POOL; do
-    echo "Delete child snapshot:" $VAR_CHILD_SNAPSHOT_ID
+    echoInfo "delete child snapshot $VAR_CHILD_SNAPSHOT_ID"
     vboxmanage snapshot $VAR_VM_ID delete $VAR_CHILD_SNAPSHOT_ID
     checkRetValOK
   done

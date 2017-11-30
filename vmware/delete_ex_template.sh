@@ -77,7 +77,7 @@ if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
 fi
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
-  echo "Esxi host:" $VAR_HOST
+  echoInfo "esxi host $VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
   VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ -f $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; \
 then rm $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME; fi; if [ "$PRM_RESET_COUNTER" = "$COMMON_CONST_TRUE" ] && \
@@ -87,7 +87,7 @@ done
 
 VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMWARE_VM_TYPE
 if isFileExistAndRead "$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"; then
-  echo "Deleting local package file $VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
+  echoInfo "deleting local package file $VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
   rm "$VAR_DOWNLOAD_PATH/$VAR_OVA_FILE_NAME"
 fi
 

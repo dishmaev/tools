@@ -66,11 +66,11 @@ VAR_COUNTER_FILE_PATH="$COMMON_CONST_LOCAL_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 
 
 if isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
-  echo "Deleting local package file $VAR_BOX_FILE_PATH"
+  echoInfo "deleting local package file $VAR_BOX_FILE_PATH"
   rm "$VAR_BOX_FILE_PATH"
 fi
 if isTrue "$PRM_RESET_COUNTER" && isFileExistAndRead "$VAR_COUNTER_FILE_PATH"; then
-  echo "Deleting counter file $VAR_COUNTER_FILE_PATH"
+  echoInfo "deleting counter file $VAR_COUNTER_FILE_PATH"
   rm "$VAR_COUNTER_FILE_PATH"
 fi
 

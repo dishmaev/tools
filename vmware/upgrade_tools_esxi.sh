@@ -59,7 +59,7 @@ fi
 removeKnownHosts
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
-  echo "Esxi host:" $VAR_HOST
+  echoInfo "esxi host $VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
   #get local tools version
   VAR_LOCAL_TOOLS_VER=$(cat $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME) || exitChildError "$VAR_LOCAL_TOOLS_VER"
@@ -69,7 +69,7 @@ for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   VAR_RESULT=$($SSH_CLIENT $VAR_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
   if ! isTrue "$VAR_RESULT"
   then #first install
-    echo "New tools install on $VAR_HOST host"
+    echoInfo "new tools install on $VAR_HOST host"
     $SSH_CLIENT $VAR_HOST "mkdir $COMMON_CONST_ESXI_TOOLS_PATH; \
 mkdir $COMMON_CONST_ESXI_PATCHES_PATH; \
 mkdir $COMMON_CONST_ESXI_IMAGES_PATH;
@@ -90,7 +90,7 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
     VAR_REMOTE_TOOLS_VER=$($SSH_CLIENT $VAR_HOST "cat $COMMON_CONST_ESXI_TEMPLATES_PATH/$CONST_TOOLSVER_FILENAME") || exitChildError "$VAR_REMOTE_TOOLS_VER"
     if isNewLocalVersion "$VAR_LOCAL_TOOLS_VER" "$VAR_REMOTE_TOOLS_VER"
     then
-      echo "Upgrade template tools to version $VAR_LOCAL_TOOLS_VER on $VAR_HOST host"
+      echoInfo "upgrade template tools to version $VAR_LOCAL_TOOLS_VER on $VAR_HOST host"
       #remove old version templates
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TEMPLATES_PATH"
       checkRetValOK
@@ -100,20 +100,20 @@ mkdir $COMMON_CONST_ESXI_DATA_PATH"
       $SCP_CLIENT $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME $VAR_HOST:$COMMON_CONST_ESXI_TEMPLATES_PATH/
       checkRetValOK
     else
-      echo "Newest template tools version on $VAR_HOST host, skip upgrade"
+      echoInfo "newest template tools version on $VAR_HOST host, skip upgrade"
     fi
     #get remote ovftools version
     VAR_REMOTE_OVFTOOLS_VER=$($SSH_CLIENT $VAR_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool --version | awk '{print \$3}'") || exitChildError "$VAR_REMOTE_TOOLS_VER"
     if isNewLocalVersion "$VAR_LOCAL_OVFTOOLS_VER" "$VAR_REMOTE_OVFTOOLS_VER"
     then
-      echo "Upgrade OVF Tool to version $VAR_LOCAL_OVFTOOLS_VER on $VAR_HOST host"
+      echoInfo "upgrade OVF Tool to version $VAR_LOCAL_OVFTOOLS_VER on $VAR_HOST host"
       #remove old version ofvtool
       $SSH_CLIENT $VAR_HOST "rm -fR $COMMON_CONST_ESXI_TOOLS_PATH"
       checkRetValOK
       #put new version ofvtool
       putOvftoolToEsxi "$VAR_HOST"
     else
-      echo "Newest OVF Tool version on $VAR_HOST host, skip upgrade"
+      echoInfo "newest OVF Tool version on $VAR_HOST host, skip upgrade"
     fi
   fi
 done

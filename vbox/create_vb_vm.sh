@@ -114,7 +114,7 @@ checkRetValOK
 cd $VAR_CUR_DIR_PATH
 checkRetValOK
 #take base template snapshot
-echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
+echoInfo "create VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_BOX_FILE_NAME) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 VAR_VM_ID=$(getVMIDByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_ID"

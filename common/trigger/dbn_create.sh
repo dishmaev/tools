@@ -8,7 +8,7 @@ if [ "$#" != "4" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; e
 if [ -r ${3}_create.ok ]; then rm ${3}_create.ok; fi
 exec 1>${3}_create.log
 exec 2>${3}_create.err
-exec 3>${1}_create.tst
+exec 3>${3}_create.tst
 
 ###function
 

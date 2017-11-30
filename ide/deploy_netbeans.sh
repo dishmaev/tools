@@ -55,7 +55,7 @@ if isCommandExist 'netbeans'; then
 fi
 
 #deploy oracle jdk
-echo "Deploy Oracle JDK on current host if not exist"
+echoInfo "deploy Oracle JDK on current host if not exist"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../framework/deploy_oracle_jdk.sh -y) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 

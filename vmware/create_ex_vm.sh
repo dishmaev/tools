@@ -69,7 +69,7 @@ VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
 VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VMWARE_VM_TYPE}_num.cfg"
 VAR_COUNTER_FILE_PATH="$COMMON_CONST_ESXI_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 #check tools exist
-echo "Checking exist tools on $PRM_ESXI_HOST host"
+echoInfo "checking exist tools on $PRM_ESXI_HOST host"
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
   exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_ESXI_HOST host. Exec 'upgrade_tools_esxi.sh $PRM_ESXI_HOST' previously"
@@ -83,9 +83,9 @@ fi
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
   #get vm number
   VAR_VM_NUM=$($SSH_CLIENT $PRM_ESXI_HOST "if [ ! -f $VAR_COUNTER_FILE_PATH ]; \
-  then echo 0 > $VAR_COUNTER_FILE_PATH; fi; \
-  echo \$((\$(cat $VAR_COUNTER_FILE_PATH)+1)) > $VAR_COUNTER_FILE_PATH; \
-  cat $VAR_COUNTER_FILE_PATH") || exitChildError "$VAR_VM_NUM"
+then echo 0 > $VAR_COUNTER_FILE_PATH; fi; \
+echo \$((\$(cat $VAR_COUNTER_FILE_PATH)+1)) > $VAR_COUNTER_FILE_PATH; \
+cat $VAR_COUNTER_FILE_PATH") || exitChildError "$VAR_VM_NUM"
   #set new vm name
   VAR_VM_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_NUM}"
 else
@@ -99,7 +99,7 @@ $SSH_CLIENT $PRM_ESXI_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_
     --noSSLVerify -n=$VAR_VM_NAME $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_ESXI_HOST"
 checkRetValOK
 #take base template snapshot
-echo "Create VM $VAR_VM_NAME snapshot: $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
+echoInfo "create VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_OVA_FILE_NAME $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 VAR_VM_ID=$(getVMIDByVMNameEx "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"

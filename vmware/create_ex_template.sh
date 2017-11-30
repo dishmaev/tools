@@ -178,7 +178,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
 fi
 
 #update tools
-echo "Checking tools version on $PRM_ESXI_HOST host"
+echoInfo "checking tools version on $PRM_ESXI_HOST host"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/upgrade_tools_esxi.sh -y $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #check required ova package on remote esxi host
@@ -223,10 +223,10 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isTrue "$VAR_RESULT"; then #put if not exist
       VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
       if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
-        echo "Unpack archive $VAR_ORIG_FILE_PATH"
+        echoInfo "unpack archive $VAR_ORIG_FILE_PATH"
         p7zip -f -c -d "$VAR_ORIG_FILE_PATH" > "$VAR_TMP_FILE_PATH2"
         checkRetValOK
-        echo "Pack archive ${VAR_TMP_FILE_PATH2}.xz"
+        echoInfo "pack archive ${VAR_TMP_FILE_PATH2}.xz"
         xz -2fz $VAR_TMP_FILE_PATH2
         checkRetValOK
         if ! isFileExistAndRead "${VAR_TMP_FILE_PATH2}.xz"; then
@@ -236,7 +236,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       $SCP_CLIENT "${VAR_TMP_FILE_PATH2}.xz" $PRM_ESXI_HOST:${VAR_TMP_FILE_PATH}.xz
       checkRetValOK
       # unpack xz archive with vmdk disk
-      echo "Unpack archive ${VAR_TMP_FILE_PATH}.xz on $PRM_ESXI_HOST host"
+      echoInfo "unpack archive ${VAR_TMP_FILE_PATH}.xz on $PRM_ESXI_HOST host"
       $SSH_CLIENT $PRM_ESXI_HOST "xz -dc '${VAR_TMP_FILE_PATH}.xz' > $VAR_TMP_FILE_PATH"
       checkRetValOK
     fi
@@ -407,7 +407,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isTrue "$VAR_RESULT"; then #put if not exist
       $SCP_CLIENT "$VAR_ORIG_FILE_PATH" $PRM_ESXI_HOST:$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME
       checkRetValOK
-      echo "Unpack archive $VAR_ORIG_FILE_NAME on $PRM_ESXI_HOST host"
+      echoInfo "unpack archive $VAR_ORIG_FILE_NAME on $PRM_ESXI_HOST host"
       $SSH_CLIENT $PRM_ESXI_HOST "xz -dc '$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_ORIG_FILE_NAME' > $VAR_TMP_FILE_PATH"
       checkRetValOK
     fi

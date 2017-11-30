@@ -83,9 +83,9 @@ for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   done
 done
 
-echo "Begin list"
+echoInfo "begin list"
 echoResult "$VAR_RESULT"
-echo "End list"
+echoInfo "end list"
 
 doneFinalStage
 exitOK

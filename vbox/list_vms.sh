@@ -77,9 +77,9 @@ for VAR_CUR_VM in $VAR_VMS_POOL; do
   VAR_RESULT="${VAR_RESULT}$VAR_VM_NAME|$VAR_VM_ID|$VAR_VM_PORT|$VAR_VM_SS"
 done
 
-echo "Begin list"
+echoInfo "begin list"
 echoResult "$VAR_RESULT"
-echo "End list"
+echoInfo "end list"
 
 doneFinalStage
 exitOK

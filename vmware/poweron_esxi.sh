@@ -42,7 +42,7 @@ if [ "$PRM_MACS_POOL" = "$COMMON_CONST_ALL" ]; then
 fi
 
 for VAR_MAC in $PRM_MACS_POOL; do
-  echo "MAC host:" $VAR_MAC
+  echoInfo "MAC host $VAR_MAC"
   wakeonlan $VAR_MAC
   checkRetValOK
 done

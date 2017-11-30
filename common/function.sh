@@ -596,9 +596,9 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   VAR_RESULT=$(powerOnVMEx "$1" "$2") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   echoResult "$4"
-  pausePrompt "Pause 2 of 3: Manually make changes on template VM $1 on $2 host"
+  pausePrompt "Pause 2 of 3: Manually make changes on template VM $1 on $2 host from ESXi GUI"
   VAR_VM_IP=$(getIpAddressByVMNameEx "$1" "$2" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
-  echoInfo "VM ${1} ip address $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT"
+  echoInfo "VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT"
   $SSH_COPY_ID $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP
   checkRetValOK
   $SCP_CLIENT "$ENV_ROOT_DIR/common/trigger/${1}_create.sh" $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP:
