@@ -89,13 +89,13 @@ for CUR_SUITE in $PRM_SUITES_POOL; do
   VAR_CONFIG_FILE_NAME=${CUR_SUITE}_${PRM_VM_ROLE}.cfg
   VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
   if isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-    echo "Project VM suite $CUR_SUITE role $PRM_VM_ROLE already exist, skip create"
+    echoInfo "project VM suite $CUR_SUITE role $PRM_VM_ROLE already exist, skip create"
     continue
   else
-    echo "Start to create project VM suite $CUR_SUITE"
+    echoInfo "start to create project VM suite $CUR_SUITE"
   fi
   if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
-    echo "Try to find a free VM"
+    echoInfo "try to find a free VM"
     VAR_VMS_POOL=$(getVmsPoolEx "$PRM_VM_TEMPLATE" "$COMMON_CONST_ALL") || exitChildError "$VAR_VMS_POOL"
     for CUR_VM in $VAR_VMS_POOL; do
       VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
@@ -114,16 +114,16 @@ for CUR_SUITE in $PRM_SUITES_POOL; do
       fi
     done
     if ! isTrue "$VAR_FOUND"; then
-      echo "Not found, required new VM"
+      echoInfo "not found, required new VM"
       VAR_HOST=$COMMON_CONST_ESXI_HOST
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/create_${COMMON_CONST_VMWARE_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
       VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:esxihost:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
       VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:esxihost:vmid' | awk '{print $2}' | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
       if isEmpty "$VAR_VM_NAME" || isEmpty "$VAR_VM_ID"; then exitError; fi
-      echo "New VM name: $VAR_VM_NAME"
+      echoInfo "new VM name $VAR_VM_NAME"
     else
-      echo "Current VM name: $VAR_VM_NAME"
+      echoInfo "current VM name $VAR_VM_NAME"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     fi
@@ -134,30 +134,30 @@ for CUR_SUITE in $PRM_SUITES_POOL; do
     VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
     $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
     checkRetValOK
-    echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
+    echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
     #exec trigger script
     VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $CUR_SUITE; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
-      if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
+      if ! isEmpty "$RET_LOG"; then echoInfo "stdout\n$RET_LOG"; fi
     fi
     RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$RET_LOG"
-    if ! isEmpty "$RET_LOG"; then echo "Stderr:\n$RET_LOG"; fi
+    if ! isEmpty "$RET_LOG"; then echoInfo "stderr\n$RET_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
       exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
     fi
     #take project snapshot
-    echo "Create VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
+    echoInfo "create VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
     VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${CUR_SUITE}_${PRM_VM_ROLE}" $VAR_HOST $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #save vm config file
-    echo "Save config file $VAR_CONFIG_FILE_PATH"
+    echoInfo "save config file $VAR_CONFIG_FILE_PATH"
     echo $PRM_VM_TYPE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $PRM_VM_TEMPLATE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
   elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
-    echo "Not found, required new VM"
+    echoInfo "not found, required new VM"
     VAR_VMS_POOL=$(getVmsPoolVb "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
     for CUR_VM in $VAR_VMS_POOL; do
       VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
@@ -175,15 +175,15 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
       fi
     done
     if ! isTrue "$VAR_FOUND"; then
-      echo "Not found, required new VM"
+      echoInfo "not found, required new VM"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/create_${COMMON_CONST_VMWARE_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
       VAR_VM_NAME=$(echo "$VAR_RESULT" | grep 'vmname:vmid' | awk '{print $2}' | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
       VAR_VM_ID=$(echo "$VAR_RESULT" | grep 'vmname:vmid' | awk '{print $2}' | awk -F: '{print $2}') || exitChildError "$VAR_VM_ID"
       if isEmpty "$VAR_VM_NAME" || isEmpty "$VAR_VM_ID"; then exitError; fi
-      echo "New VM name: $VAR_VM_NAME"
+      echoInfo "new VM name $VAR_VM_NAME"
     else
-      echo "Current VM name: $VAR_VM_NAME"
+      echoInfo "current VM name $VAR_VM_NAME"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     fi
@@ -194,25 +194,25 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
     VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
     $SCP_CLIENT -P $VAR_VM_PORT $VAR_SCRIPT_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
     checkRetValOK
-    echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $COMMON_CONST_VAGRANT_IP_ADDRESS"
+    echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $COMMON_CONST_VAGRANT_IP_ADDRESS"
     #exec trigger script
     VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS"chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $CUR_SUITE; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       RET_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
-      if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
+      if ! isEmpty "$RET_LOG"; then echoInfo "stdout\n$RET_LOG"; fi
     fi
     RET_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$RET_LOG"
-    if ! isEmpty "$RET_LOG"; then echo "Stderr:\n$RET_LOG"; fi
+    if ! isEmpty "$RET_LOG"; then echoInfo "stderr\n$RET_LOG"; fi
     if ! isTrue "$VAR_RESULT"; then
       exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
     fi
     #take project snapshot
-    echo "Create VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
+    echoInfo "create VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
     VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${CUR_SUITE}_${PRM_VM_ROLE}" $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #save vm config file
-    echo "Save config file $VAR_CONFIG_FILE_PATH"
+    echoInfo "save config file $VAR_CONFIG_FILE_PATH"
     echo $PRM_VM_TYPE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $PRM_VM_TEMPLATE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $VAR_VM_NAME > $VAR_CONFIG_FILE_PATH

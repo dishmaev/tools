@@ -1068,6 +1068,13 @@ echoResult(){
   fi
 }
 #$1 message
+echoInfo(){
+  checkParmsCount $# 1 'echoInfo'
+  if ! isEmpty "$1"; then
+    echo "Info: $1"
+  fi
+}
+#$1 message
 echoWarning(){
   checkParmsCount $# 1 'echoWarning'
   if ! isEmpty "$1"; then
