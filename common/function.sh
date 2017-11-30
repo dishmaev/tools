@@ -1071,14 +1071,14 @@ echoResult(){
 echoInfo(){
   checkParmsCount $# 1 'echoInfo'
   if ! isEmpty "$1"; then
-    echo "Info: $1"
+    printf "Info: $1\n"
   fi
 }
 #$1 message
 echoWarning(){
   checkParmsCount $# 1 'echoWarning'
   if ! isEmpty "$1"; then
-    echo "Warning: $1"
+    printf "Warning: $1\n"
   fi
 }
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH

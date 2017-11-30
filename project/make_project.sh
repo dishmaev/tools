@@ -53,11 +53,11 @@ startPrompt
 
 ###body
 
-echo "Start build project: $ENV_PROJECT_NAME"
+echoInfo "start build project $ENV_PROJECT_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/build_project.sh -y $PRM_SUITE $PRM_VM_ROLE $PRM_VERSION $PRM_ADD_TO_DISTRIB_REPOSITORY $PRM_DISTRIB_REPO) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 
-echo "Start deploy project: $ENV_PROJECT_NAME"
+echoInfo "start deploy project $ENV_PROJECT_NAME"
 VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_project.sh -y $PRM_SUITE $PRM_VM_ROLE) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 

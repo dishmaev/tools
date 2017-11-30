@@ -79,7 +79,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
   #restore project snapshot
-  echo "Restore VM $VAR_VM_NAME snapshot: $ENV_PROJECT_NAME"
+  echoInfo "restore VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   #power on
@@ -95,15 +95,15 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   checkRetValOK
   #exec trigger script
-  echo "Start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
+  echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $VAR_BUILD_FILE_NAME; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
-    if ! isEmpty "$RET_LOG"; then echo "Stdout:\n$RET_LOG"; fi
+    if ! isEmpty "$RET_LOG"; then echoInfo "stdout\n$RET_LOG"; fi
   fi
   RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$RET_LOG"
-  if ! isEmpty "$RET_LOG"; then echo "Stderr:\n$RET_LOG"; fi
+  if ! isEmpty "$RET_LOG"; then echoInfo "stderr\n$RET_LOG"; fi
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
