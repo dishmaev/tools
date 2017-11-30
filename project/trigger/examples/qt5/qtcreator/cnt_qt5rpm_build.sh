@@ -8,6 +8,7 @@ if [ "$#" != "4" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; e
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
 exec 2>${1}.err
+exec 3>${1}.tst
 
 ###function
 
@@ -71,7 +72,7 @@ cd $HOME
 if [ ! -f "$4" ]; then echo "Output file $4 not found"; exit 1; fi
 for VAR_CUR_PACKAGE in $HOME/build/${VAR_SUITE}/package/*.rpm; do
   if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-  rpm -qip $VAR_CUR_PACKAGE
+  rpm -qip $VAR_CUR_PACKAGE >&3
   checkRetValOK
 done
 
