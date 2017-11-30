@@ -9,9 +9,6 @@ targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 
 #https://www.freshports.org/emulators/virtualbox-ose-additions on FreeBSD
 
-#https://openedx.atlassian.net/wiki/spaces/OXA/pages/157802739/Vagrant+is+stuck+Authentication+failure.+Retrying...
-#https://stackoverflow.com/questions/22922891/vagrant-ssh-authentication-failure
-
 #https://www.sitepoint.com/create-share-vagrant-base-box/ how create base box
 #https://www.vagrantup.com/docs/virtualbox/boxes.html creating base box with Debian
 
