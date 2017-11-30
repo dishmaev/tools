@@ -68,6 +68,20 @@ startPrompt
 
 ###body
 
+#$1 $VAR_BIN_TAR_FILE_PATH, $2 $VAR_VM_TEMPLATE, $3 $PRM_SUITE, $4 $PRM_DISTRIB_REPO
+addToDistribRepotory(){
+  local VAR_TMP_DIR_PATH='' #temporary directory name
+  VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
+  for VAR_CUR_PACKAGE in $HOME/build/dist/${VAR_SUITE}_RPM/GNU-Linux/package/*.rpm; do
+    if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $2 $3 $4) || exitChildError "$VAR_RESULT"
+    echoResult "$VAR_RESULT"
+  done
+  rm -fR $VAR_TMP_DIR_PATH
+  checkRetValOK
+  return $COMMON_CONST_EXIT_SUCCESS
+}
+
 #$1 $PRM_VERSION, $2 $VAR_SRC_TAR_FILE_PATH
 packSourceFiles(){
   local VAR_TMP_DIR_PATH='' #temporary directory name
@@ -90,6 +104,7 @@ packSourceFiles(){
   checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
+  return $COMMON_CONST_EXIT_SUCCESS
 }
 
 VAR_CONFIG_FILE_NAME=${COMMON_CONST_RUNNER_SUITE}_${PRM_VM_ROLE}.cfg
@@ -118,6 +133,8 @@ VAR_SRC_TAR_FILE_NAME=${VAR_BUILD_FILE_NAME}-${PRM_SUITE}-${PRM_VM_ROLE}-src.tar
 VAR_SRC_TAR_FILE_PATH=$COMMON_CONST_LOCAL_BUILD_PATH/$VAR_SRC_TAR_FILE_NAME
 VAR_BIN_TAR_FILE_NAME=${VAR_BUILD_FILE_NAME}-${PRM_SUITE}-${PRM_VM_ROLE}-bin.tar.gz
 VAR_BIN_TAR_FILE_PATH=$COMMON_CONST_LOCAL_BUILD_PATH/$VAR_BIN_TAR_FILE_NAME
+#remove old files
+rm -f "$VAR_SRC_TAR_FILE_PATH" "$VAR_BIN_TAR_FILE_PATH"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
@@ -130,6 +147,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_RESULT=$(powerOnVMEx "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   packSourceFiles "$PRM_VERSION" "$VAR_SRC_TAR_FILE_PATH"
+  checkRetValOK
   #copy git archive on vm
   VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   $SCP_CLIENT $VAR_SRC_TAR_FILE_PATH $VAR_VM_IP:$VAR_SRC_TAR_FILE_NAME
@@ -169,6 +187,7 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
   VAR_RESULT=$(powerOnVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   packSourceFiles "$PRM_VERSION" "$VAR_SRC_TAR_FILE_PATH"
+  checkRetValOK
   #copy git archive on vm
   VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
   $SCP_CLIENT -P $VAR_VM_PORT $VAR_SRC_TAR_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_SRC_TAR_FILE_NAME
@@ -198,6 +217,11 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
       echoWarning "Build file $VAR_BIN_TAR_FILE_NAME on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT not found"
     fi
    fi
+fi
+#add to distrib repository if required
+if isTrue "$PRM_ADD_TO_DISTRIB_REPOSITORY" && isFileExistAndRead "$VAR_BIN_TAR_FILE_PATH"; then
+  addToDistribRepotory "$VAR_BIN_TAR_FILE_PATH" "$VAR_VM_TEMPLATE" "$PRM_SUITE" "$PRM_DISTRIB_REPO"
+  checkRetValOK
 fi
 
 doneFinalStage

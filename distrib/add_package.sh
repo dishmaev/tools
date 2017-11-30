@@ -73,8 +73,9 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
-  echo "RPM-based Linux repository"
+  echoInfo "RPM-based Linux repository"
   checkDependencies 'createrepo rpm'
   #get target code name
   if [ "$PRM_SUITE" = "$COMMON_CONST_DEVELOP_SUITE" ]; then
@@ -97,7 +98,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
   checkRetValOK
   #add package
-  echo "Add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME CODENAME"
+  echoInfo "add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME CODENAME"
   VAR_PACKAGE_ARCH=$(rpm -qip $PRM_PACKAGE_FILE | grep -E 'Architecture[ *:]' | awk '{print $2}') || exitChildError "$VAR_PACKAGE_ARCH"
   VAR_DISTRIB_REPO_DIR_PATH=$VAR_TMP_DIR_PATH/repos/linux/rpm/$VAR_CODE_NAME/RPMS/$VAR_PACKAGE_ARCH
   cp $PRM_PACKAGE_FILE $VAR_DISTRIB_REPO_DIR_PATH/
@@ -122,8 +123,9 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANGUI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
-  echo "APT-based Linux repository"
+  echoInfo "APT-based Linux repository"
   checkDependencies 'reprepro'
   #get target code name
   if [ "$PRM_SUITE" = "$COMMON_CONST_DEVELOP_SUITE" ]; then
@@ -138,7 +140,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
   checkRetValOK
   #add package
-  echo "Add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME CODENAME"
+  echoInfo "add package $VAR_SHORT_FILE_NAME to $VAR_CODE_NAME CODENAME"
   reprepro -b $VAR_TMP_DIR_PATH/repos/linux/apt includedeb $VAR_CODE_NAME $PRM_PACKAGE_FILE
   checkRetValOK
   VAR_CUR_DIR_PATH=$PWD
@@ -156,9 +158,9 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
-  echo "Oracle Solaris repository"
+  echoInfo "TO-DO Oracle Solaris repository"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
-  echo "FreeBSD repository"
+  echoInfo "TO-DO FreeBSD repository"
 fi
 doneFinalStage
 exitOK

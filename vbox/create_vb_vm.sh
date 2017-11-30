@@ -10,7 +10,6 @@ readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUAL
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
 PRM_VM_NAME='' #vm name
-PRM_AUTOSTART=$COMMON_CONST_FALSE #enable autostart
 VAR_RESULT='' #child return value
 VAR_VM_VER='' #current vm version
 VAR_VM_NUM='' #current number of vm
@@ -30,19 +29,17 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '<vmTemplate> [vmName=$COMMON_CONST_DEFAULT_VM_NAME] [autoStart=$COMMON_CONST_FALSE]' \
-    "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VM_NAME $COMMON_CONST_FALSE" \
+echoHelp $# 2 '<vmTemplate> [vmName=$COMMON_CONST_DEFAULT_VM_NAME]' \
+    "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE $COMMON_CONST_DEFAULT_VM_NAME" \
     "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL"
 
 ###check commands
 
 PRM_VM_TEMPLATE=$1
 PRM_VM_NAME=${2:-$COMMON_CONST_DEFAULT_VM_NAME}
-PRM_AUTOSTART=${3:-$COMMON_CONST_FALSE}
 
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
 checkCommandExist 'vmName' "$PRM_VM_NAME" ''
-checkCommandExist 'autoStart' "$PRM_AUTOSTART" "$COMMON_CONST_BOOL_VALUES"
 
 ###check body dependencies
 

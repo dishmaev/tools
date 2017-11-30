@@ -64,10 +64,13 @@ startPrompt
 ###body
 
 if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONFULL_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ] || \
-[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLELINUXBOX_VM_TEMPLATE" ]; then
-  echo "RPM-based Linux repository"
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSOSB_VM_TEMPLATE" ]; then
+  echoInfo "RPM-based Linux repository"
   checkDependencies 'createrepo'
   #get target code name
   if [ "$PRM_SUITE" = "$COMMON_CONST_DEVELOP_SUITE" ]; then
@@ -107,7 +110,7 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
     checkRetValOK
   fi
   #remove package
-  echo "Remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
+  echoInfo "remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
   VAR_CUR_DIR_PATH=$PWD
   cd $VAR_TMP_DIR_PATH
   #git add and commit
@@ -122,8 +125,9 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_PHOTONMINI_VM_TEMPLATE" ] || \
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
+[ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANGUI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANOSB_VM_TEMPLATE" ]; then
-  echo "APT-based Linux repository"
+  echoInfo "APT-based Linux repository"
   checkDependencies 'reprepro'
   #get target code name
   if [ "$PRM_SUITE" = "$COMMON_CONST_DEVELOP_SUITE" ]; then
@@ -138,7 +142,7 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   git clone $PRM_DISTRIB_REPO $VAR_TMP_DIR_PATH
   checkRetValOK
   #add package
-  echo "Remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
+  echoInfo "remove package $PRM_PACKAGE_NAME from $VAR_CODE_NAME CODENAME"
   reprepro -b $VAR_TMP_DIR_PATH/repos/linux/apt remove $VAR_CODE_NAME $PRM_PACKAGE_NAME
   checkRetValOK
   VAR_CUR_DIR_PATH=$PWD
@@ -156,9 +160,9 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
-  echo "Oracle Solaris repository"
+  echoInfo "TO-DO Oracle Solaris repository"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
-  echo "FreeBSD repository"
+  echoInfo "TO-DO FreeBSD repository"
 fi
 doneFinalStage
 exitOK

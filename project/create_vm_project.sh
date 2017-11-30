@@ -28,6 +28,8 @@ VAR_SCRIPT_FILE_PATH='' #create script file path
 VAR_REMOTE_SCRIPT_FILE_NAME='' #create script file name on remote vm
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
+VAR_CUR_SUITE='' #current suite
+VAR_CUR_VM='' #vm exp
 
 ###check autoyes
 
@@ -84,23 +86,23 @@ if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
   PRM_SUITES_POOL=$COMMON_CONST_SUITES_POOL
 fi
 
-for CUR_SUITE in $PRM_SUITES_POOL; do
+for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
   VAR_FOUND=$COMMON_CONST_FALSE
-  VAR_CONFIG_FILE_NAME=${CUR_SUITE}_${PRM_VM_ROLE}.cfg
+  VAR_CONFIG_FILE_NAME=${VAR_CUR_SUITE}_${PRM_VM_ROLE}.cfg
   VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
   if isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-    echoInfo "project VM suite $CUR_SUITE role $PRM_VM_ROLE already exist, skip create"
+    echoInfo "project VM suite $VAR_CUR_SUITE role $PRM_VM_ROLE already exist, skip create"
     continue
   else
-    echoInfo "start to create project VM suite $CUR_SUITE"
+    echoInfo "start to create project VM suite $VAR_CUR_SUITE"
   fi
   if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     echoInfo "try to find a free VM"
     VAR_VMS_POOL=$(getVmsPoolEx "$PRM_VM_TEMPLATE" "$COMMON_CONST_ALL") || exitChildError "$VAR_VMS_POOL"
-    for CUR_VM in $VAR_VMS_POOL; do
-      VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
-      VAR_HOST=$(echo "$CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_HOST"
-      VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
+    for VAR_CUR_VM in $VAR_VMS_POOL; do
+      VAR_VM_NAME=$(echo "$VAR_CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
+      VAR_HOST=$(echo "$VAR_CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_HOST"
+      VAR_VM_ID=$(echo "$VAR_CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
       VAR_SS_ID=$(getVMSnapshotIDByNameEx "$VAR_VM_ID" "$COMMON_CONST_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"
       #check snapshotName
       if isEmpty "$VAR_SS_ID"
@@ -136,7 +138,7 @@ for CUR_SUITE in $PRM_SUITES_POOL; do
     checkRetValOK
     echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
     #exec trigger script
-    VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $CUR_SUITE; \
+    VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $VAR_CUR_SUITE; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       RET_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
@@ -149,7 +151,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     fi
     #take project snapshot
     echoInfo "create VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${CUR_SUITE}_${PRM_VM_ROLE}" $VAR_HOST $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${VAR_CUR_SUITE}_${PRM_VM_ROLE}" $VAR_HOST $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #save vm config file
     echoInfo "save config file $VAR_CONFIG_FILE_PATH"
@@ -159,9 +161,9 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
   elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
     echoInfo "try to find a free VM"
     VAR_VMS_POOL=$(getVmsPoolVb "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
-    for CUR_VM in $VAR_VMS_POOL; do
-      VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
-      VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_VM_ID"
+    for VAR_CUR_VM in $VAR_VMS_POOL; do
+      VAR_VM_NAME=$(echo "$VAR_CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
+      VAR_VM_ID=$(echo "$VAR_CUR_VM" | awk -F: '{print $2}') || exitChildError "$VAR_VM_ID"
       VAR_SS_ID=$(getVMSnapshotIDByNameVb "$VAR_VM_ID" "$COMMON_CONST_SNAPSHOT_TEMPLATE_NAME") || exitChildError "$VAR_SS_ID"
       #check snapshotName
       if isEmpty "$VAR_SS_ID"
@@ -198,7 +200,7 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
     checkRetValOK
     echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
     #exec trigger script
-    VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $CUR_SUITE; \
+    VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $VAR_CUR_SUITE; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       RET_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
@@ -211,7 +213,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     fi
     #take project snapshot
     echoInfo "create VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${CUR_SUITE}_${PRM_VM_ROLE}" $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${VAR_CUR_SUITE}_${PRM_VM_ROLE}" $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #save vm config file
     echoInfo "save config file $VAR_CONFIG_FILE_PATH"

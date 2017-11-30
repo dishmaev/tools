@@ -20,6 +20,7 @@ VAR_SS_ID='' #snapshot id
 VAR_SS_NAME='' #snapshot name
 VAR_CHILD_SNAPSHOTS_POOL='' #VAR_SS_ID child snapshots_pool, IDs with space delimiter
 VAR_CHECK_REGEX='' #check regex package name
+VAR_CUR_VM='' #vm exp
 
 ###check autoyes
 
@@ -50,13 +51,13 @@ startPrompt
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   checkSSHKeyExistEsxi "$VAR_HOST"
   VAR_VMS_POOL=$(getVmsPoolEx "$COMMON_CONST_ALL" "$VAR_HOST") || exitChildError "$VAR_VMS_POOL"
-  for CUR_VM in $VAR_VMS_POOL; do
+  for VAR_CUR_VM in $VAR_VMS_POOL; do
     if [ "$PRM_FILTER_REGEX" != "$COMMON_CONST_ALL" ]; then
-      VAR_CHECK_REGEX=$(echo "$CUR_VM" | grep -E "$PRM_FILTER_REGEX" | cat) || exitChildError "$VAR_CHECK_REGEX"
+      VAR_CHECK_REGEX=$(echo "$VAR_CUR_VM" | grep -E "$PRM_FILTER_REGEX" | cat) || exitChildError "$VAR_CHECK_REGEX"
       if isEmpty "$VAR_CHECK_REGEX"; then continue; fi
     fi
-    VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
-    VAR_VM_ID=$(echo "$CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
+    VAR_VM_NAME=$(echo "$VAR_CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
+    VAR_VM_ID=$(echo "$VAR_CUR_VM" | awk -F: '{print $3}') || exitChildError "$VAR_VM_ID"
     VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_TRUE") || exitChildError "$VAR_VM_IP"
     if isEmpty "$VAR_VM_IP"; then VAR_VM_IP="<unset>"; fi
     VAR_SS_ID=$(getVMSnapshotIDByNameEx "$VAR_VM_ID" "$COMMON_CONST_SNAPSHOT_TEMPLATE_NAME" "$VAR_HOST") || exitChildError "$VAR_SS_ID"

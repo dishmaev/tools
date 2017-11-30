@@ -10,6 +10,7 @@ PRM_ESXI_HOST='' #host
 VAR_RESULT='' #child return value
 VAR_VM_NAME='' #current vm
 VAR_TMP_VMS_POOL='' # temp vms pool
+VAR_CUR_VM='' #vm exp
 
 ###check autoyes
 
@@ -42,8 +43,8 @@ checkSSHKeyExistEsxi "$PRM_ESXI_HOST"
 if [ "$PRM_VMS_POOL" = "$COMMON_CONST_ALL" ]; then
   VAR_TMP_VMS_POOL=$(getVmsPoolEx "$COMMON_CONST_ALL" "$PRM_ESXI_HOST") || exitChildError "$VAR_TMP_VMS_POOL"
   PRM_VMS_POOL=''
-  for CUR_VM in $VAR_TMP_VMS_POOL; do
-    VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
+  for VAR_CUR_VM in $VAR_TMP_VMS_POOL; do
+    VAR_VM_NAME=$(echo "$VAR_CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
     PRM_VMS_POOL="$PRM_VMS_POOL $VAR_VM_NAME"
   done
 fi
