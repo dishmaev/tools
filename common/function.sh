@@ -1063,22 +1063,28 @@ checkRetValOK(){
 #$1 return result
 echoResult(){
   checkParmsCount $# 1 'echoResult'
-  if ! isEmpty "$1"; then
-    printf "$1\n"
+  local VAR_RESULT='';
+  VAR_RESULT=$(echo $1 | sed 's/^[ \t%]*//')
+  if ! isEmpty "$VAR_RESULT"; then
+    printf "$VAR_RESULT\n"
   fi
 }
 #$1 message
 echoInfo(){
   checkParmsCount $# 1 'echoInfo'
-  if ! isEmpty "$1"; then
-    printf "Info: $1\n"
+  local VAR_RESULT='';
+  VAR_RESULT=$(echo $1 | sed 's/^[ \t%]*//')
+  if ! isEmpty "$VAR_RESULT"; then
+    printf "Info: $VAR_RESULT\n"
   fi
 }
 #$1 message
 echoWarning(){
   checkParmsCount $# 1 'echoWarning'
-  if ! isEmpty "$1"; then
-    printf "Warning: $1\n"
+  local VAR_RESULT='';
+  VAR_RESULT=$(echo $1 | sed 's/^[ \t%]*//')
+  if ! isEmpty "$VAR_RESULT"; then
+    printf "Warning: $VAR_RESULT\n"
   fi
 }
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH

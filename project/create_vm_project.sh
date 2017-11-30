@@ -157,7 +157,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
 $PRM_VM_TEMPLATE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
   elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
-    echoInfo "not found, required new VM"
+    echoInfo "try to find a free VM"
     VAR_VMS_POOL=$(getVmsPoolVb "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
     for CUR_VM in $VAR_VMS_POOL; do
       VAR_VM_NAME=$(echo "$CUR_VM" | awk -F: '{print $1}') || exitChildError "$VAR_VM_NAME"
