@@ -360,22 +360,22 @@ powerOnVMEx()
     exitError "VM $1 not found on $2 host"
   fi
   echo "Required power on VM $1 ID $VAR_VM_ID on $2 host"
-  VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $VAR_VM_ID | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $VAR_VM_ID; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
     echo -n '.'
     sleep $COMMON_CONST_SLEEP_LONG
     #check status
-    VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $VAR_VM_ID | sed -e '1d')\" = 'Powered on' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then  #still not powered on, force kill vm
-        exitError "failed power on the VMID $1 on $2 host. Check VM Tools install and running"
+        exitError "failed power on the VM $1 ID $VAR_VM_ID on $2 host. Check VM Tools install and running"
       else
         echo ''
-        echo "Still cannot power on the VMID $1 on $2 host, left $VAR_TRY attempts"
+        echo "Still cannot power on the VM $1 ID $VAR_VM_ID on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
@@ -421,29 +421,30 @@ powerOffVMEx()
     exitError "VM $1 not found on $2 host"
   fi
   echo "Required power off VM $1 ID $VAR_VM_ID on $2 host"
-  VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $1; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $VAR_VM_ID | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $VAR_VM_ID; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
     echo -n '.'
     sleep $COMMON_CONST_SLEEP_LONG
     #check status
-    VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $1 | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $VAR_VM_ID | sed -e '1d')\" = 'Powered off' ]; then echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
     if isTrue "$VAR_RESULT"; then break; fi
     VAR_COUNT=$((VAR_COUNT-1))
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then  #still running, force kill vm
-        echo "Failed standard power off the VMID $1 on $2 host, use force power off."
+        echo "Failed standard power off the VM $1 ID $VAR_VM_ID on $2 host, use force power off."
+        VAR_RESULT=$($SSH_CLIENT $2 "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         $SSH_CLIENT $2 "esxcli vm process kill --type force --world-id $VAR_RESULT"
         checkRetValOK
         sleep $COMMON_CONST_SLEEP_LONG
         VAR_RESULT=$($SSH_CLIENT $2 "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         if ! isEmpty "$VAR_RESULT"; then
-          exitError "failed force power off the VMID $1 on $2 host"
+          exitError "failed force power off the VM $1 ID $VAR_VM_ID on $2 host"
         fi
       else
         echo ''
-        echo "Still cannot standard power off the VMID $1 on $2 host, left $VAR_TRY attempts"
+        echo "Still cannot standard power off the VM $1 ID $VAR_VM_ID on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
