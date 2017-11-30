@@ -591,21 +591,21 @@ vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY
   echoResult "$4"
   pausePrompt "Pause 2 of 3: Manually make changes on template VM $1 on $2 host"
   VAR_VM_IP=$(getIpAddressByVMNameEx "$1" "$2" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
-  echo "VM ${1} ip address: $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT"
+  echoInfo "VM ${1} ip address $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT"
   $SSH_COPY_ID $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP
   checkRetValOK
   $SCP_CLIENT "$ENV_ROOT_DIR/common/trigger/${1}_create.sh" $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP:
   checkRetValOK
-  echo "Start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
+  echoInfo "start ${1}_create.sh executing on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
   #exec trigger script
   VAR_RESULT=$($SSH_CLIENT $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP "chmod u+x ${1}_create.sh;./${1}_create.sh $ENV_SSH_USER_NAME $ENV_SSH_USER_PASS $1 $3; \
 if [ -r ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     VAR_LOG=$($SSH_CLIENT $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP "if [ -r ${1}_create.log ]; then cat ${1}_create.log; fi") || exitChildError "$VAR_LOG"
-    if ! isEmpty "$VAR_LOG"; then echo "Stdout:\n$VAR_LOG"; fi
+    if ! isEmpty "$VAR_LOG"; then echoInfo "stdout\n$VAR_LOG"; fi
   fi
   VAR_LOG=$($SSH_CLIENT $COMMON_CONST_ESXI_BASE_USER_NAME@$VAR_VM_IP "if [ -r ${1}_create.err ]; then cat ${1}_create.err; fi") || exitChildError "$VAR_LOG"
-  if ! isEmpty "$VAR_LOG"; then echo "Stderr:\n$VAR_LOG"; fi
+  if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
   fi
