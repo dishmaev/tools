@@ -184,6 +184,8 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
       echoInfo "new VM name $VAR_VM_NAME"
     else
       echoInfo "current VM name $VAR_VM_NAME"
+      VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
+      echoResult "$VAR_RESULT"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     fi
