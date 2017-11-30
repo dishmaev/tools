@@ -22,6 +22,7 @@ targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
 ##private consts
 readonly CONST_VBOX_GUESTADD_URL='http://download.virtualbox.org/virtualbox/@PRM_VERSION@/VBoxGuestAdditions_@PRM_VERSION@.iso' #url for download
 readonly CONST_VBOX_GUESTADD_SCRIPT='install_guest_add.sh'
+readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
@@ -139,8 +140,11 @@ config.vm.provision :shell, :path => \"@VAR_SCRIPT_FILE_PATH@\"\n\
 end\n" > $VAR_VAGRANT_FILE_PATH
 #config.ssh.private_key_path = \"$ENV_SSH_IDENTITY_FILE_NAME\"\n  \
   fi
+  if isVMExistVb "$PRM_VM_TEMPLATE"; then
+    exitError "VM with name $PRM_VM_TEMPLATE already exist"
+  fi
   #create temporary directory
-  VAR_TMP_DIR_PATH="$CONST_LOCAL_VMS_PATH/$VAR_VM_NAME"
+  VAR_TMP_DIR_PATH="$CONST_LOCAL_VMS_PATH/$PRM_VM_TEMPLATE"
   if isDirectoryExist "$VAR_TMP_DIR_PATH"; then
     rm -fR "$VAR_TMP_DIR_PATH"
     checkRetValOK
