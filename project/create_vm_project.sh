@@ -92,7 +92,7 @@ for CUR_SUITE in $PRM_SUITES_POOL; do
     echo "Project VM suite $CUR_SUITE role $PRM_VM_ROLE already exist, skip create"
     continue
   else
-    echo "Start suite $CUR_SUITE"
+    echo "Start to create project VM suite $CUR_SUITE"
   fi
   if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     echo "Try to find a free VM"
