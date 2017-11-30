@@ -40,7 +40,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 5 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [version=$COMMON_CONST_DEFAULT_VERSION] [addToDistribRepository=$COMMON_CONST_FALSE] [distribRepository=$ENV_DISTRIB_REPO]' \
 "$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE $ENV_DISTRIB_REPO" \
-"Version '$COMMON_CONST_DEFAULT_VERSION' is 'HEAD' of develop branch, otherwise is tag name of master branch. Available suites: $CONST_SUITES_POOL"
+"Version $COMMON_CONST_DEFAULT_VERSION is HEAD of develop branch, otherwise is tag or branch name. Available suites: $CONST_SUITES_POOL"
 
 ###check commands
 

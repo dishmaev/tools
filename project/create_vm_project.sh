@@ -85,11 +85,14 @@ if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
 fi
 
 for CUR_SUITE in $PRM_SUITES_POOL; do
+  VAR_FOUND=$COMMON_CONST_FALSE
   VAR_CONFIG_FILE_NAME=${CUR_SUITE}_${PRM_VM_ROLE}.cfg
   VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
   if isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
     echo "Project VM suite $CUR_SUITE role $PRM_VM_ROLE already exist, skip create"
     continue
+  else
+    echo "Start suite $CUR_SUITE"
   fi
   if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
     echo "Try to find a free VM"
