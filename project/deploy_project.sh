@@ -7,7 +7,7 @@ targetDescription "Deploy build file of project $ENV_PROJECT_NAME"
 ##private consts
 CONST_PROJECT_ACTION='deploy'
 CONST_BUILD_FILE_NAME=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
-CONST_DEFAULT_BUILD_FILE=$ENV_DOWNLOAD_PATH/${CONST_BUILD_FILE_NAME}-${COMMON_CONST_DEFAULT_VM_ROLE}-bin.tar.gz
+CONST_DEFAULT_BUILD_FILE=$COMMON_CONST_LOCAL_BUILD_PATH/${CONST_BUILD_FILE_NAME}-${COMMON_CONST_DEFAULT_VM_ROLE}-bin.tar.gz
 
 ##private vars
 PRM_BUILD_FILE='' #build file name
@@ -24,6 +24,7 @@ VAR_VM_NAME='' #vm name
 VAR_HOST='' #esxi host
 VAR_VM_IP='' #vm ip address
 VAR_BUILD_FILE_NAME='' #short file name of $PRM_BUILD_FILE
+VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vbox vm by ssh
 
 ###check autoyes
 
@@ -39,7 +40,7 @@ echoHelp $# 3 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT
 
 PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
-PRM_BUILD_FILE=${3:-"$ENV_DOWNLOAD_PATH/${CONST_BUILD_FILE_NAME}-${PRM_SUITE}-${PRM_VM_ROLE}-bin.tar.gz"}
+PRM_BUILD_FILE=${3:-"$COMMON_CONST_LOCAL_BUILD_PATH/${CONST_BUILD_FILE_NAME}-${PRM_SUITE}-${PRM_VM_ROLE}-bin.tar.gz"}
 
 checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
 checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
@@ -72,7 +73,11 @@ VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print 
 
 VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_${CONST_PROJECT_ACTION}
 VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
-
+if [ "$PRM_VM_ROLE" != "$COMMON_CONST_DEFAULT_VM_ROLE" ] && ! isFileExistAndRead "$VAR_SCRIPT_FILE_PATH"; then
+  VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${COMMON_CONST_DEFAULT_VM_ROLE}_${CONST_PROJECT_ACTION}
+  VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
+  echoWarning "trigger script for role $PRM_VM_ROLE not found, try to use script for role $COMMON_CONST_DEFAULT_VM_ROLE"
+fi
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
@@ -85,8 +90,8 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   #power on
   VAR_RESULT=$(powerOnVMEx "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
-  VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   #copy build file on vm
+  VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_BUILD_FILE_NAME"
   $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_BUILD_FILE_NAME
   checkRetValOK
@@ -106,6 +111,37 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isEmpty "$RET_LOG"; then echoInfo "stderr\n$RET_LOG"; fi
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
+  fi
+elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
+  #restore project snapshot
+  VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
+  echoInfo "restore VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME) || exitChildError "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
+  #power on
+  VAR_RESULT=$(powerOnVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
+  #copy build file on vm
+  VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
+  VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_BUILD_FILE_NAME"
+  $SCP_CLIENT -P $VAR_VM_PORT $PRM_BUILD_FILE $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_BUILD_FILE_NAME
+  checkRetValOK
+  #copy create script on vm
+  VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
+  $SCP_CLIENT -P $VAR_VM_PORT $VAR_SCRIPT_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
+  checkRetValOK
+  #exec trigger script
+  echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
+  VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $VAR_BUILD_FILE_NAME; \
+if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+  if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
+    RET_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$RET_LOG"
+    if ! isEmpty "$RET_LOG"; then echoInfo "stdout\n$RET_LOG"; fi
+  fi
+  RET_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$RET_LOG"
+  if ! isEmpty "$RET_LOG"; then echoInfo "stderr\n$RET_LOG"; fi
+  if ! isTrue "$VAR_RESULT"; then
+    exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   fi
 fi
 
