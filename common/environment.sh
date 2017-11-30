@@ -52,6 +52,8 @@ readonly ENV_PROJECT_TRIGGER_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_
 if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
 readonly ENV_TOOLS_HIDDEN_PATH="$HOME/.tools"
 if isEmpty "$ENV_TOOLS_HIDDEN_PATH"; then checkNotEmptyEnvironment "ENV_TOOLS_HIDDEN_PATH"; fi
+readonly ENV_SHELL_WITH_ESC=$(eval 'VAR_COUNT=$(echo "a\nb" | wc -l); if [ $VAR_COUNT -eq 1 ]; then echo '$COMMON_CONST_FALSE'; else echo '$COMMON_CONST_TRUE'; fi')
+if isEmpty "$ENV_SHELL_WITH_ESC"; then checkNotEmptyEnvironment "ENV_SHELL_WITH_ESC"; fi
 
 #vmware tools local directory
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"

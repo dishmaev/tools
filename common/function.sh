@@ -906,7 +906,7 @@ getTrace(){
   done
   VAR_TRACE=$(echo "$VAR_TRACE" | tac | grep -n ":" | tac) # using tac to "print in reverse" [3]
   echo "Begin trace"
-  printf "$VAR_TRACE\n"
+  echoResult "$VAR_TRACE"
   echo "End trace"
 }
 #$1 message
@@ -1070,29 +1070,23 @@ checkRetValOK(){
 #$1 return result
 echoResult(){
   checkParmsCount $# 1 'echoResult'
-  local VAR_RESULT='';
-  VAR_RESULT=$(echo $1 | sed 's/%/%%/g')
-  if ! isEmpty "$VAR_RESULT"; then
-    printf "$VAR_RESULT\n"
+  if ! isEmpty "$1"; then
+    if isTrue "$ENV_SHELL_WITH_ESC"; then
+      echo "$1"
+    else
+      echo -e "$1"
+    fi
   fi
 }
 #$1 message
 echoInfo(){
   checkParmsCount $# 1 'echoInfo'
-  local VAR_RESULT='';
-  VAR_RESULT=$(echo $1 | sed 's/%/%%/g')
-  if ! isEmpty "$VAR_RESULT"; then
-    printf "Info: $VAR_RESULT\n"
-  fi
+  echoResult "Info: $1"
 }
 #$1 message
 echoWarning(){
   checkParmsCount $# 1 'echoWarning'
-  local VAR_RESULT='';
-  VAR_RESULT=$(echo $1 | sed 's/%/%%/g')
-  if ! isEmpty "$VAR_RESULT"; then
-    printf "Warning: $VAR_RESULT\n"
-  fi
+  echoResult "Warning: $1"
 }
 #$1 local version, $2 remote version, format MAJOR.MINOR.PATCH
 isNewLocalVersion() {
