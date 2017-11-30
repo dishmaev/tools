@@ -70,6 +70,7 @@ startPrompt
 
 #$1 $VAR_BIN_TAR_FILE_PATH, $2 $VAR_VM_TEMPLATE, $3 $PRM_SUITE, $4 $PRM_DISTRIB_REPO
 addToDistribRepotory(){
+  local VAR_RESULT=''
   local VAR_TMP_DIR_PATH='' #temporary directory name
   local VAR_PACKAGE_EXT='' #extention package
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
@@ -77,16 +78,17 @@ addToDistribRepotory(){
   checkRetValOK
   for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.${COMMON_CONST_LINUX_APT}; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    #VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
   for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.${COMMON_CONST_LINUX_RPM}; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    #VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
   echoInfo "TO-DO add Oracle Solaris packages"
   echoInfo "TO-DO add FreeBSD packages"
+  pausePrompt 'Test'
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
   return $COMMON_CONST_EXIT_SUCCESS
@@ -232,6 +234,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
 fi
 #add to distrib repository if required
 if isTrue "$PRM_ADD_TO_DISTRIB_REPOSITORY" && isFileExistAndRead "$VAR_BIN_TAR_FILE_PATH"; then
+  echoInfo "add build packages to distrib repository"
   addToDistribRepotory "$VAR_BIN_TAR_FILE_PATH" "$VAR_VM_TEMPLATE" "$PRM_SUITE" "$PRM_DISTRIB_REPO"
   checkRetValOK
 fi
