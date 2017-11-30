@@ -26,7 +26,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[filterRegex=$COMMON_CONST_ALL]' "'$COMMON_CONST_ESXI_HOSTS_POOL'" ''
+echoHelp $# 1 '[filterRegex=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ''
 
 ###check commands
 

@@ -28,14 +28,20 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '[esxiHostsPool=$COMMON_CONST_ESXI_HOSTS_POOL] [filterRegex=$COMMON_CONST_ALL]' "'$COMMON_CONST_ESXI_HOSTS_POOL'" ''
+echoHelp $# 2 '[esxiHostsPool=$COMMON_CONST_ALL] [filterRegex=$COMMON_CONST_ALL]' \
+"$COMMON_CONST_ALL $COMMON_CONST_ALL" \
+"Available esxi hosts: $COMMON_CONST_ESXI_HOSTS_POOL"
 
 ###check commands
 
-PRM_ESXI_HOSTS_POOL=${1:-$COMMON_CONST_ESXI_HOSTS_POOL}
+PRM_ESXI_HOSTS_POOL=${1:-$COMMON_CONST_ALL}
 PRM_FILTER_REGEX=${2:-$COMMON_CONST_ALL}
 
-checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
+if ! isEmpty "$1"; then
+  checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" "$COMMON_CONST_ESXI_HOSTS_POOL"
+else
+  checkCommandExist 'esxiHostsPool' "$PRM_ESXI_HOSTS_POOL" ''
+fi
 checkCommandExist 'filterRegex' "$PRM_FILTER_REGEX" ''
 
 ###check body dependencies
@@ -47,6 +53,10 @@ checkCommandExist 'filterRegex' "$PRM_FILTER_REGEX" ''
 startPrompt
 
 ###body
+
+if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
+  PRM_ESXI_HOSTS_POOL=$COMMON_CONST_ESXI_HOSTS_POOL
+fi
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   checkSSHKeyExistEsxi "$VAR_HOST"
