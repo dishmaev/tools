@@ -44,6 +44,7 @@ VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vm b
 VAR_CONTROLLER_NAME='' #storage controller name
 VAR_SCRIPT_FILE_PATH='' #install guest add script file name with local path
 VAR_LOG='' #log execute script
+VAR_VM_ID='' #vm VMID
 
 ###check autoyes
 
@@ -158,8 +159,11 @@ end\n" > $VAR_VAGRANT_FILE_PATH
   #create new vm
   vagrant up --no-provision
   checkRetValOK
-  vboxmanage controlvm "$PRM_VM_TEMPLATE" acpipowerbutton
+#  vboxmanage controlvm "$PRM_VM_TEMPLATE" acpipowerbutton
+  vagrant halt
   checkRetValOK
+  VAR_VM_ID=$(getVMIDByVMNameVb "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_ID"
+#  ps -ef | grep -i "$VAR_VM_ID"
   pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM ${PRM_VM_TEMPLATE}. Typically for Linux without GUI: \
 vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - ${COMMON_CONST_DEFAULT_HDD_SIZE}G"
   VAR_CONTROLLER_NAME=$(vboxmanage showvminfo "$PRM_VM_TEMPLATE" | grep -i 'storage controller name' | sed -n 1p | awk -F: '{print $2}' | sed 's/^[ \t]*//') || exitChildError "$VAR_CONTROLLER_NAME"

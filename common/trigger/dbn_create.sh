@@ -90,6 +90,7 @@ checkRetValOK
 
 #check packages version
 sudo --version >&3
+checkRetValOK
 
 ###finish
 
