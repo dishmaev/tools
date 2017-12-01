@@ -49,7 +49,7 @@ if ! isLinuxOS; then exitError 'not supported OS'; fi
 VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 #if already deployed, exit OK
 if isCommandExist 'netbeans'; then
-  echoResult "Already deployed"
+  echoInfo "already deployed"
   doneFinalStage
   exitOK
 fi

@@ -50,7 +50,7 @@ if isCommandExist 'vagrant'; then
   if isNewLocalVersion "$PRM_VERSION" "$VAR_VERSION"; then
     echoWarning "older version $VAR_VERSION is found, skip deploy"
   else
-    echoResult "Already deployed"
+    echoInfo "already deployed"
     vagrant --version
   fi
   doneFinalStage

@@ -186,7 +186,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   else
     VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "if [ -r $VAR_BIN_TAR_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi")
     if isTrue "$VAR_RESULT"; then
-      echoResult "Get build file from VM $VAR_VM_NAME ip $VAR_VM_IP and put it in $VAR_BIN_TAR_FILE_PATH"
+      echoInfo "get build file from VM $VAR_VM_NAME ip $VAR_VM_IP and put it in $VAR_BIN_TAR_FILE_PATH"
       $SCP_CLIENT $VAR_VM_IP:$VAR_BIN_TAR_FILE_NAME $VAR_BIN_TAR_FILE_PATH
       checkRetValOK
     else
@@ -229,7 +229,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   else
     VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r $VAR_BIN_TAR_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi")
     if isTrue "$VAR_RESULT"; then
-      echoResult "Get build file from VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT and put it in $VAR_BIN_TAR_FILE_PATH"
+      echoInfo "get build file from VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT and put it in $VAR_BIN_TAR_FILE_PATH"
       $SCP_CLIENT -P $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_BIN_TAR_FILE_NAME $VAR_BIN_TAR_FILE_PATH
       checkRetValOK
     else

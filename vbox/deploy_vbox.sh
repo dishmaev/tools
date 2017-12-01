@@ -52,7 +52,7 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if ! isAPTLinux "$VAR_LINUX_BASED"; then exitError 'not supported OS'; fi
 #if already deployed, exit OK
 if isCommandExist 'vboxmanage'; then
-  echoResult "Already deployed"
+  echoInfo "already deployed"
   vboxmanage --version
   doneFinalStage
   exitOK

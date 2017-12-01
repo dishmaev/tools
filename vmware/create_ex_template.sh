@@ -184,7 +184,7 @@ echoResult "$VAR_RESULT"
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if isTrue "$VAR_RESULT"; then
-  echoResult "Already exist"
+  echoInfo "already exist"
   doneFinalStage
   exitOK
 fi

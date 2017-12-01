@@ -55,7 +55,7 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if isCommandExist 'java'; then
   java -version 2>&1 | grep "Java HotSpot"
   if [ "$?" = "0" ]; then
-    echoResult "Already deployed"
+    echoInfo "already deployed"
     java -version
     doneFinalStage
     exitOK
