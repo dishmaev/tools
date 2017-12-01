@@ -92,6 +92,14 @@ if [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSMINI_VM_TEMPLATE" ]; then
 -set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
 -sudo systemctl reload sshd\n\
 -check that ssh and vm tools are correct working, by connect and ping from outside"
+elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_CENTOSGUI_VM_TEMPLATE" ]; then
+  VAR_PAUSE_MESSAGE="Manually must be:\n\
+-set $COMMON_CONST_VAGRANT_BASE_USER_NAME not empty password by 'passwd', default is 'vagrant'\n\
+-set 'PasswordAuthentication yes' in /etc/ssh/sshd_config\n\
+-sudo systemctl reload sshd\n\
+-sudo systemctl set-default graphical.target\n\
+-reboot, initial setup runs and you have to configure it for first time\n\
+-check that ssh and vm tools are correct working, by connect and ping from outside"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ]; then
   VAR_PAUSE_MESSAGE="Manually must be:\n\
 -set $COMMON_CONST_VAGRANT_BASE_USER_NAME not empty password by 'sudo passwd $COMMON_CONST_VAGRANT_BASE_USER_NAME'\n\
