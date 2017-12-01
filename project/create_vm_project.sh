@@ -83,7 +83,7 @@ if ! isFileExistAndRead "$VAR_SCRIPT_FILE_PATH"; then
   checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 fi
 
-if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
+if [ "$PRM_SUITES_POOL" = "$COMMON_CONST_ALL" ]; then
   PRM_SUITES_POOL=$COMMON_CONST_SUITES_POOL
 fi
 

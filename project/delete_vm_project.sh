@@ -8,8 +8,8 @@ targetDescription "Delete VM of project $ENV_PROJECT_NAME"
 
 
 ##private vars
-PRM_SUITE='' #suite
-PRM_VM_ROLE='' #role for create VM
+PRM_SUITES_POOL='' #suite pool
+PRM_VM_ROLES_POOL='' #roles for create VM pool
 VAR_RESULT='' #child return value
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
@@ -18,6 +18,8 @@ VAR_VM_TEMPLATE='' #vm template
 VAR_VM_NAME='' #vm name
 VAR_HOST='' #esxi host
 VAR_VM_ID='' #vm id
+VAR_CUR_SUITE='' #current suite
+VAR_CUR_VM_ROLE='' #current role for create VM
 
 ###check autoyes
 
@@ -25,17 +27,22 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 2 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE]' \
-"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
-"Available suites: $COMMON_CONST_SUITES_POOL"
+echoHelp $# 2 '<suitesPool> [vmRolesPool=$COMMON_CONST_DEFAULT_VM_ROLE]' \
+"$COMMON_CONST_ALL $COMMON_CONST_DEFAULT_VM_ROLE" \
+"Available suites: $COMMON_CONST_SUITES_POOL. VM roles must be selected without *"
 
 ###check commands
 
-PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
-PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
+PRM_SUITES_POOL=$1
+PRM_VM_ROLES_POOL=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
 
-checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
-checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
+if [ "$PRM_SUITES_POOL" != "$COMMON_CONST_ALL" ]; then
+  checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" "$COMMON_CONST_SUITES_POOL"
+else
+  checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" ''
+fi
+
+checkCommandExist 'vmRole' "$VAR_CUR_VM_ROLE" ''
 
 ###check body dependencies
 
@@ -43,31 +50,43 @@ checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 
 ###check required files
 
-VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}.cfg
-VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
-checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
-
 ###start prompt
 
 startPrompt
 
 ###body
 
-VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
-VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
-VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
-VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
-
-if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
-  VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-  checkSSHKeyExistEsxi "$VAR_HOST"
-  echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
-  echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
-  rm $VAR_CONFIG_FILE_PATH
-  checkRetValOK
+if [ "$PRM_SUITES_POOL" = "$COMMON_CONST_ALL" ]; then
+  PRM_SUITES_POOL=$COMMON_CONST_SUITES_POOL
 fi
+
+for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
+  for VAR_CUR_VM_ROLE in $PRM_VM_ROLES_POOL; do
+    VAR_CONFIG_FILE_NAME=${VAR_CUR_SUITE}_${VAR_CUR_VM_ROLE}.cfg
+    VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
+    checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
+    VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
+    VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
+    VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
+    VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
+    #delete project vm
+    if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
+      VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
+      checkSSHKeyExistEsxi "$VAR_HOST"
+      echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+      echoResult "$VAR_RESULT"
+    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
+      VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
+      echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
+      echoResult "$VAR_RESULT"
+    fi
+    echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
+    rm $VAR_CONFIG_FILE_PATH
+    checkRetValOK
+  done
+done
 
 doneFinalStage
 exitOK
