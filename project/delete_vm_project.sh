@@ -28,8 +28,8 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 2 '<suitesPool> [vmRolesPool=$COMMON_CONST_DEFAULT_VM_ROLE]' \
-"$COMMON_CONST_ALL $COMMON_CONST_DEFAULT_VM_ROLE" \
-"Available suites: $COMMON_CONST_SUITES_POOL. VM roles must be selected without *"
+"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
+"Available suites: $COMMON_CONST_SUITES_POOL. Suites and VM roles must be selected without '*'"
 
 ###check commands
 
