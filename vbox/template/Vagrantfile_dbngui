@@ -2,7 +2,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = "@VAR_FILE_URL@"
   config.vm.provider :virtualbox do |vb|
     vb.name = "@PRM_VM_TEMPLATE@"
-    vb.memory = "1024"
+    vb.memory = "512"
     vb.cpus = "1"
   end
   config.vm.provision "shell", inline: "sudo apt -y install lxqt"

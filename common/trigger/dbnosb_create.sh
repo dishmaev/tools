@@ -81,10 +81,12 @@ checkRetValOK
 wget -P /etc/apt/sources.list.d/ https://dishmaev.github.io/public-apt-dishmaev.list
 checkRetValOK
 #disable automatic download updates
-gsettings set org.gnome.software download-updates false
-checkRetValOK
-su - $1 -c 'dbus-launch dconf write /org/gnome/software/download-updates false'
-checkRetValOK
+if [ -x "$(command -v gsettings)" ]; then
+  gsettings set org.gnome.software download-updates false
+  checkRetValOK
+  su - $1 -c 'dbus-launch dconf write /org/gnome/software/download-updates false'
+  checkRetValOK
+fi
 
 ##test
 

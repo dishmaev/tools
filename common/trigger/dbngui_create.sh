@@ -12,6 +12,13 @@ exec 3>${3}_create.tst
 
 ###function
 
+checkCommand(){
+  if [ ! -x "$(command -v $1)" ]; then
+    exitError "Must install $1 previously"
+    exit 1
+  fi
+}
+
 checkRetValOK(){
   if [ "$?" != "0" ]; then exit 1; fi
 }
@@ -80,11 +87,13 @@ wget -O - https://dishmaev.github.io/repos/linux/linux_signing_key.pub | sudo ap
 checkRetValOK
 wget -P /etc/apt/sources.list.d/ https://dishmaev.github.io/public-apt-dishmaev.list
 checkRetValOK
-#disable automatic download updates
-gsettings set org.gnome.software download-updates false
-checkRetValOK
-su - $1 -c 'dbus-launch dconf write /org/gnome/software/download-updates false'
-checkRetValOK
+#disable automatic download updates in gnome
+if [ -x "$(command -v gsettings)" ]; then
+  gsettings set org.gnome.software download-updates false
+  checkRetValOK
+  su - $1 -c 'dbus-launch dconf write /org/gnome/software/download-updates false'
+  checkRetValOK
+fi
 
 ##test
 
