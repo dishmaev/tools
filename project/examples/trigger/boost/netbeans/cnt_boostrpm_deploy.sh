@@ -48,7 +48,7 @@ fi
 
 ##test
 
-cppboost >&3
+cppboost --version >&3
 checkRetValOK
 
 ###finish
