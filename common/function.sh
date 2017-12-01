@@ -43,13 +43,11 @@ getOVFToolPassword(){
 #$1 char, $2 count
 getCharCountString(){
   checkParmsCount $# 2 'getCharCountString'
-  getMhDays
   local VAR_COUNT=1
   while true; do
     if [ "$VAR_COUNT" -gt "$2" ]; then break; fi
     VAR_COUNT=$((VAR_COUNT+1))
     echo -n $1
-    break;
   done
 }
 #$1 mh stop, $2 yy stop
