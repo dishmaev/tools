@@ -67,6 +67,11 @@ chown ${1}:${1} /home/${1}/.ssh/authorized_keys
 checkRetValOK
 chmod u=rw,g=,o= /home/${1}/.ssh/authorized_keys
 checkRetValOK
+#copy ssh key file to vagrant directory
+if [ -r /home/vagrant/.ssh/authorized_keys ]; then
+ cat $HOME/.ssh/authorized_keys >> /home/vagrant/.ssh/authorized_keys
+ checkRetValOK
+fi
 #install standard packages
 apt -y install sudo
 checkRetValOK

@@ -7,4 +7,5 @@ Vagrant.configure(2) do |config|
   end
   config.vm.provision "shell", inline: "sudo yum -y groups install 'GNOME Desktop'"
   config.vm.provision :shell, :path => "@VAR_SCRIPT_FILE_PATH@"
+  config.vm.provision "shell", inline: "sudo systemctl set-default graphical.target"
 end
