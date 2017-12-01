@@ -126,7 +126,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       if isEmpty "$VAR_VM_NAME" || isEmpty "$VAR_VM_ID"; then exitError; fi
       echoInfo "new VM name $VAR_VM_NAME"
     else
-      echoInfo "current VM name $VAR_VM_NAME"
+      echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     fi
