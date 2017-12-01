@@ -235,7 +235,11 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     else
       echoWarning "Build file $VAR_BIN_TAR_FILE_NAME on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT not found"
     fi
-   fi
+  fi
+elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
+  echoInfo "TO-DO support Docker containers"
+elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
+  echoInfo "TO-DO support Kubernetes containers"
 fi
 #add to distrib repository if required
 if isTrue "$PRM_ADD_TO_DISTRIB_REPOSITORY" && isFileExistAndRead "$VAR_BIN_TAR_FILE_PATH"; then

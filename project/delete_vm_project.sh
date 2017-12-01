@@ -81,6 +81,10 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
+    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
+      echoInfo "TO-DO support Docker containers"
+    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
+      echoInfo "TO-DO support Kubernetes containers"
     fi
     echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
     rm $VAR_CONFIG_FILE_PATH

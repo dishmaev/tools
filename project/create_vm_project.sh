@@ -225,6 +225,10 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     echo $PRM_VM_TYPE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $PRM_VM_TEMPLATE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $VAR_VM_NAME > $VAR_CONFIG_FILE_PATH
+  elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
+    echoInfo "TO-DO support Docker containers"
+  elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
+    echoInfo "TO-DO support Kubernetes containers"
   fi
 done
 
