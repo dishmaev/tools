@@ -613,6 +613,8 @@ if [ -r ${1}_create.ok ]; then cat ${1}_create.ok; else echo $COMMON_CONST_FALSE
   if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
+  else
+    echoInfo "finish execute ${1}_create.sh on template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
   fi
   pausePrompt "Pause 3 of 3: Last check template VM ${1} ip $VAR_VM_IP port $COMMON_CONST_DEFAULT_SSH_PORT on $2 host"
   VAR_RESULT=$(powerOffVMEx "$1" "$2") || exitChildError "$VAR_RESULT"

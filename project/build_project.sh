@@ -184,6 +184,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   else
+    echoInfo "finish execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
     VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "if [ -r $VAR_BIN_TAR_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi")
     if isTrue "$VAR_RESULT"; then
       echoInfo "get build file from VM $VAR_VM_NAME ip $VAR_VM_IP and put it in $VAR_BIN_TAR_FILE_PATH"
@@ -227,6 +228,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   else
+    echoInfo "finish execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
     VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r $VAR_BIN_TAR_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi")
     if isTrue "$VAR_RESULT"; then
       echoInfo "get build file from VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT and put it in $VAR_BIN_TAR_FILE_PATH"

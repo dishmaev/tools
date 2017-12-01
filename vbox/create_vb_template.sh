@@ -222,6 +222,8 @@ VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_BASE_USER_NAME@$COMM
 if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
 if ! isTrue "$VAR_RESULT"; then
   exitError "failed execute ${PRM_VM_TEMPLATE}_create.sh on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
+else
+  echoInfo "finish execute ${PRM_VM_TEMPLATE}_create.sh on template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
 fi
 pausePrompt "Pause 3 of 3: Last check template VM ${PRM_VM_TEMPLATE} ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
 vagrant halt
