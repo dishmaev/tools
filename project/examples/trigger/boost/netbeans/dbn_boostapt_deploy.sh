@@ -2,7 +2,7 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 build tar.gz file name, $4 target'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 build tar.gz file name'
 
 if [ "$#" != "3" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
@@ -27,7 +27,7 @@ checkRetValOK
 
 if [ "$1" = "rel" ]; then
   #install packages from personal repository
-  sudo apt -y install cppboost
+  sudo apt -y install $3
   checkRetValOK
 else # tst,dev
   mkdir deploy
@@ -51,7 +51,7 @@ fi
 
 ##test
 
-cppboost --version >&3
+$3 --version >&3
 checkRetValOK
 
 ###finish
