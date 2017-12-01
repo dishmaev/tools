@@ -40,8 +40,6 @@ tar -xvf *.tar.gz -C build/
 checkRetValOK
 cd build
 checkRetValOK
-#make -f Makefile CONF=${VAR_SUITE}_APT clean QMAKE=/usr/bin/qmake
-#checkRetValOK
 make -f Makefile CONF=${VAR_SUITE}_APT QMAKE=/usr/bin/qmake
 checkRetValOK
 bash -x nbproject/Package-${VAR_SUITE}_APT.bash QMAKE=/usr/bin/qmake

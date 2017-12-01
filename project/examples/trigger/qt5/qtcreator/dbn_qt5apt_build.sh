@@ -48,7 +48,7 @@ if [ "$VAR_SUITE" = "Debug" ]; then
   qmake ../cppqt5.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug
   checkRetValOK
 elif [ "$VAR_SUITE" = "Release" ]; then
-  qmake cppqt5.pro -spec linux-g++-64
+  qmake ../cppqt5.pro -spec linux-g++-64
   checkRetValOK
 fi
 make

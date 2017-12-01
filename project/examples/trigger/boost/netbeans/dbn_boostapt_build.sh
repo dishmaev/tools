@@ -40,8 +40,6 @@ tar -xvf *.tar.gz -C build/
 checkRetValOK
 cd build
 checkRetValOK
-make -f Makefile CONF=${VAR_SUITE}_APT clean
-checkRetValOK
 make -f Makefile CONF=${VAR_SUITE}_APT
 checkRetValOK
 bash -x nbproject/Package-${VAR_SUITE}_APT.bash
