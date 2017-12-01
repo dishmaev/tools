@@ -2,7 +2,7 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 build tar.gz file name'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 build tar.gz file name'
 
 if [ "$#" != "3" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
@@ -52,12 +52,12 @@ if [ "$1" = "rel" ]; then
   sudo apt -y update
   checkRetValOK
   #install packages from personal repository
-  sudo apt -y install cppqt5
+  sudo apt -y install $3
   checkRetValOK
 else # tst,dev
   mkdir deploy
   checkRetValOK
-  tar -xvf $3 -C deploy/
+  tar -xvf $4 -C deploy/
   checkRetValOK
   cd deploy
   checkRetValOK
@@ -76,7 +76,7 @@ fi
 
 ##test
 
-cppqt5 --version >&3
+$3 --version >&3
 checkRetValOK
 
 ###finish
