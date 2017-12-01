@@ -32,7 +32,7 @@ if [ "$1" = "rel" ]; then
 else # tst,dev
   mkdir deploy
   checkRetValOK
-  tar -xvf $3 -C deploy/
+  tar -xvf $4 -C deploy/
   checkRetValOK
   cd deploy
   checkRetValOK
