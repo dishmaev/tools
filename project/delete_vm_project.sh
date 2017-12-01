@@ -42,7 +42,7 @@ else
   checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" ''
 fi
 
-checkCommandExist 'vmRole' "$VAR_CUR_VM_ROLE" ''
+checkCommandExist 'vmRolesPool' "$PRM_VM_ROLES_POOL" ''
 
 ###check body dependencies
 
