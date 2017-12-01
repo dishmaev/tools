@@ -76,6 +76,9 @@ startPrompt
 
 ###body
 
+#remove known_hosts file to prevent future script errors
+removeKnownHosts
+
 if ! isFileExistAndRead "$VAR_SCRIPT_FILE_PATH"; then
   VAR_SCRIPT_FILE_NAME=${PRM_VM_TEMPLATE}_${COMMON_CONST_DEFAULT_VM_ROLE}_${CONST_PROJECT_ACTION}
   VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
