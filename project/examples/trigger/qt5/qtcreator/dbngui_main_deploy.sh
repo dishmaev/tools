@@ -53,8 +53,8 @@ uname -a
 checkDpkgUnlock
 if [ "$2" = "rel" ]; then
   #install packages from personal repository
-#  sudo apt -y update
-#  checkRetValOK
+  sudo apt -y update
+  checkRetValOK
   sudo apt -y install $3
   checkRetValOK
 else # tst,dev
