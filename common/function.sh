@@ -917,6 +917,10 @@ exitChildError(){
 echoHelp(){
   checkParmsCount $# 5 'echoHelp'
   local VAR_TOOL_TIP=''
+  if ! isTrue "$VAR_NEED_HELP" && [ $1 -gt $2 ]; then
+    exitError "too many options"
+    VAR_NEED_HELP=$COMMON_CONST_TRUE
+  fi
   if isTrue "$VAR_NEED_HELP"; then
     if [ "$VAR_AUTO_YES" != "$COMMON_CONST_NULL" ]; then
       echo "Usage: $ENV_SCRIPT_FILE_NAME [-y] $3"
@@ -924,8 +928,7 @@ echoHelp(){
       echo "Usage: $ENV_SCRIPT_FILE_NAME $3"
     fi
     echo "Sample: $ENV_SCRIPT_FILE_NAME $4"
-    if ! isEmpty "$5"
-    then
+    if ! isEmpty "$5"; then
       if [ "$VAR_AUTO_YES" != "$COMMON_CONST_NULL" ]; then
         VAR_TOOL_TIP="$COMMON_CONST_TOOL_TIP. $5"
       else
