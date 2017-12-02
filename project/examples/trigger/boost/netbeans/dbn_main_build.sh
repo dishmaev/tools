@@ -33,13 +33,23 @@ echo "Current build suite: $2"
 
 uname -a
 
+readonly CONST_PACKAGE_SPEC=package-spec.cfg
+readonly CONST_PACKAGE_HEADER=package-spec.h
+readonly CONST_FIELD_SPEC_VERSION=CONST_PACKAGE_VERSION
+
 VAR_CONFIG=$(getConfigName "$2") || exit 1
+
 mkdir build
 checkRetValOK
 tar -xvf *.tar.gz -C build/
 checkRetValOK
 cd build
-checkRetValOK
+if [ -r "$CONST_PACKAGE_HEADER" ]; then
+  VAR_VERSION=$(cat $CONST_PACKAGE_SPEC | grep $CONST_FIELD_SPEC_VERSION | cut -d ' ' -f 2)
+  checkRetValOK
+  sed -i "/$CONST_FIELD_SPEC_VERSION/c #define $CONST_FIELD_SPEC_VERSION \"$VAR_VERSION\"" $CONST_PACKAGE_HEADER
+  checkRetValOK
+fi
 make -f Makefile CONF=${VAR_CONFIG}_APT QMAKE=/usr/bin/qmake
 checkRetValOK
 bash -x package-apt.bash dist/${VAR_CONFIG}_APT/GNU-Linux $3 QMAKE=/usr/bin/qmake
