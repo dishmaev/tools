@@ -74,17 +74,17 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
       checkSSHKeyExistEsxi "$VAR_HOST"
       echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
-      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
       VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
       echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
-      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
-      echoInfo "TO-DO support Docker containers"
+      echoWarning "TO-DO support Docker containers"
     elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
-      echoInfo "TO-DO support Kubernetes containers"
+      echoWarning "TO-DO support Kubernetes containers"
     fi
     echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
     rm $VAR_CONFIG_FILE_PATH

@@ -69,7 +69,7 @@ if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
     checkRetValOK
   fi
 else
-  echoInfo "TO-DO custom version install with downgrade"
+  echoWarning "TO-DO custom version install with downgrade"
 fi
 
 doneFinalStage

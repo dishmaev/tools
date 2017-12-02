@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Upgrade tools on esxi hosts pool'
+targetDescription 'Upgrade tools on ESXi hosts'
 
 ##private consts
 readonly CONST_TOOLSVER_FILENAME='version.cfg'

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Delete VM template on esxi hosts pool and from local directory'
+targetDescription "Delete VM template type $COMMON_CONST_VMWARE_VM_TYPE"
 
 ##private consts
 

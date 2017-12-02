@@ -337,11 +337,11 @@ powerOnVMVb()
   local VAR_CUR_DIR_PATH='' #current directory name
   VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $1 not found"
+    exitError "VM $1 type $COMMON_CONST_VIRTUALBOX_VM_TYPE not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
   if isEmpty "$VAR_RESULT"; then
-    echo "Required power on VM $1 ID $VAR_VM_ID"
+    echoInfo "required power on VM $1 ID $VAR_VM_ID"
     VAR_CUR_DIR_PATH=$PWD
     cd "$FCONST_LOCAL_VMS_PATH/$1"
     checkRetValOK
@@ -364,7 +364,7 @@ powerOnVMEx()
   if isEmpty "$VAR_VM_ID"; then
     exitError "VM $1 not found on $2 host"
   fi
-  echo "Required power on VM $1 ID $VAR_VM_ID on $2 host"
+  echoInfo "required power on VM $1 ID $VAR_VM_ID on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $VAR_VM_ID | sed -e '1d')\" != 'Powered on' ]; then vim-cmd vmsvc/power.on $VAR_VM_ID; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
@@ -380,7 +380,7 @@ powerOnVMEx()
         exitError "failed power on the VM $1 ID $VAR_VM_ID on $2 host. Check VM Tools install and running"
       else
         echo ''
-        echo "Still cannot power on the VM $1 ID $VAR_VM_ID on $2 host, left $VAR_TRY attempts"
+        echoWarning "still cannot power on the VM $1 ID $VAR_VM_ID on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
@@ -398,11 +398,11 @@ powerOffVMVb()
   local VAR_CUR_DIR_PATH='' #current directory name
   VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $1 not found"
+    exitError "VM $1 type $COMMON_CONST_VIRTUALBOX_VM_TYPE not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
   if ! isEmpty "$VAR_RESULT"; then
-    echo "Required power off VM $1 ID $VAR_VM_ID"
+    echoInfo "required power off VM $1 ID $VAR_VM_ID"
     VAR_CUR_DIR_PATH=$PWD
     cd "$FCONST_LOCAL_VMS_PATH/$1"
     checkRetValOK
@@ -425,7 +425,7 @@ powerOffVMEx()
   if isEmpty "$VAR_VM_ID"; then
     exitError "VM $1 not found on $2 host"
   fi
-  echo "Required power off VM $1 ID $VAR_VM_ID on $2 host"
+  echoInfo "required power off VM $1 ID $VAR_VM_ID on $2 host"
   VAR_RESULT=$($SSH_CLIENT $2 "if [ \"\$(vim-cmd vmsvc/power.getstate $VAR_VM_ID | sed -e '1d')\" != 'Powered off' ]; then vim-cmd vmsvc/power.shutdown $VAR_VM_ID; else echo $COMMON_CONST_TRUE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$VAR_RESULT"; then return $COMMON_CONST_EXIT_SUCCESS; else echoResult "$VAR_RESULT"; fi
   while true; do
@@ -438,7 +438,7 @@ powerOffVMEx()
     if [ $VAR_COUNT -eq 0 ]; then
       VAR_TRY=$((VAR_TRY-1))
       if [ $VAR_TRY -eq 0 ]; then  #still running, force kill vm
-        echo "Failed standard power off the VM $1 ID $VAR_VM_ID on $2 host, use force power off."
+        echoWarning "failed standard power off the VM $1 ID $VAR_VM_ID on $2 host, use force power off."
         VAR_RESULT=$($SSH_CLIENT $2 "vmdumper -l | grep -i 'displayName=\"$PRM_VMNAME\"' | awk '{print \$1}' | awk -F'/|=' '{print \$(NF)}'") || exitChildError "$VAR_RESULT"
         $SSH_CLIENT $2 "esxcli vm process kill --type force --world-id $VAR_RESULT"
         checkRetValOK
@@ -449,7 +449,7 @@ powerOffVMEx()
         fi
       else
         echo ''
-        echo "Still cannot standard power off the VM $1 ID $VAR_VM_ID on $2 host, left $VAR_TRY attempts"
+        echoWarning "still cannot standard power off the VM $1 ID $VAR_VM_ID on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
@@ -467,7 +467,7 @@ getPortAddressByVMNameVb()
   local VAR_CUR_DIR_PATH='' #current directory name
   VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $1 not found"
+    exitError "VM $1 type $COMMON_CONST_VIRTUALBOX_VM_TYPE not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
   if ! isEmpty "$VAR_RESULT"; then
@@ -501,7 +501,7 @@ getIpAddressByVMNameEx()
       if [ $VAR_TRY -eq 0 ]; then
         exitError "failed get ip address of the VM $1 on $2 host. Check VM Tools install and running"
       #else
-        #echo "Still cannot get ip address of the VMID $1 on $2 host, left $VAR_TRY attempts"
+        #echoWarning "still cannot get ip address of the VMID $1 on $2 host, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
@@ -678,29 +678,24 @@ checkDependencies(){
   local VAR_DEPENDENCE=''
   for VAR_DEPENDENCE in $1
   do
-    if ! isCommandExist "$VAR_DEPENDENCE"
-    then
-      if isLinuxOS
-      then
+    if ! isCommandExist "$VAR_DEPENDENCE"; then
+      echoWarning "try to install missing dependence $VAR_DEPENDENCE"
+      if isLinuxOS; then
         local VAR_LINUX_BASED
         VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-        if isAPTLinux "$VAR_LINUX_BASED"
-        then
+        if isAPTLinux "$VAR_LINUX_BASED"; then
           checkDpkgUnlock
           sudo apt -y install $VAR_DEPENDENCE
-        elif isRPMLinux "$VAR_LINUX_BASED"
-        then
+        elif isRPMLinux "$VAR_LINUX_BASED"; then
           sudo yum -y install $VAR_DEPENDENCE
         fi
-      elif isFreeBSDOS
-      then
+      elif isFreeBSDOS; then
         setenv ASSUME_ALWAYS_YES yes
         pkg install $VAR_DEPENDENCE
         setenv ASSUME_ALWAYS_YES
       fi
       #repeat check for availability dependence
-      if ! isCommandExist $VAR_DEPENDENCE
-      then
+      if ! isCommandExist $VAR_DEPENDENCE; then
         exitError "dependence $VAR_DEPENDENCE not found"
       fi
     fi
@@ -723,7 +718,7 @@ checkDpkgUnlock(){
   local FCONST_LOCK_FILE='/var/lib/dpkg/lock'
   local VAR_COUNT=$COMMON_CONST_TRY_LONG
   local VAR_TRY=$COMMON_CONST_TRY_NUM
-  echo "Check /var/lib/dpkg/lock"
+  echoInfo "Check /var/lib/dpkg/lock"
   while sudo fuser $FCONST_LOCK_FILE >/dev/null 2>&1; do
     echo -n '.'
     sleep $COMMON_CONST_SLEEP_LONG
@@ -734,7 +729,7 @@ checkDpkgUnlock(){
         exitError "failed wait while unlock $FCONST_LOCK_FILE. Check another long process using it"
       else
         echo ''
-        echo "Still locked $FCONST_LOCK_FILE, left $VAR_TRY attempts"
+        echoWarning "still locked $FCONST_LOCK_FILE, left $VAR_TRY attempts"
       fi;
       VAR_COUNT=$COMMON_CONST_TRY_LONG
     fi
@@ -801,10 +796,10 @@ checkGitUserAndEmail(){
 checkUserPassword(){
   checkParmsCount $# 0 'checkUserPassword'
   if isEmpty "$ENV_SSH_USER_PASS"; then
-    exitError "variable ENV_SSH_USER_PASS is empty. Try to exec initialize.sh"
+    exitError "variable ENV_SSH_USER_PASS is empty. Try to exec $ENV_ROOT_DIR/common/initialize.sh"
   fi
   if isEmpty "$ENV_OVFTOOL_USER_PASS"; then
-    exitError "variable ENV_OVFTOOL_USER_PASS is empty. Try to exec initialize.sh"
+    exitError "variable ENV_OVFTOOL_USER_PASS is empty. Try to exec $ENV_ROOT_DIR/common/initialize.sh"
   fi
 }
 #$1 message
@@ -821,7 +816,7 @@ targetDescription(){
   local VAR_MODE=$COMMON_CONST_FALSE
   if ! isEmpty "$VAR_ENVIRONMENT_ERROR"; then
     echoResult "Error: $VAR_ENVIRONMENT_ERROR"
-    echo 'Try to exec initialize.sh'
+    echo "Try to exec $ENV_ROOT_DIR/common/initialize.sh"
     exit $COMMON_CONST_EXIT_ERROR
   fi
   VAR_TARGET_DESCRIPTION=$1
@@ -905,9 +900,9 @@ getTrace(){
     VAR_CP=$VAR_PP
   done
   VAR_TRACE=$(echo "$VAR_TRACE" | tac | grep -n ":" | tac) # using tac to "print in reverse" [3]
-  echo "Begin trace"
+  echo "Debug: begin trace"
   echoResult "$VAR_TRACE"
-  echo "End trace"
+  echo "Debug: end trace"
 }
 #$1 message
 exitChildError(){

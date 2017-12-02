@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Delete VM template from repository and local directory'
+targetDescription "Delete VM template type $COMMON_CONST_VIRTUALBOX_VM_TYPE"
 
 ##private consts
 

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Power on VMs pool'
+targetDescription "Power off VMs type $COMMON_CONST_VIRTUALBOX_VM_TYPE"
 
 ##private vars
 PRM_VMS_POOL='' # vms pool
@@ -10,7 +10,7 @@ VAR_RESULT='' #child return value
 VAR_VM_NAME='' #current vm
 VAR_VM_ID='' #VMID target virtual machine
 VAR_TMP_VMS_POOL='' # temp vms pool
-VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vm by ssh
+VAR_CHECK_RUN_VM='' #check running vm
 VAR_CUR_VM='' #vm exp
 
 ###check autoyes
@@ -53,17 +53,9 @@ for VAR_VM_NAME in $PRM_VMS_POOL; do
     exitError "VM $VAR_VM_NAME not found"
   fi
   #power off
-  VAR_TMP_VMS_POOL=$(powerOnVMVb "$VAR_VM_NAME") || exitChildError "$VAR_TMP_VMS_POOL"
-  echoResult "$VAR_TMP_VMS_POOL"
-  #get port address
-  VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
-  if ! isEmpty "$VAR_RESULT"; then
-    VAR_RESULT="${VAR_RESULT}\n"
-  fi
-  VAR_RESULT="${VAR_RESULT}vmname:vmid:port $VAR_VM_NAME:$VAR_VM_ID:$VAR_VM_PORT"
+  VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
 done
-#echo result
-echoResult "$VAR_RESULT"
 
 doneFinalStage
 exitOK

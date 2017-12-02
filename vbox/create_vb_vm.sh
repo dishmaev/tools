@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create new virtual box VM'
+targetDescription "Create VM type $COMMON_CONST_VIRTUALBOX_VM_TYPE"
 
 ##private consts
 readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
@@ -58,13 +58,11 @@ removeKnownHosts
 
 #check virtual box deploy
 if ! isCommandExist 'vboxmanage'; then
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
+  exitError "missing command vboxmanage. Try to exec $ENV_ROOT_DIR/vbox/deploy_vbox.sh"
 fi
 #check vagrant deploy
 if ! isCommandExist 'vagrant'; then
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
+  exitError "missing command vagrant. Try to exec $ENV_ROOT_DIR/vbox/deploy_vagrant.sh"
 fi
 #get vm template current version
 VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE") || exitChildError "$VAR_VM_VER"
@@ -115,7 +113,7 @@ cd $VAR_CUR_DIR_PATH
 checkRetValOK
 #take base template snapshot
 echoInfo "create VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
-VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_BOX_FILE_NAME) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_BOX_FILE_NAME) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 VAR_VM_ID=$(getVMIDByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_ID"
 #echo result

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Power on esxi hosts pool'
+targetDescription 'Power on ESXi hosts'
 
 ##private vars
 PRM_MACS_POOL='' # esxi MACs pool

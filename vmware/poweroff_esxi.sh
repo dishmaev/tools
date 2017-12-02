@@ -3,7 +3,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Power off esxi hosts pool'
+targetDescription 'Power off ESXi hosts'
 
 ##private vars
 PRM_ESXI_HOSTS_POOL='' # esxi hosts pool

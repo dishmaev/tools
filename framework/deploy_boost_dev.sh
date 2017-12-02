@@ -69,7 +69,7 @@ else
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
   wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
   checkRetValOK
-  echoInfo "TO-DO custom version install, downgrade or make from sources"
+  echoWarning "TO-DO custom version install, downgrade or make from sources"
 fi
 
 doneFinalStage

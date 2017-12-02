@@ -130,7 +130,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       echoInfo "new VM name $VAR_VM_NAME"
     else
       echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
-      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${PRM_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     fi
     VAR_RESULT=$(powerOnVMEx "$VAR_VM_NAME" "$VAR_HOST") || exitChildError "$VAR_RESULT"
@@ -159,7 +159,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     fi
     #take project snapshot
     echoInfo "create VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${VAR_CUR_SUITE}_${PRM_VM_ROLE}" $VAR_HOST $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/take_${PRM_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${VAR_CUR_SUITE}_${PRM_VM_ROLE}" $VAR_HOST $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #save vm config file
     echoInfo "save config file $VAR_CONFIG_FILE_PATH"
@@ -196,7 +196,7 @@ $VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
       echoInfo "current VM name $VAR_VM_NAME"
       VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
-      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_${PRM_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
     fi
     VAR_RESULT=$(powerOnVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
@@ -225,7 +225,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
     fi
     #take project snapshot
     echoInfo "create VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/take_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${VAR_CUR_SUITE}_${PRM_VM_ROLE}" $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/take_${PRM_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME "${VAR_CUR_SUITE}_${PRM_VM_ROLE}" $COMMON_CONST_TRUE) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
     #save vm config file
     echoInfo "save config file $VAR_CONFIG_FILE_PATH"
@@ -233,9 +233,9 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
 $PRM_VM_TEMPLATE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $VAR_VM_NAME > $VAR_CONFIG_FILE_PATH
   elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
-    echoInfo "TO-DO support Docker containers"
+    echoWarning "TO-DO support Docker containers"
   elif [ "$PRM_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
-    echoInfo "TO-DO support Kubernetes containers"
+    echoWarning "TO-DO support Kubernetes containers"
   fi
 done
 

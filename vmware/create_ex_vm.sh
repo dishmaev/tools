@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create esxi VM'
+targetDescription "Create VM type $COMMON_CONST_VMWARE_VM_TYPE"
 
 ##private consts
 
@@ -72,7 +72,7 @@ VAR_COUNTER_FILE_PATH="$COMMON_CONST_ESXI_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 echoInfo "checking exist tools on $PRM_ESXI_HOST host"
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_ESXI_HOST host. Exec 'upgrade_tools_esxi.sh $PRM_ESXI_HOST' previously"
+  exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_ESXI_HOST host. Exec 'upgrade_esxi_tools.sh $PRM_ESXI_HOST' previously"
 fi
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -100,7 +100,7 @@ $SSH_CLIENT $PRM_ESXI_HOST "$COMMON_CONST_ESXI_OVFTOOL_PATH/ovftool -ds=$PRM_VM_
 checkRetValOK
 #take base template snapshot
 echoInfo "create VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
-VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_OVA_FILE_NAME $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_OVA_FILE_NAME $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 VAR_VM_ID=$(getVMIDByVMNameEx "$VAR_VM_NAME" "$PRM_ESXI_HOST") || exitChildError "$VAR_VM_ID"
 #set autostart new vm

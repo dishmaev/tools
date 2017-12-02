@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create virtual box VM template' "$COMMON_CONST_FALSE"
+targetDescription "Create VM template type $COMMON_CONST_VIRTUALBOX_VM_TYPE" "$COMMON_CONST_FALSE"
 
 #https://forums.virtualbox.org/viewtopic.php?f=7&t=39967 error locked VM
 #https://stackoverflow.com/questions/35169724/vm-in-virtualbox-is-already-locked-for-a-session-or-being-unlocked
@@ -113,13 +113,11 @@ fi
 
 #check virtual box deploy
 if ! isCommandExist 'vboxmanage'; then
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
+  exitError "missing command vboxmanage. Try to exec $ENV_ROOT_DIR/vbox/deploy_vbox.sh"
 fi
 #check vagrant deploy
 if ! isCommandExist 'vagrant'; then
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
-  echoResult "$VAR_RESULT"
+  exitError "missing command vagrant. Try to exec $ENV_ROOT_DIR/vbox/deploy_vagrant.sh"
 fi
 
 VAR_VBOX_VERSION=$(vboxmanage --version | awk -Fr '{print $1}')
@@ -231,13 +229,11 @@ checkRetValOK
 #export box
 vagrant package --base $PRM_VM_TEMPLATE --output $VAR_BOX_FILE_PATH
 checkRetValOK
-vagrant destroy -f
-checkRetValOK
-#remove temporary directory
 cd $VAR_CUR_DIR_PATH
 checkRetValOK
-rm -fR $VAR_TMP_DIR_PATH
-checkRetValOK
+#delete template vm
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/delete_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE) || exitChildError "$VAR_RESULT"
+echoResult "$VAR_RESULT"
 
 doneFinalStage
 exitOK

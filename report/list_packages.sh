@@ -148,9 +148,9 @@ elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_DEBIANMINI_VM_TEMPLATE" ] || \
   checkRetValOK
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISMINI_VM_TEMPLATE" ] || \
 [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
-  echoInfo "TO-DO Oracle Solaris repository"
+  echoWarning "TO-DO Oracle Solaris repository"
 elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_FREEBSD_VM_TEMPLATE" ]; then
-  echoInfo "TO-DO FreeBSD repository"
+  echoWarning "TO-DO FreeBSD repository"
 fi
 doneFinalStage
 exitOK

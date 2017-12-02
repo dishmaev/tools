@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create esxi VM template' "$COMMON_CONST_FALSE"
+targetDescription "Create VM template type $COMMON_CONST_VMWARE_VM_TYPE" "$COMMON_CONST_FALSE"
 
 ##private consts
 
@@ -179,7 +179,7 @@ fi
 
 #update tools
 echoInfo "checking tools version on $PRM_ESXI_HOST host"
-VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/upgrade_tools_esxi.sh -y $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/upgrade_esxi_tools.sh -y $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -285,12 +285,13 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     if ! isTrue "$VAR_RESULT"; then #put if not exist
       VAR_TMP_FILE_PATH2=$ENV_DOWNLOAD_PATH/$VAR_TMP_FILE_NAME
       if ! isFileExistAndRead "$VAR_TMP_FILE_PATH2"; then
-        #check virtual box deploy
-        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
-        echoResult "$VAR_RESULT"
+        if ! isCommandExist 'vboxmanage'; then
+          exitError "missing command vboxmanage. Try to exec $ENV_ROOT_DIR/vbox/deploy_vbox.sh"
+        fi
         #check vagrant deploy
-        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/deploy_vagrant.sh -y) || exitChildError "$VAR_RESULT"
-        echoResult "$VAR_RESULT"
+        if ! isCommandExist 'vagrant'; then
+          exitError "missing command vagrant. Try to exec $ENV_ROOT_DIR/vbox/deploy_vagrant.sh"
+        fi
         #create temporary directory
         VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
         VAR_CUR_DIR_PATH=$PWD
@@ -353,12 +354,13 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
     checkRetValOK
 #orsbox
   elif [ "$PRM_VM_TEMPLATE" = "$COMMON_CONST_ORACLESOLARISBOX_VM_TEMPLATE" ]; then
+    echoWarning "TO-DO not stable working, need additional tests"
     if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
       exitError "file '$VAR_ORIG_FILE_PATH' not found, need manually download url $VAR_SITE_URL"
     fi
-    #check virtual box deploy
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/deploy_vbox.sh -y) || exitChildError "$VAR_RESULT"
-    echoResult "$VAR_RESULT"
+    if ! isCommandExist 'vboxmanage'; then
+      exitError "missing command vboxmanage. Try to exec $ENV_ROOT_DIR/vbox/deploy_vbox.sh"
+    fi
     #create temporary directory
     VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
     VAR_TMP_FILE_PATH=$VAR_TMP_DIR_PATH/${PRM_VM_TEMPLATE}.ova
@@ -424,7 +426,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
   ovftool --noSSLVerify "vi://$ENV_SSH_USER_NAME:$ENV_OVFTOOL_USER_PASS@$PRM_ESXI_HOST/$PRM_VM_TEMPLATE" $VAR_OVA_FILE_PATH
   checkRetValOK
   #delete template vm
-  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/delete_vm.sh -y $PRM_VM_TEMPLATE $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/delete_${COMMON_CONST_VMWARE_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE $PRM_ESXI_HOST) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"
   then #can't make ova package
