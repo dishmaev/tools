@@ -15,8 +15,8 @@ readonly CONST_DEVELOP_CODE_NAME_RPM='develop'
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
-PRM_FILTER_REGEX='' #build file name
 PRM_SUITE='' #suite
+PRM_FILTER_REGEX='' #build file name
 PRM_DISTRIB_REPO='' #distrib repository
 VAR_CODE_NAME='' #code name
 VAR_TMP_DIR_PATH='' #temporary directory name
@@ -35,20 +35,20 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4  '<vmTemplate> [filterRegex=$COMMON_CONST_ALL] [suite=$COMMON_CONST_DEVELOP_SUITE] [distribRepository=$ENV_DISTRIB_REPO]' \
-"$COMMON_CONST_DEBIANMINI_VM_TEMPLATE $COMMON_CONST_ALL $COMMON_CONST_DEVELOP_SUITE $ENV_DISTRIB_REPO" \
+echoHelp $# 4  '<vmTemplate> [suite=$COMMON_CONST_DEVELOP_SUITE] [filterRegex=$COMMON_CONST_ALL] [distribRepository=$ENV_DISTRIB_REPO]' \
+"$COMMON_CONST_DEBIANMINI_VM_TEMPLATE $COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_ALL $ENV_DISTRIB_REPO" \
 "Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $CONST_SUITES_POOL"
 
 ###check commands
 
 PRM_VM_TEMPLATE=$1
-PRM_FILTER_REGEX=${2:-$COMMON_CONST_ALL}
-PRM_SUITE=${3:-$COMMON_CONST_DEVELOP_SUITE}
+PRM_SUITE=${2:-$COMMON_CONST_DEVELOP_SUITE}
+PRM_FILTER_REGEX=${3:-$COMMON_CONST_ALL}
 PRM_DISTRIB_REPO=${4:-$ENV_DISTRIB_REPO}
 
 checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_POOL"
-checkCommandExist 'filterRegex' "$PRM_FILTER_REGEX" ''
 checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
+checkCommandExist 'filterRegex' "$PRM_FILTER_REGEX" ''
 checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check body dependencies
