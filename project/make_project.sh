@@ -24,7 +24,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 4 '[suitesPool=$COMMON_CONST_DEVELOP_SUITE] [vmRolesPool=$COMMON_CONST_DEFAULT_VM_ROLE] [version=$COMMON_CONST_DEFAULT_VERSION] [addToDistribRepository=$COMMON_CONST_FALSE]' \
-"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE" \
+"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE" \
 "Suites and roles must be selected without '*'. Version $COMMON_CONST_DEFAULT_VERSION is HEAD of develop branch, otherwise is tag or branch name. Available suites: $CONST_SUITES_POOL. Distrib repository: $ENV_DISTRIB_REPO"
 
 ###check commands
