@@ -54,7 +54,7 @@ checkDpkgUnlock(){
         echo ''
         echo "Still locked $CONST_LOCK_FILE, left $VAR_TRY attempts"
       fi;
-      VAR_COUNT=3
+      VAR_COUNT=10
     fi
   done
   echo ''
