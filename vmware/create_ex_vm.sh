@@ -72,12 +72,12 @@ VAR_COUNTER_FILE_PATH="$COMMON_CONST_ESXI_DATA_PATH/$VAR_COUNTER_FILE_NAME"
 echoInfo "checking exist tools on $PRM_ESXI_HOST host"
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -d $COMMON_CONST_ESXI_TOOLS_PATH ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_ESXI_HOST host. Exec 'upgrade_esxi_tools.sh $PRM_ESXI_HOST' previously"
+  exitError "directory $COMMON_CONST_ESXI_TOOLS_PATH not found on $PRM_ESXI_HOST host. Try to exec '$ENV_ROOT_DIR/vmware/upgrade_esxi_tools.sh $PRM_ESXI_HOST'"
 fi
 #check required ova package on remote esxi host
 VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
 if ! isTrue "$VAR_RESULT"; then
-  exitError "VM template package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME not found on $PRM_ESXI_HOST host. Exec 'create_${COMMON_CONST_VMWARE_VM_TYPE}_template.sh $PRM_VM_TEMPLATE $PRM_ESXI_HOST' previously"
+  exitError "VM template package $COMMON_CONST_ESXI_IMAGES_PATH/$VAR_OVA_FILE_NAME not found on $PRM_ESXI_HOST host. Try to exec '$ENV_ROOT_DIR/vmware/create_${COMMON_CONST_VMWARE_VM_TYPE}_template.sh $PRM_VM_TEMPLATE $PRM_ESXI_HOST'"
 fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then

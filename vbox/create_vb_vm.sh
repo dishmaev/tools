@@ -73,7 +73,7 @@ VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
 VAR_BOX_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_BOX_FILE_NAME
 #check required ova package on remote esxi host
 if ! isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
-  exitError "VM template package $VAR_BOX_FILE_PATH not found. Exec 'create_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_template.sh $PRM_VM_TEMPLATE' previously"
+  exitError "VM template package $VAR_BOX_FILE_PATH not found. Try to exec '$ENV_ROOT_DIR/vbox/create_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_template.sh $PRM_VM_TEMPLATE'"
 fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
