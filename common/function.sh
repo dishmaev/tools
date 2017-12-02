@@ -956,6 +956,7 @@ startPrompt(){
   local VAR_INPUT=''
   local VAR_YES=$COMMON_CONST_FALSE
   local VAR_DO_FLAG=$COMMON_CONST_TRUE
+  local VAR_TIME_STRING=''
   echoResult "$VAR_COMMAND_VALUE"
   if ! isAutoYesMode; then
     while isTrue "$VAR_DO_FLAG"; do
@@ -983,7 +984,8 @@ startPrompt(){
   fi
   VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    echo "Start session [$$]"
+    VAR_TIME_STRING=$(echo $VAR_START_TIME | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2' | awk '{print $2}')
+    echo "Start session [$$] at $VAR_TIME_STRING"
   fi
 }
 #$1 parameter
