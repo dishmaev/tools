@@ -48,7 +48,7 @@ echo "Current deploy suite: $2"
 uname -a
 
 checkDpkgUnlock
-if [ "$1" = "rel" ]; then
+if [ "$2" = "rel" ]; then
   #install packages from personal repository
 #  sudo apt -y update
 #  checkRetValOK

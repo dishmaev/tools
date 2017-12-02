@@ -23,7 +23,7 @@ echo "Current deploy suite: $2"
 uname -a
 
 
-if [ "$1" = "rel" ]; then
+if [ "$2" = "rel" ]; then
   #install packages from personal repository
 #  sudo tdnf -y makecache
 #  checkRetValOK
