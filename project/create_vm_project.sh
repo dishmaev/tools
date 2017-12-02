@@ -96,7 +96,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
     VAR_CONFIG_FILE_NAME=${VAR_CUR_SUITE}_${VAR_CUR_VM_ROLE}.cfg
     VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
     if isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-      echoInfo "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE already exist, skip create"
+      echoWarning "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE already exist, skip create"
       continue
     else
       echoInfo "start to create project VM suite $VAR_CUR_SUITE"
