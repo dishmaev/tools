@@ -2,13 +2,13 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 build tar.gz file name'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 make output, $4 build tar.gz file name'
 
-if [ "$#" != "3" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
 exec 2>${1}.err
 exec 3>${1}.tst
+if [ "$#" != "3" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 
 ###function
 
@@ -49,9 +49,9 @@ uname -a
 
 checkDpkgUnlock
 if [ "$1" = "rel" ]; then
-  sudo apt -y update
-  checkRetValOK
   #install packages from personal repository
+#  sudo apt -y update
+#  checkRetValOK
   sudo apt -y install $3
   checkRetValOK
 else # tst,dev

@@ -2,7 +2,7 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 output tar.gz file name'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 make output, $4 build tar.gz file name'
 
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
@@ -33,7 +33,7 @@ echo "Current build suite: $2"
 
 uname -a
 
-VAR_SUITE=$(getConfigName "$2") || exit 1
+VAR_CONFIG=$(getConfigName "$2") || exit 1
 mkdir build
 checkRetValOK
 tar -xvf *.tar.gz -C build/
@@ -44,33 +44,33 @@ checkRetValOK
 sudo ln -s /usr/bin/qmake-qt5 /usr/bin/qmake
 checkRetValOK
 
-mkdir $VAR_SUITE
+mkdir $VAR_CONFIG
 checkRetValOK
-cd $VAR_SUITE
+cd $VAR_CONFIG
 checkRetValOK
-if [ "$VAR_SUITE" = "Debug" ]; then
+if [ "$VAR_CONFIG" = "Debug" ]; then
   qmake ../cppqt5.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug
   checkRetValOK
-elif [ "$VAR_SUITE" = "Release" ]; then
-  qmake cppqt5.pro -spec linux-g++-64
+elif [ "$VAR_CONFIG" = "Release" ]; then
+  qmake ../cppqt5.pro -spec linux-g++-64
   checkRetValOK
 fi
 make
 checkRetValOK
 cd ..
 
-bash -x package-rpm.bash $VAR_SUITE 'cppqt5'
+bash -x package-rpm.bash $VAR_CONFIG $3
 checkRetValOK
 
-tar -cvf $HOME/$4 -C ${VAR_SUITE}/package .
+tar -cvf $HOME/$4 -C ${VAR_CONFIG}/package .
 checkRetValOK
 
 cd $HOME
 
 ##test
 
-if [ ! -f "$4" ]; then echo "Output file $4 not found"; exit 1; fi
-for VAR_CUR_PACKAGE in $HOME/build/${VAR_SUITE}/package/*.rpm; do
+if [ ! -f "$4" ]; then echo "Build file $4 not found"; exit 1; fi
+for VAR_CUR_PACKAGE in $HOME/build/${VAR_CONFIG}/package/*.rpm; do
   if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
   rpm -qip $VAR_CUR_PACKAGE >&3
   checkRetValOK

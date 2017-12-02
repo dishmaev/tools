@@ -2,7 +2,7 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 build tar.gz file name'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 make output, $4 build tar.gz file name'
 
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
@@ -49,9 +49,9 @@ uname -a
 
 checkDpkgUnlock
 if [ "$1" = "rel" ]; then
-  sudo apt -y update
-  checkRetValOK
   #install packages from personal repository
+#  sudo apt -y update
+#  checkRetValOK
   sudo apt -y install $3
   checkRetValOK
 else # tst,dev

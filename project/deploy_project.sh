@@ -6,12 +6,9 @@ targetDescription "Deploy build file of project $ENV_PROJECT_NAME"
 
 ##private consts
 CONST_PROJECT_ACTION='deploy'
-CONST_BUILD_FILE_NAME=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
-CONST_DEFAULT_BUILD_FILE=$COMMON_CONST_LOCAL_BUILDS_PATH/${CONST_BUILD_FILE_NAME}-${COMMON_CONST_DEFAULT_VM_ROLE}-bin.tar.gz
-CONST_TARGET=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
+CONST_MAKE_OUTPUT=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
 
 ##private vars
-PRM_BUILD_FILE='' #build file name
 PRM_SUITE='' #suite
 PRM_VM_ROLE='' #role for create VM
 VAR_RESULT='' #child return value
@@ -24,7 +21,8 @@ VAR_VM_TEMPLATE='' #vm template
 VAR_VM_NAME='' #vm name
 VAR_HOST='' #esxi host
 VAR_VM_IP='' #vm ip address
-VAR_BUILD_FILE_NAME='' #short file name of $PRM_BUILD_FILE
+VAR_BUILD_FILE_NAME='' #build file name
+VAR_BUILD_FILE_PATH='' #build file name with local path
 VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vbox vm by ssh
 VAR_LOG='' #log execute script
 
@@ -34,19 +32,17 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 3 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [buildFile=$CONST_DEFAULT_BUILD_FILE]' \
-"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $CONST_DEFAULT_BUILD_FILE" \
+echoHelp $# 2 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE]' \
+"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
 "Available suites: $COMMON_CONST_SUITES_POOL"
 
 ###check commands
 
 PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
-PRM_BUILD_FILE=${3:-"$COMMON_CONST_LOCAL_BUILDS_PATH/${CONST_BUILD_FILE_NAME}-${PRM_SUITE}-${PRM_VM_ROLE}-bin.tar.gz"}
 
 checkCommandExist 'suite' "$PRM_SUITE" "$COMMON_CONST_SUITES_POOL"
 checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
-checkCommandExist 'buildFile' "$PRM_BUILD_FILE" ''
 
 ###check body dependencies
 
@@ -54,7 +50,8 @@ checkCommandExist 'buildFile' "$PRM_BUILD_FILE" ''
 
 ###check required files
 
-checkRequiredFiles "$PRM_BUILD_FILE"
+VAR_BUILD_FILE_PATH="$COMMON_CONST_LOCAL_BUILDS_PATH/${CONST_MAKE_OUTPUT}-${PRM_SUITE}-${PRM_VM_ROLE}-bin.tar.gz"
+checkRequiredFiles "$VAR_BUILD_FILE_PATH"
 
 ###start prompt
 
@@ -94,8 +91,8 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   echoResult "$VAR_RESULT"
   #copy build file on vm
   VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
-  VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_BUILD_FILE_NAME"
-  $SCP_CLIENT $PRM_BUILD_FILE $VAR_VM_IP:$VAR_BUILD_FILE_NAME
+  VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$VAR_BUILD_FILE_PATH") || exitChildError "$VAR_BUILD_FILE_NAME"
+  $SCP_CLIENT $VAR_BUILD_FILE_PATH $VAR_VM_IP:$VAR_BUILD_FILE_NAME
   checkRetValOK
   #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
@@ -103,7 +100,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   checkRetValOK
   #exec trigger script
   echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
-  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $CONST_TARGET $VAR_BUILD_FILE_NAME; \
+  VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $CONST_MAKE_OUTPUT $VAR_BUILD_FILE_NAME; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     VAR_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$VAR_LOG"
@@ -129,8 +126,8 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
   echoResult "$VAR_RESULT"
   #copy build file on vm
   VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
-  VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$PRM_BUILD_FILE") || exitChildError "$VAR_BUILD_FILE_NAME"
-  $SCP_CLIENT -P $VAR_VM_PORT $PRM_BUILD_FILE $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_BUILD_FILE_NAME
+  VAR_BUILD_FILE_NAME=$(getFileNameFromUrlString "$VAR_BUILD_FILE_PATH") || exitChildError "$VAR_BUILD_FILE_NAME"
+  $SCP_CLIENT -P $VAR_VM_PORT $VAR_BUILD_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_BUILD_FILE_NAME
   checkRetValOK
   #copy create script on vm
   VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
@@ -138,7 +135,7 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
   checkRetValOK
   #exec trigger script
   echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
-  VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $CONST_TARGET $VAR_BUILD_FILE_NAME; \
+  VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $CONST_MAKE_OUTPUT $VAR_BUILD_FILE_NAME; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$VAR_LOG"

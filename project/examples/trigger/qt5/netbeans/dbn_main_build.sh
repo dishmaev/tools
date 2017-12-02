@@ -2,13 +2,13 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 output tar.gz file name'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 make output, $4 build tar.gz file name'
 
-if [ "$#" != "4" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
 exec 2>${1}.err
 exec 3>${1}.tst
+if [ "$#" != "4" ]; then echo "Call syntax: $(basename "$0") $VAR_PARAMETERS"; exit 1; fi
 
 ###function
 
@@ -33,27 +33,27 @@ echo "Current build suite: $2"
 
 uname -a
 
-VAR_SUITE=$(getConfigName "$2") || exit 1
+VAR_CONFIG=$(getConfigName "$2") || exit 1
 mkdir build
 checkRetValOK
 tar -xvf *.tar.gz -C build/
 checkRetValOK
 cd build
 checkRetValOK
-make -f Makefile CONF=${VAR_SUITE}_APT QMAKE=/usr/bin/qmake
+make -f Makefile CONF=${VAR_CONFIG}_APT QMAKE=/usr/bin/qmake
 checkRetValOK
-bash -x nbproject/Package-${VAR_SUITE}_APT.bash QMAKE=/usr/bin/qmake
+bash -x nbproject/Package-${VAR_CONFIG}_APT.bash QMAKE=/usr/bin/qmake
 checkRetValOK
-tar -cvf $HOME/$4 -C dist/${VAR_SUITE}_APT/GNU-Linux/package .
+tar -cvf $HOME/$4 -C dist/${VAR_CONFIG}_APT/GNU-Linux/package .
 checkRetValOK
 
 cd $HOME
 
 ##test
 
-if [ ! -f "$4" ]; then echo "Output file $4 not found"; exit 1; fi
+if [ ! -f "$4" ]; then echo "Build file $4 not found"; exit 1; fi
 
-for VAR_CUR_PACKAGE in $HOME/build/dist/${VAR_SUITE}_APT/GNU-Linux/package/*.deb; do
+for VAR_CUR_PACKAGE in $HOME/build/dist/${VAR_CONFIG}_APT/GNU-Linux/package/*.deb; do
   if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
   dpkg-deb -I $VAR_CUR_PACKAGE >&3
   checkRetValOK

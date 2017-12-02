@@ -2,7 +2,7 @@
 
 ###header
 
-readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 target, $4 build tar.gz file name'
+readonly VAR_PARAMETERS='$1 script name without extenstion, $2 suite, $3 make output, $4 build tar.gz file name'
 
 if [ -r ${1}.ok ]; then rm ${1}.ok; fi
 exec 1>${1}.log
@@ -22,11 +22,11 @@ echo "Current deploy suite: $2"
 
 uname -a
 
-sudo tdnf -y makecache
-checkRetValOK
 
 if [ "$1" = "rel" ]; then
-  install packages from personal repository
+  #install packages from personal repository
+#  sudo tdnf -y makecache
+#  checkRetValOK
   sudo tndf -y install $3
   checkRetValOK
 else # tst,dev
