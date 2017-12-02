@@ -14,7 +14,6 @@ PRM_VERSION='' #version
 PRM_SUITE='' #suite
 PRM_VM_ROLE='' #role for create VM
 PRM_ADD_TO_DISTRIB_REPOSITORY='' #add package to repository
-PRM_DISTRIB_REPO='' #distrib repository
 VAR_RESULT='' #child return value
 VAR_CONFIG_FILE_NAME='' #vm config file name
 VAR_CONFIG_FILE_PATH='' #vm config file path
@@ -38,9 +37,9 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 5 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [version=$COMMON_CONST_DEFAULT_VERSION] [addToDistribRepository=$COMMON_CONST_FALSE] [distribRepository=$ENV_DISTRIB_REPO]' \
-"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE $ENV_DISTRIB_REPO" \
-"Version $COMMON_CONST_DEFAULT_VERSION is HEAD of develop branch, otherwise is tag or branch name. Available suites: $CONST_SUITES_POOL"
+echoHelp $# 4 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [version=$COMMON_CONST_DEFAULT_VERSION] [addToDistribRepository=$COMMON_CONST_FALSE]' \
+"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE" \
+"Version $COMMON_CONST_DEFAULT_VERSION is HEAD of develop branch, otherwise is tag or branch name. Available suites: $CONST_SUITES_POOL. Distrib repository: $ENV_DISTRIB_REPO"
 
 ###check commands
 
@@ -48,13 +47,11 @@ PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
 PRM_VERSION=${3:-$COMMON_CONST_DEFAULT_VERSION}
 PRM_ADD_TO_DISTRIB_REPOSITORY=${4:-$COMMON_CONST_FALSE}
-PRM_DISTRIB_REPO=${5:-$ENV_DISTRIB_REPO}
 
 checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
 checkCommandExist 'vmRole' "$PRM_VM_ROLE" ''
 checkCommandExist 'version' "$PRM_VERSION" ''
 checkCommandExist 'addToDistribRepotory' "$PRM_ADD_TO_DISTRIB_REPOSITORY" "$COMMON_CONST_BOOL_VALUES"
-checkCommandExist 'distribRepository' "$PRM_DISTRIB_REPO" ''
 
 ###check body dependencies
 
@@ -69,7 +66,7 @@ startPrompt
 
 ###body
 
-#$1 $VAR_BIN_TAR_FILE_PATH, $2 $VAR_VM_TEMPLATE, $3 $PRM_SUITE, $4 $PRM_DISTRIB_REPO
+#$1 $VAR_BIN_TAR_FILE_PATH, $2 $VAR_VM_TEMPLATE, $3 $PRM_SUITE
 addToDistribRepotory(){
   local VAR_RESULT=''
   local VAR_TMP_DIR_PATH='' #temporary directory name
@@ -79,12 +76,12 @@ addToDistribRepotory(){
   checkRetValOK
   for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.deb; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_CUR_PACKAGE $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_CUR_PACKAGE $COMMON_CONST_DEBIANMINI_VM_TEMPLATE $3) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
   for VAR_CUR_PACKAGE in $VAR_TMP_DIR_PATH/*.rpm; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
-    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_CUR_PACKAGE $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3 $4) || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../distrib/add_package.sh -y $VAR_CUR_PACKAGE $COMMON_CONST_CENTOSMINI_VM_TEMPLATE $3) || exitChildError "$VAR_RESULT"
     echoResult "$VAR_RESULT"
   done
   echoWarning "TO-DO add Oracle Solaris packages"
@@ -192,7 +189,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
       echoWarning "Build file $VAR_BIN_TAR_FILE_NAME on VM $VAR_VM_NAME ip $VAR_VM_IP not found"
     fi
    fi
-elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
+elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
   #restore project snapshot
   VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
   echoInfo "restore VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME"
@@ -244,7 +241,7 @@ fi
 #add to distrib repository if required
 if isTrue "$PRM_ADD_TO_DISTRIB_REPOSITORY" && isFileExistAndRead "$VAR_BIN_TAR_FILE_PATH"; then
   echoInfo "add build packages to distrib repository"
-  addToDistribRepotory "$VAR_BIN_TAR_FILE_PATH" "$VAR_VM_TEMPLATE" "$PRM_SUITE" "$PRM_DISTRIB_REPO"
+  addToDistribRepotory "$VAR_BIN_TAR_FILE_PATH" "$VAR_VM_TEMPLATE" "$PRM_SUITE"
   checkRetValOK
 fi
 

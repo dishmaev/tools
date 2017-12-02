@@ -10,7 +10,7 @@ TMPDIRNAME=tmp-packaging
 NBTMPDIR=${CND_CONF}/${TMPDIRNAME}
 OUTPUT_PATH=${CND_CONF}/${OUTPUT_BASENAME}
 PACKAGE_TOP_DIR=/usr/
-PACKAGE_VERSION=package-version
+PACKAGE_VERSION=package-version.cfg
 
 # Functions
 function checkPackageVersion

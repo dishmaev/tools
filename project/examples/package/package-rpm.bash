@@ -9,7 +9,7 @@ CND_DLIB_EXT=so
 NBTMPDIR=${CND_CONF}/tmp-packaging
 OUTPUT_PATH=${CND_CONF}/${OUTPUT_BASENAME}
 PACKAGE_TOP_DIR=/usr/
-PACKAGE_VERSION=package-version
+PACKAGE_VERSION=package-version.cfg
 
 # Functions
 function checkPackageVersion

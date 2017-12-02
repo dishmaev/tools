@@ -2,10 +2,10 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Create VM type $COMMON_CONST_VIRTUALBOX_VM_TYPE"
+targetDescription "Create VM type $COMMON_CONST_VBOX_VM_TYPE"
 
 ##private consts
-readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VBOX_VM_TYPE
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
@@ -65,15 +65,15 @@ if ! isCommandExist 'vagrant'; then
   exitError "missing command vagrant. Try to exec $ENV_ROOT_DIR/vbox/deploy_vagrant.sh"
 fi
 #get vm template current version
-VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE") || exitChildError "$VAR_VM_VER"
+VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VBOX_VM_TYPE") || exitChildError "$VAR_VM_VER"
 VAR_BOX_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.box"
-VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_num.cfg"
+VAR_COUNTER_FILE_NAME="${PRM_VM_TEMPLATE}_${COMMON_CONST_VBOX_VM_TYPE}_num.cfg"
 VAR_COUNTER_FILE_PATH="$COMMON_CONST_LOCAL_DATA_PATH/$VAR_COUNTER_FILE_NAME"
-VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VBOX_VM_TYPE
 VAR_BOX_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_BOX_FILE_NAME
 #check required ova package on remote esxi host
 if ! isFileExistAndRead "$VAR_BOX_FILE_PATH"; then
-  exitError "VM template package $VAR_BOX_FILE_PATH not found. Try to exec '$ENV_ROOT_DIR/vbox/create_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_template.sh $PRM_VM_TEMPLATE'"
+  exitError "VM template package $VAR_BOX_FILE_PATH not found. Try to exec '$ENV_ROOT_DIR/vbox/create_${COMMON_CONST_VBOX_VM_TYPE}_template.sh $PRM_VM_TEMPLATE'"
 fi
 #check vm name
 if [ "$PRM_VM_NAME" = "$COMMON_CONST_DEFAULT_VM_NAME" ]; then
@@ -113,7 +113,7 @@ cd $VAR_CUR_DIR_PATH
 checkRetValOK
 #take base template snapshot
 echoInfo "create VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
-VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_BOX_FILE_NAME) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/take_${COMMON_CONST_VBOX_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_BOX_FILE_NAME) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 VAR_VM_ID=$(getVMIDByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_ID"
 #echo result

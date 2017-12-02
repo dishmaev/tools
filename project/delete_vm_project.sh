@@ -29,19 +29,14 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 2 '<suitesPool> [vmRolesPool=$COMMON_CONST_DEFAULT_VM_ROLE]' \
 "$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE" \
-"Available suites: $COMMON_CONST_SUITES_POOL. Suites and VM roles must be selected without '*'"
+"Available suites: $COMMON_CONST_SUITES_POOL. Suites and roles must be selected without '*'"
 
 ###check commands
 
 PRM_SUITES_POOL=$1
 PRM_VM_ROLES_POOL=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
 
-if [ "$PRM_SUITES_POOL" != "$COMMON_CONST_ALL" ]; then
-  checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" "$COMMON_CONST_SUITES_POOL"
-else
-  checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" ''
-fi
-
+checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" "$COMMON_CONST_SUITES_POOL"
 checkCommandExist 'vmRolesPool' "$PRM_VM_ROLES_POOL" ''
 
 ###check body dependencies
@@ -76,7 +71,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
       echoResult "$VAR_RESULT"
-    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VIRTUALBOX_VM_TYPE" ]; then
+    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
       VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
       echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
       VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"

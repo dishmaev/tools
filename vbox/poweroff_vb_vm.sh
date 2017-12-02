@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Power off VMs type $COMMON_CONST_VIRTUALBOX_VM_TYPE"
+targetDescription "Power off VMs type $COMMON_CONST_VBOX_VM_TYPE"
 
 ##private vars
 PRM_VMS_POOL='' # vms pool
@@ -19,7 +19,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[vmsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" ""
+echoHelp $# 1 '[vmsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" "Use '*' or VM names with space delimiter"
 
 ###check commands
 

@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Create VM template type $COMMON_CONST_VIRTUALBOX_VM_TYPE" "$COMMON_CONST_FALSE"
+targetDescription "Create VM template type $COMMON_CONST_VBOX_VM_TYPE" "$COMMON_CONST_FALSE"
 
 #https://forums.virtualbox.org/viewtopic.php?f=7&t=39967 error locked VM
 #https://stackoverflow.com/questions/35169724/vm-in-virtualbox-is-already-locked-for-a-session-or-being-unlocked
@@ -22,7 +22,7 @@ targetDescription "Create VM template type $COMMON_CONST_VIRTUALBOX_VM_TYPE" "$C
 ##private consts
 readonly CONST_VBOX_GUESTADD_URL='http://download.virtualbox.org/virtualbox/@PRM_VERSION@/VBoxGuestAdditions_@PRM_VERSION@.iso' #url for download
 readonly CONST_VBOX_GUESTADD_SCRIPT='install_guest_add.sh'
-readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+readonly CONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VBOX_VM_TYPE
 
 ##private vars
 PRM_VM_TEMPLATE='' #vm template
@@ -65,9 +65,9 @@ checkCommandExist 'vmTemplate' "$PRM_VM_TEMPLATE" "$COMMON_CONST_VM_TEMPLATES_PO
 checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" ''
 
 if [ "$PRM_VM_TEMPLATE_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
-  VAR_VM_TEMPLATE_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE") || exitChildError "$VAR_VM_TEMPLATE_VER"
+  VAR_VM_TEMPLATE_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VBOX_VM_TYPE") || exitChildError "$VAR_VM_TEMPLATE_VER"
 else
-  VAR_VM_TEMPLATE_VER=$(getAvailableVMTemplateVersions "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE") || exitChildError "$VAR_VM_TEMPLATE_VER"
+  VAR_VM_TEMPLATE_VER=$(getAvailableVMTemplateVersions "$PRM_VM_TEMPLATE" "$COMMON_CONST_VBOX_VM_TYPE") || exitChildError "$VAR_VM_TEMPLATE_VER"
   checkCommandExist 'vmTemplateVersion' "$PRM_VM_TEMPLATE_VERSION" "$VAR_VM_TEMPLATE_VER"
   VAR_VM_TEMPLATE_VER=$PRM_VM_TEMPLATE_VERSION
 fi
@@ -131,10 +131,10 @@ if ! isFileExistAndRead "$VAR_DISC_FILE_PATH"; then
 fi
 
 #get url for current vm template version
-VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$COMMON_CONST_VIRTUALBOX_VM_TYPE" "$VAR_VM_TEMPLATE_VER") || exitChildError "$VAR_FILE_URL"
+VAR_FILE_URL=$(getVMUrl "$PRM_VM_TEMPLATE" "$COMMON_CONST_VBOX_VM_TYPE" "$VAR_VM_TEMPLATE_VER") || exitChildError "$VAR_FILE_URL"
 VAR_BOX_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_TEMPLATE_VER}.box"
 
-VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+VAR_DOWNLOAD_PATH=$ENV_DOWNLOAD_PATH/$COMMON_CONST_VBOX_VM_TYPE
 if ! isDirectoryExist "$VAR_DOWNLOAD_PATH"; then mkdir -p "$VAR_DOWNLOAD_PATH"; fi
 VAR_BOX_FILE_PATH=$VAR_DOWNLOAD_PATH/$VAR_BOX_FILE_NAME
 
@@ -232,7 +232,7 @@ checkRetValOK
 cd $VAR_CUR_DIR_PATH
 checkRetValOK
 #delete template vm
-VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/delete_${COMMON_CONST_VIRTUALBOX_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/delete_${COMMON_CONST_VBOX_VM_TYPE}_vm.sh -y $PRM_VM_TEMPLATE) || exitChildError "$VAR_RESULT"
 echoResult "$VAR_RESULT"
 
 doneFinalStage

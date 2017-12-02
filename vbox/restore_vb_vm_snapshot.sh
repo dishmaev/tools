@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription "Restore standard snapshot of VM type $COMMON_CONST_VIRTUALBOX_VM_TYPE"
+targetDescription "Restore standard snapshot of VM type $COMMON_CONST_VBOX_VM_TYPE"
 
 ##private consts
 

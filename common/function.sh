@@ -331,13 +331,13 @@ getParentDirectoryPath(){
 powerOnVMVb()
 {
   checkParmsCount $# 1 'powerOnVMVb'
-  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VBOX_VM_TYPE
   local VAR_RESULT=''
   local VAR_VM_ID=''
   local VAR_CUR_DIR_PATH='' #current directory name
   VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $1 type $COMMON_CONST_VIRTUALBOX_VM_TYPE not found"
+    exitError "VM $1 type $COMMON_CONST_VBOX_VM_TYPE not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
   if isEmpty "$VAR_RESULT"; then
@@ -392,13 +392,13 @@ powerOnVMEx()
 powerOffVMVb()
 {
   checkParmsCount $# 1 'powerOffVMVb'
-  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VBOX_VM_TYPE
   local VAR_RESULT=''
   local VAR_VM_ID=''
   local VAR_CUR_DIR_PATH='' #current directory name
   VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $1 type $COMMON_CONST_VIRTUALBOX_VM_TYPE not found"
+    exitError "VM $1 type $COMMON_CONST_VBOX_VM_TYPE not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
   if ! isEmpty "$VAR_RESULT"; then
@@ -461,13 +461,13 @@ powerOffVMEx()
 getPortAddressByVMNameVb()
 {
   checkParmsCount $# 1 'getPortAddressByVMNameVb'
-  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VIRTUALBOX_VM_TYPE
+  local FCONST_LOCAL_VMS_PATH=$COMMON_CONST_LOCAL_VMS_PATH/$COMMON_CONST_VBOX_VM_TYPE
   local VAR_RESULT=''
   local VAR_VM_ID=''
   local VAR_CUR_DIR_PATH='' #current directory name
   VAR_VM_ID=$(getVMIDByVMNameVb "$1") || exitChildError "$VAR_VM_ID"
   if isEmpty "$VAR_VM_ID"; then
-    exitError "VM $1 type $COMMON_CONST_VIRTUALBOX_VM_TYPE not found"
+    exitError "VM $1 type $COMMON_CONST_VBOX_VM_TYPE not found"
   fi
   VAR_RESULT=$(vboxmanage list runningvms | grep "{$VAR_VM_ID}")
   if ! isEmpty "$VAR_RESULT"; then
