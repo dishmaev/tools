@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'VMs list'
+targetDescription "List of VMs type $COMMON_CONST_VBOX_VM_TYPE"
 
 ##private consts
 
