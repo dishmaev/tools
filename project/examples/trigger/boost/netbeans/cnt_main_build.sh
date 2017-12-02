@@ -46,6 +46,7 @@ checkRetValOK
 cd build
 checkRetValOK
 if [ -r "$CONST_PACKAGE_HEADER" ]; then
+  echo "Upgrade $PWD/$CONST_PACKAGE_HEADER from $PWD/$CONST_PACKAGE_SPEC"
   VAR_VERSION=$(cat $CONST_PACKAGE_SPEC | grep $CONST_FIELD_SPEC_VERSION | cut -d ' ' -f 2)
   checkRetValOK
   sed -i "/$CONST_FIELD_SPEC_VERSION/c #define $CONST_FIELD_SPEC_VERSION \"$VAR_VERSION\"" $CONST_PACKAGE_HEADER

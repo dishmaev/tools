@@ -45,16 +45,18 @@ tar -xvf *.tar.gz -C build/
 checkRetValOK
 cd build
 checkRetValOK
-mkdir $VAR_CONFIG
-checkRetValOK
-cd $VAR_CONFIG
-checkRetValOK
 if [ -r "$CONST_PACKAGE_HEADER" ]; then
+  echo "Upgrade $PWD/$CONST_PACKAGE_HEADER from $PWD/$CONST_PACKAGE_SPEC"
   VAR_VERSION=$(cat $CONST_PACKAGE_SPEC | grep $CONST_FIELD_SPEC_VERSION | cut -d ' ' -f 2)
   checkRetValOK
   sed -i "/$CONST_FIELD_SPEC_VERSION/c #define $CONST_FIELD_SPEC_VERSION \"$VAR_VERSION\"" $CONST_PACKAGE_HEADER
   checkRetValOK
 fi
+
+mkdir $VAR_CONFIG
+checkRetValOK
+cd $VAR_CONFIG
+checkRetValOK
 if [ "$VAR_CONFIG" = "Debug" ]; then
   qmake ../cppqt5.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug
   checkRetValOK
