@@ -11,6 +11,23 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+#$1 project action (build or develop), $2 suite, $3 vm role
+getProjectVMForAction(){
+  checkParmsCount $# 3 'removeKnownHosts'
+  local FCONST_PROJECT_BUILD_ACTION='build'
+  local FCONST_PROJECT_DEPLOY_ACTION='deploy'
+  local VAR_RESULT=''
+  local VAR_CONFIG_FILE_NAME=''
+  local VAR_CONFIG_FILE_PATH=''
+  if [ "$1" != "$FCONST_PROJECT_BUILD_ACTION" ] && [ "$2" != "$FCONST_PROJECT_DEPLOY_ACTION" ]; then
+    exitError "project action $1 not support for getProjectVMForAction"
+  fi
+  VAR_CONFIG_FILE_NAME=${2}_${3}.cfg
+  VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
+  VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
+  echo "$VAR_RESULT"
+}
+
 removeKnownHosts(){
   checkParmsCount $# 0 'removeKnownHosts'
   if isFileExistAndRead "$HOME/.ssh/known_hosts"; then
@@ -573,8 +590,7 @@ checkCommandExist() {
   if isEmpty "$2"
   then
     exitError "option $1 missing"
-  elif ! isEmpty "$3"
-  then
+  elif ! isEmpty "$3"; then
     checkCommandValue "$1" "$2" "$3"
   fi
   if isEmpty "$VAR_COMMAND_VALUE"; then
