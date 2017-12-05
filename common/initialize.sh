@@ -166,7 +166,7 @@ else
 fi
 
 if ! isAutoYesMode; then
-  read -r -p "Default VM template? [$PRM_DEFAULT_VM_TEMPLATE] " VAR_INPUT
+  read -r -p "Default VM template ($CONST_DEFAULT_VM_TEMPLATE or cnt)? [$PRM_DEFAULT_VM_TEMPLATE] " VAR_INPUT
 else
   VAR_INPUT=''
 fi
@@ -182,7 +182,7 @@ else
   echo "Default VM template: $VAR_INPUT"
 fi
 
-echo "TO-DO reset ENV_INTERNAL_VM_TYPE when Docker and Kubernetes will be working on local system, just only Virtual Box" 
+echo "TO-DO reset ENV_INTERNAL_VM_TYPE when Docker and Kubernetes will be working on local system, just only Virtual Box"
 echo "TO-DO reset ENV_VM_TYPES_POOL, из списка COMMON_CONST_VM_TYPES_POOL убрать платформу которая будет внутренней ENV_INTERNAL_VM_TYPE"
 
 exitOK
