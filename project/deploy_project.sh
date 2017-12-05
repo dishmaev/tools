@@ -68,7 +68,7 @@ if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
   checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
 fi
 
-VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
+VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
 VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
 VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
 VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"

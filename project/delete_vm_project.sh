@@ -20,6 +20,8 @@ VAR_HOST='' #esxi host
 VAR_VM_ID='' #vm id
 VAR_CUR_SUITE='' #current suite
 VAR_CUR_VM_ROLE='' #current role for create VM
+VAR_CUR_SUITE='' #current suite
+VAR_CUR_VM='' #vm exp
 
 ###check autoyes
 
@@ -63,35 +65,36 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       echoWarning "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE not exist, skip delete"
       continue
     fi
-    VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
-    VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
-    VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
-    VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
-    #delete project vm
-    if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
-      VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-      checkSSHKeyExistEsxi "$VAR_HOST"
-      if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
-        echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
-        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
-        echoResult "$VAR_RESULT"
-      else
-        echoWarning "VM $VAR_VM_NAME not found on $VAR_HOST host, skip snapshot restore"
+    while read VAR_CUR_VM; do
+      VAR_VM_TYPE=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
+      VAR_VM_TEMPLATE=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
+      VAR_VM_NAME=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
+      #delete project vm
+      if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
+        VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
+        checkSSHKeyExistEsxi "$VAR_HOST"
+        if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
+          echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
+          VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+          echoResult "$VAR_RESULT"
+        else
+          echoWarning "VM $VAR_VM_NAME not found on $VAR_HOST host, skip snapshot restore"
+        fi
+      elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
+        if isVMExistVb "$VAR_VM_NAME"; then
+          VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
+          echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
+          VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
+          echoResult "$VAR_RESULT"
+        else
+          echoWarning "VM $VAR_VM_NAME not found, skip snapshot restore"
+        fi
+      elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
+        echoWarning "TO-DO support Docker containers"
+      elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
+        echoWarning "TO-DO support Kubernetes containers"
       fi
-    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
-      if isVMExistVb "$VAR_VM_NAME"; then
-        VAR_RESULT=$(powerOffVMVb "$VAR_VM_NAME") || exitChildError "$VAR_RESULT"
-        echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME"
-        VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vbox/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME) || exitChildError "$VAR_RESULT"
-        echoResult "$VAR_RESULT"
-      else
-        echoWarning "VM $VAR_VM_NAME not found, skip snapshot restore"
-      fi
-    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
-      echoWarning "TO-DO support Docker containers"
-    elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
-      echoWarning "TO-DO support Kubernetes containers"
-    fi
+    done < "$VAR_CONFIG_FILE_PATH"
     echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
     rm $VAR_CONFIG_FILE_PATH
     checkRetValOK

@@ -96,11 +96,13 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
     VAR_CONFIG_FILE_NAME=${VAR_CUR_SUITE}_${VAR_CUR_VM_ROLE}.cfg
     VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
     if isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-      echoWarning "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE already exist, skip create"
-      continue
-    else
-      echoInfo "start to create project VM suite $VAR_CUR_SUITE"
+      VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | grep -E "^$PRM_VM_TYPE" | wc -l) || exitChildError "$VAR_RESULT"
+      if [ "$VAR_RESULT" != "0" ]; then
+        echoWarning "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE already exist, skip create"
+        continue
+      fi
     fi
+    echoInfo "start to create project VM suite $VAR_CUR_SUITE"
     if [ "$PRM_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
       echoInfo "try to find a free VM"
       VAR_VMS_POOL=$(getVmsPoolEx "$PRM_VM_TEMPLATE" "$COMMON_CONST_ALL") || exitChildError "$VAR_VMS_POOL"
