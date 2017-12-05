@@ -69,6 +69,9 @@ if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
 fi
 
 VAR_RESULT=$(getProjectVMForAction "$CONST_PROJECT_ACTION" "$PRM_SUITE" "$PRM_VM_ROLE") || exitChildError "$VAR_RESULT"
+if isEmpty "$VAR_RESULT"; then
+  exitError "not available any VM for project action $CONST_PROJECT_ACTION suite $PRM_SUITE role $PRM_VM_ROLE"
+fi
 VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
 VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
 VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
