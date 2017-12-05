@@ -29,7 +29,7 @@ getProjectVMForAction(){
   VAR_CONFIG_FILE_NAME=${2}_${3}.cfg
   VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
   for VAR_CUR_VM_TYPE in $ENV_VM_TYPES_POOL; do
-    VAR_CUR_VM=$(cat $VAR_CONFIG_FILE_PATH | grep -E "^$VAR_CUR_VM_TYPE") || exitChildError "$VAR_CUR_VM"
+    VAR_CUR_VM=$(cat $VAR_CONFIG_FILE_PATH | grep -E "^$VAR_CUR_VM_TYPE" | cat) || exitChildError "$VAR_CUR_VM"
     if isEmpty "$VAR_CUR_VM"; then continue; fi
     VAR_VM_NAME=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
     if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
@@ -39,9 +39,11 @@ getProjectVMForAction(){
         break
       fi
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
-      echoWarning "TO-DO support Docker containers"
+#      echoWarning "TO-DO support Docker containers"
+      :
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
-      echoWarning "TO-DO support Kubernetes containers"
+#      echoWarning "TO-DO support Kubernetes containers"
+      :
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
       if isVMExistVb "$VAR_VM_NAME"; then
         VAR_RESULT=$VAR_CUR_VM
@@ -49,7 +51,7 @@ getProjectVMForAction(){
       fi
     fi
   done
-  VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
+#  VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 
