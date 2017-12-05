@@ -19,7 +19,7 @@ getProjectVMForAction(){
   local VAR_RESULT=''
   local VAR_CONFIG_FILE_NAME=''
   local VAR_CONFIG_FILE_PATH=''
-  if [ "$1" != "$FCONST_PROJECT_BUILD_ACTION" ] && [ "$2" != "$FCONST_PROJECT_DEPLOY_ACTION" ]; then
+  if [ "$1" != "$FCONST_PROJECT_BUILD_ACTION" ] && [ "$1" != "$FCONST_PROJECT_DEPLOY_ACTION" ]; then
     exitError "project action $1 not support for getProjectVMForAction"
   fi
   VAR_CONFIG_FILE_NAME=${2}_${3}.cfg
