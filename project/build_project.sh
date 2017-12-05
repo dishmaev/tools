@@ -119,7 +119,10 @@ packSourceFiles(){
 VAR_CONFIG_FILE_NAME=${COMMON_CONST_RUNNER_SUITE}_${PRM_VM_ROLE}.cfg
 VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
 if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
-  exitError "config file $VAR_CONFIG_FILE_PATH not found. Try to exec $ENV_ROOT_DIR/project/create_vm_project.sh"
+  #restore project snapshot
+  echoWarning "config file $VAR_CONFIG_FILE_PATH not found, required new project VM"
+  VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/create_vm_project.sh -y $ENV_DEFAULT_VM_TEMPLATE $PRM_SUITE $PRM_VM_ROLE) || exitChildError "$VAR_RESULT"
+  echoResult "$VAR_RESULT"
 fi
 
 VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH) || exitChildError "$VAR_RESULT"
