@@ -49,7 +49,7 @@ getProjectVMForAction(){
       fi
     fi
   done
-#  VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 
