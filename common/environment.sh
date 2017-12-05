@@ -54,6 +54,12 @@ readonly ENV_TOOLS_HIDDEN_PATH="$HOME/.tools"
 if isEmpty "$ENV_TOOLS_HIDDEN_PATH"; then checkNotEmptyEnvironment "ENV_TOOLS_HIDDEN_PATH"; fi
 readonly ENV_SHELL_WITH_ESC=$(eval 'VAR_COUNT=$(echo "a\nb" | wc -l); if [ $VAR_COUNT -eq 1 ]; then echo '$COMMON_CONST_FALSE'; else echo '$COMMON_CONST_TRUE'; fi')
 if isEmpty "$ENV_SHELL_WITH_ESC"; then checkNotEmptyEnvironment "ENV_SHELL_WITH_ESC"; fi
+readonly ENV_DEFAULT_VM_TEMPLATE=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/vm_template.cfg; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; else echo '$COMMON_CONST_DEBIANMINI_VM_TEMPLATE'; fi')
+if isEmpty "$ENV_DEFAULT_VM_TEMPLATE"; then checkNotEmptyEnvironment "ENV_DEFAULT_VM_TEMPLATE"; fi
+readonly ENV_VM_TYPES_POOL=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/vm_types.cfg; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; else echo '$COMMON_CONST_VM_TYPES_POOL'; fi')
+if isEmpty "$ENV_VM_TYPES_POOL"; then checkNotEmptyEnvironment "ENV_VM_TYPES_POOL"; fi
+readonly ENV_INTERNAL_VM_TYPE=$COMMON_CONST_VBOX_VM_TYPE
+if isEmpty "$ENV_INTERNAL_VM_TYPE"; then checkNotEmptyEnvironment "ENV_INTERNAL_VM_TYPE"; fi
 
 #vmware tools local directory
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"

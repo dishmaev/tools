@@ -25,6 +25,7 @@ readonly COMMON_CONST_NULL='<null>' #null value
 readonly COMMON_CONST_ALL='*' #all
 readonly COMMON_CONST_DEFAULT_SSH_PORT='22' #default guest ssh port
 readonly COMMON_CONST_DEFAULT_VERSION='default' # default version name
+readonly COMMON_CONST_DEFAULT_VM_TEMPLATE='dbn' # default vm templates
 readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
 readonly COMMON_CONST_DATA_CFG_SEPARATOR='::' #default separator for data config files
@@ -75,16 +76,16 @@ $COMMON_CONST_FREEBSD_VM_TEMPLATE"
 
 #vm types
 readonly COMMON_CONST_VMWARE_VM_TYPE='ex' #Vmware
-readonly COMMON_CONST_VBOX_VM_TYPE='vb' #Virtual Box
 readonly COMMON_CONST_DOCKER_VM_TYPE='dc' #Docker
 readonly COMMON_CONST_KUBERNETES_VM_TYPE='ku' #Kubernetes
+readonly COMMON_CONST_VBOX_VM_TYPE='vb' #Virtual Box
 
-# available vm types pool
-readonly COMMON_CONST_VMTYPES_POOL="\
+# available vm types pool, in order of decreasing priority
+readonly COMMON_CONST_VM_TYPES_POOL="\
 $COMMON_CONST_VMWARE_VM_TYPE \
-$COMMON_CONST_VBOX_VM_TYPE \
 $COMMON_CONST_DOCKER_VM_TYPE \
-$COMMON_CONST_KUBERNETES_VM_TYPE"
+$COMMON_CONST_KUBERNETES_VM_TYPE \
+$COMMON_CONST_VBOX_VM_TYPE"
 
 #suites
 readonly COMMON_CONST_RUNNER_SUITE='run' #runner, for build of project
