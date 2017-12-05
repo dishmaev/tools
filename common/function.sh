@@ -28,7 +28,7 @@ getProjectVMForAction(){
   fi
   VAR_CONFIG_FILE_NAME=${2}_${3}.cfg
   VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
-  for VAR_CUR_VM_TYPE in $ENV_VM_TYPES_POOL; then
+  for VAR_CUR_VM_TYPE in $ENV_VM_TYPES_POOL; do
     VAR_CUR_VM=$(cat $VAR_CONFIG_FILE_PATH | grep -E "^$VAR_CUR_VM_TYPE") || exitChildError "$VAR_CUR_VM"
     if isEmpty "$VAR_CUR_VM"; then continue; fi
     VAR_VM_NAME=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
