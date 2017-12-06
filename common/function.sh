@@ -34,9 +34,12 @@ getProjectVMForAction(){
     VAR_VM_NAME=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
     if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
       VAR_HOST=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-      if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
-        VAR_RESULT=$VAR_CUR_VM
-        break
+      ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $VAR_HOST  2>&1
+      if [ "$?" = "0" ]; then
+        if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
+          VAR_RESULT=$VAR_CUR_VM
+          break
+        fi
       fi
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
 #      echoWarning "TO-DO support Docker containers"
@@ -45,13 +48,12 @@ getProjectVMForAction(){
 #      echoWarning "TO-DO support Kubernetes containers"
       :
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
-      if isVMExistVb "$VAR_VM_NAME"; then
+      if isCommandExist "vboxmanage" && isCommandExist "vagrant" && isVMExistVb "$VAR_VM_NAME"; then
         VAR_RESULT=$VAR_CUR_VM
         break
       fi
     fi
   done
-#  VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | sed -n 1p) || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 
