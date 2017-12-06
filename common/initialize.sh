@@ -183,6 +183,6 @@ else
 fi
 
 echo "TO-DO reset ENV_INTERNAL_VM_TYPE when Docker and Kubernetes will be working on local system, just only Virtual Box"
-echo "TO-DO reset ENV_VM_TYPES_POOL, из списка COMMON_CONST_VM_TYPES_POOL убрать платформу которая будет внутренней ENV_INTERNAL_VM_TYPE"
+echo "TO-DO reset ENV_VM_TYPES_POOL, activate and order"
 
 exitOK
