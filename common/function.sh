@@ -20,8 +20,7 @@ getAvailableVMType(){
   for VAR_CUR_VM_TYPE in $1; do
     if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
       for VAR_CUR_HOST in $COMMON_CONST_ESXI_HOSTS_POOL; do
-        ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $VAR_CUR_HOST 2>/dev/null
-        if [ "$?" = "0" ]; then
+        if isExHostAvailable "$VAR_CUR_HOST"; then
           VAR_RESULT=$VAR_CUR_VM_TYPE
           break
         fi
@@ -64,12 +63,9 @@ getProjectVMForAction(){
     VAR_VM_NAME=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
     if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
       VAR_HOST=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-      ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $VAR_HOST 2>/dev/null
-      if [ "$?" = "0" ]; then
-        if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
-          VAR_RESULT=$VAR_CUR_VM
-          break
-        fi
+      if isExHostAvailable "$VAR_HOST" && isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
+        VAR_RESULT=$VAR_CUR_VM
+        break
       fi
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
 #      echoWarning "TO-DO support Docker containers"
@@ -841,13 +837,14 @@ checkSSHKeyExistEsxi(){
   local VAR_TMP_FILE_NAME=''
   VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
   VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
-
   checkRequiredFiles "$ENV_SSH_KEYID"
-  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
+  if isExHostAvailable "$1"; then
+    VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
 if [ ! -r $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
 cat > $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
 cat $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME || cat $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME >> $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; \
 rm $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
+  fi
   if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
 
@@ -1294,4 +1291,9 @@ isSnapshotVMExistEx(){
   local VAR_VM_ID=''
   VAR_RESULT=$(getVMSnapshotIDByNameEx "$1" "$2" "$3") || exitChildError "$VAR_RESULT"
   ! isEmpty "$VAR_RESULT"
+}
+#$1 esxi host
+isExHostAvailable(){
+  ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $1 2>/dev/null
+  [ "$?" = "0" ]
 }
