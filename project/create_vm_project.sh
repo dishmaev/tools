@@ -58,7 +58,11 @@ else
   checkCommandExist 'suitesPool' "$PRM_SUITES_POOL" ''
 fi
 checkCommandExist 'vmRolesPool' "$PRM_VM_ROLES_POOL" ''
-checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VM_TYPES_POOL"
+if ! isEmpty "$4"; then
+  checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VM_TYPES_POOL"
+else
+  checkCommandExist 'vmType' "$PRM_VM_TYPE" ''
+fi
 
 ###check body dependencies
 
