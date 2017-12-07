@@ -58,8 +58,8 @@ readonly ENV_DEFAULT_VM_TEMPLATE=$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/da
 if isEmpty "$ENV_DEFAULT_VM_TEMPLATE"; then checkNotEmptyEnvironment "ENV_DEFAULT_VM_TEMPLATE"; fi
 readonly ENV_VM_TYPES_POOL="$(eval 'VAR_FILE_NAME='$ENV_ROOT_DIR'/common/data/vm_types.cfg; if [ -r $VAR_FILE_NAME ]; then cat $VAR_FILE_NAME; else echo '"$COMMON_CONST_VM_TYPES_POOL"'; fi')"
 if isEmpty "$ENV_VM_TYPES_POOL"; then checkNotEmptyEnvironment "ENV_VM_TYPES_POOL"; fi
-readonly ENV_INTERNAL_VM_TYPE=$COMMON_CONST_VBOX_VM_TYPE
-if isEmpty "$ENV_INTERNAL_VM_TYPE"; then checkNotEmptyEnvironment "ENV_INTERNAL_VM_TYPE"; fi
+readonly ENV_DEFAULT_VM_TYPE=$(echo $ENV_VM_TYPES_POOL | awk '{print $(NF)}')
+if isEmpty "$ENV_DEFAULT_VM_TYPE"; then checkNotEmptyEnvironment "ENV_DEFAULT_VM_TYPE"; fi
 
 #vmware tools local directory
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"

@@ -16,6 +16,7 @@ PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(di
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
 PRM_SSH_IDENTITY_FILE_NAME=$(eval 'if [ -r $(dirname "$0")/data/ssh_id_file.txt ]; then cat $(dirname "$0")/data/ssh_id_file.txt; fi')
 PRM_DEFAULT_VM_TEMPLATE=$(eval 'if [ -r $(dirname "$0")/data/vm_template.cfg ]; then cat $(dirname "$0")/data/ssh_pwd.txt; else echo '$CONST_DEFAULT_VM_TEMPLATE' fi')
+PRM_VM_TYPES_POOL=$(eval 'if [ -r $(dirname "$0")/common/data/vm_types.cfg ]; then cat $(dirname "$0")/common/data/vm_types.cfg; else echo '$COMMON_CONST_VM_TYPES_POOL'; fi')
 VAR_INPUT=''
 VAR_COUNT=''
 VAR_SSH_AGENT=''
@@ -62,7 +63,7 @@ checkAutoYes() {
     VAR_AUTO_YES=1
     return 1
   elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    echo "Usage: $(basename "$0") [-y] [userName] [userPassword] [defaultVmTemplate]"
+    echo "Usage: $(basename "$0") [-y] [userName] [userPassword] [defaultVmTemplate] [vmTypes]"
     echo "Tooltip: -y batch mode with yes answer"
     exit 0
   fi
@@ -166,7 +167,7 @@ else
 fi
 
 if ! isAutoYesMode; then
-  read -r -p "Default VM template ($CONST_DEFAULT_VM_TEMPLATE or cnt)? [$PRM_DEFAULT_VM_TEMPLATE] " VAR_INPUT
+  read -r -p "Default VM template (values: $CONST_DEFAULT_VM_TEMPLATE cnt)? [$PRM_DEFAULT_VM_TEMPLATE] " VAR_INPUT
 else
   VAR_INPUT=''
 fi
@@ -182,7 +183,21 @@ else
   echo "Default VM template: $VAR_INPUT"
 fi
 
-echo "TO-DO reset ENV_INTERNAL_VM_TYPE when Docker and Kubernetes will be working on local system, just only Virtual Box"
-echo "TO-DO reset ENV_VM_TYPES_POOL, activate and order"
+if ! isAutoYesMode; then
+  read -r -p "Available VM types in order of use (values: $COMMON_CONST_VM_TYPES_POOL)? [$PRM_VM_TYPES_POOL] " VAR_INPUT
+else
+  VAR_INPUT=''
+fi
+VAR_INPUT=${VAR_INPUT:-$COMMON_CONST_VM_TYPES_POOL}
+if isAutoYesMode; then
+  VAR_INPUT=${VAR_INPUT:-$4}
+fi
+if [ "$VAR_INPUT" != "$PRM_VM_TYPES_POOL" ]; then
+  echo "Save changes to $(dirname "$0")/data/vm_types.cfg"
+  echo "$VAR_INPUT" > $(dirname "$0")/data/vm_types.cfg
+  chmod u=rw,g=,o= $(dirname "$0")/data/vm_types.cfg
+else
+  echo "Available VM types in order of use: $VAR_INPUT"
+fi
 
 exitOK
