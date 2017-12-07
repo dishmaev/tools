@@ -72,13 +72,16 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       #delete project vm
       if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
         VAR_HOST=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-        checkSSHKeyExistEsxi "$VAR_HOST"
-        if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
-          echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
-          VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
-          echoResult "$VAR_RESULT"
+        if isExHostAvailable "$VAR_HOST"; then
+          checkSSHKeyExistEsxi "$VAR_HOST"
+          if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
+            echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
+            VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
+            echoResult "$VAR_RESULT"
+          else
+            echoWarning "VM $VAR_VM_NAME not found on $VAR_HOST host, skip snapshot restore"
         else
-          echoWarning "VM $VAR_VM_NAME not found on $VAR_HOST host, skip snapshot restore"
+          echoWarning "host $VAR_HOST unavailable, skip snapshot restore"
         fi
       elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
         if isVMExistVb "$VAR_VM_NAME"; then

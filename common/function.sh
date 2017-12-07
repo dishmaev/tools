@@ -838,13 +838,11 @@ checkSSHKeyExistEsxi(){
   VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
   VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
   checkRequiredFiles "$ENV_SSH_KEYID"
-  if isExHostAvailable "$1"; then
-    VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
+  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
 if [ ! -r $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
 cat > $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
 cat $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME || cat $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME >> $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; \
 rm $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
-  fi
   if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
 }
 
