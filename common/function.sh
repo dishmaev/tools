@@ -11,6 +11,36 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+#$1 vm types pool
+getAvailableVMType(){
+  checkParmsCount $# 1 'getAvailableVMType'
+  local VAR_RESULT=''
+  local VAR_CUR_VM_TYPE=''
+  local VAR_CUR_HOST=''
+  for VAR_CUR_VM_TYPE in $1; do
+    if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
+      for VAR_CUR_HOST in $COMMON_CONST_ESXI_HOSTS_POOL; do
+        ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $VAR_CUR_HOST 2>/dev/null
+        if [ "$?" = "0" ]; then
+          VAR_RESULT=$VAR_CUR_VM_TYPE
+          break
+        fi
+      done
+    elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
+#      echoWarning "TO-DO support Docker containers"
+      :
+    elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
+#      echoWarning "TO-DO support Kubernetes containers"
+      :
+    elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
+      if isCommandExist "vboxmanage" && isCommandExist "vagrant" && isVMExistVb "$VAR_VM_NAME"; then
+        VAR_RESULT=$VAR_CUR_VM_TYPE
+        break
+      fi
+    fi
+  done
+  echo "$VAR_RESULT"
+}
 #$1 project action (build or develop), $2 suite, $3 vm role
 getProjectVMForAction(){
   checkParmsCount $# 3 'removeKnownHosts'
