@@ -32,7 +32,7 @@ getAvailableVMType(){
 #      echoWarning "TO-DO support Kubernetes containers"
       :
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
-      if isCommandExist "vboxmanage" && isCommandExist "vagrant" && isVMExistVb "$VAR_VM_NAME"; then
+      if isCommandExist "vboxmanage" && isCommandExist "vagrant"; then
         VAR_RESULT=$VAR_CUR_VM_TYPE
         break
       fi

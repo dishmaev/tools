@@ -84,8 +84,12 @@ if [ "$PRM_SUITES_POOL" = "$COMMON_CONST_ALL" ]; then
 fi
 
 if [ "$PRM_VM_TYPE" = "$COMMON_CONST_ALL" ]; then
-  PRM_VM_TYPE=$(getAvailableVMType "$COMMON_CONST_VM_TYPES_POOL")
-  echoInfo "use available VM type $PRM_VM_TYPE"
+  PRM_VM_TYPE=$(getAvailableVMType "$COMMON_CONST_VM_TYPES_POOL") || exitChildError "$PRM_VM_TYPE"
+  if ! isEmpty "$PRM_VM_TYPE"; then
+    echoInfo "use available VM type $PRM_VM_TYPE"
+  else
+    exitError "not available any VM types"
+  fi
 fi
 
 for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
