@@ -85,6 +85,7 @@ fi
 
 if [ "$PRM_VM_TYPE" = "$COMMON_CONST_ALL" ]; then
   PRM_VM_TYPE=$(getAvailableVMType "$COMMON_CONST_VM_TYPES_POOL")
+  echoInfo "use available VM type $PRM_VM_TYPE"
 fi
 
 for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
