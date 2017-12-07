@@ -80,6 +80,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
             echoResult "$VAR_RESULT"
           else
             echoWarning "VM $VAR_VM_NAME not found on $VAR_HOST host, skip snapshot restore"
+          fi
         else
           echoWarning "host $VAR_HOST unavailable, skip snapshot restore"
         fi
