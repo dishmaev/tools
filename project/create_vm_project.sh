@@ -42,7 +42,7 @@ checkAutoYes "$1" || shift
 
 echoHelp $# 4 '[vmTemplate=ENV_DEFAULT_VM_TEMPLATE] [suitesPool=$COMMON_CONST_ALL] [vmRolesPool=$COMMON_CONST_DEFAULT_VM_ROLE] [vmType=$COMMON_CONST_ALL]' \
 "$COMMON_CONST_DEFAULT_VM_TEMPLATE $COMMON_CONST_ALL $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_ALL" \
-"Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $COMMON_CONST_SUITES_POOL. Available VM types: $COMMON_CONST_VM_TYPES_POOL"
+"Available VM templates: $COMMON_CONST_VM_TEMPLATES_POOL. Available suites: $COMMON_CONST_SUITES_POOL. Available VM types: $ENV_VM_TYPES_POOL"
 
 ###check commands
 
@@ -59,7 +59,7 @@ else
 fi
 checkCommandExist 'vmRolesPool' "$PRM_VM_ROLES_POOL" ''
 if ! isEmpty "$4"; then
-  checkCommandExist 'vmType' "$PRM_VM_TYPE" "$COMMON_CONST_VM_TYPES_POOL"
+  checkCommandExist 'vmType' "$PRM_VM_TYPE" "$ENV_VM_TYPES_POOL"
 else
   checkCommandExist 'vmType' "$PRM_VM_TYPE" ''
 fi
@@ -84,7 +84,7 @@ if [ "$PRM_SUITES_POOL" = "$COMMON_CONST_ALL" ]; then
 fi
 
 if [ "$PRM_VM_TYPE" = "$COMMON_CONST_ALL" ]; then
-  PRM_VM_TYPE=$(getAvailableVMType "$COMMON_CONST_VM_TYPES_POOL") || exitChildError "$PRM_VM_TYPE"
+  PRM_VM_TYPE=$(getAvailableVMType "$ENV_VM_TYPES_POOL") || exitChildError "$PRM_VM_TYPE"
   if ! isEmpty "$PRM_VM_TYPE"; then
     echoInfo "use available VM type $PRM_VM_TYPE"
   else

@@ -72,7 +72,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       #delete project vm
       if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
         VAR_HOST=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-        if isExHostAvailable "$VAR_HOST"; then
+        if isHostAvailableEx "$VAR_HOST"; then
           checkSSHKeyExistEsxi "$VAR_HOST"
           if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
             echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"

@@ -20,7 +20,7 @@ getAvailableVMType(){
   for VAR_CUR_VM_TYPE in $1; do
     if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
       for VAR_CUR_HOST in $COMMON_CONST_ESXI_HOSTS_POOL; do
-        if isExHostAvailable "$VAR_CUR_HOST"; then
+        if isHostAvailableEx "$VAR_CUR_HOST"; then
           VAR_RESULT=$VAR_CUR_VM_TYPE
           break
         fi
@@ -63,7 +63,7 @@ getProjectVMForAction(){
     VAR_VM_NAME=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
     if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
       VAR_HOST=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-      if isExHostAvailable "$VAR_HOST" && isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
+      if isHostAvailableEx "$VAR_HOST" && isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
         VAR_RESULT=$VAR_CUR_VM
         break
       fi
@@ -1291,7 +1291,7 @@ isSnapshotVMExistEx(){
   ! isEmpty "$VAR_RESULT"
 }
 #$1 esxi host
-isExHostAvailable(){
+isHostAvailableEx(){
   ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $1 2>/dev/null
   [ "$?" = "0" ]
 }

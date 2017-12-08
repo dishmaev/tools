@@ -15,7 +15,7 @@ PACKAGE_TOP_DIR=/usr/
 VAR_FIELD_SPEC_VERSION=`cat $CONST_PACKAGE_SPEC | grep $CONST_FIELD_SPEC_VERSION | cut -d ' ' -f 2`
 
 # Functions
-function checkPackageVersion
+function checkPackageSpec
 {
   if [ ! -r ${CONST_PACKAGE_SPEC} ]
   then
@@ -59,7 +59,7 @@ function copyFileToTmpDir
 
 # Setup
 cd "${TOP}"
-checkPackageVersion
+checkPackageSpec
 mkdir -p ${CND_CONF}/package
 rm -rf ${NBTMPDIR}
 mkdir -p ${NBTMPDIR}
