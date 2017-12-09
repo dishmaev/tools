@@ -193,11 +193,11 @@ else
 fi
 
 if ! isAutoYesMode; then
-  read -r -p "Available VM types in order of use (values: $COMMON_CONST_VM_TYPES_POOL)? [$PRM_VM_TYPES_POOL] " VAR_INPUT
+  read -r -p "Available VM types in order of use (values: $CONST_VM_TYPES_POOL)? [$PRM_VM_TYPES_POOL] " VAR_INPUT
 else
   VAR_INPUT=''
 fi
-VAR_INPUT=${VAR_INPUT:-$COMMON_CONST_VM_TYPES_POOL}
+VAR_INPUT=${VAR_INPUT:-$CONST_VM_TYPES_POOL}
 if isAutoYesMode; then
   VAR_INPUT=${VAR_INPUT:-$4}
 fi
