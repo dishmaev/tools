@@ -35,7 +35,7 @@ checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-checkDependencies 'wget'
+#checkDependencies 'wget'
 
 ###check required files
 
@@ -58,7 +58,7 @@ if isCommandExist 'vboxmanage'; then
   exitOK
 fi
 if isAPTLinux "$VAR_LINUX_BASED"; then
-  checkDependencies 'apt apt-key dirmngr'
+  checkDependencies 'wget apt apt-key dirmngr'
   #check for vbox repo
   if ! isFileExistAndRead "$CONST_SOURCE_FILE_PATH_APT"; then
     wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
