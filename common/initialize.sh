@@ -134,6 +134,8 @@ if [ "$VAR_SSH_FILE_NAME" != "$PRM_SSH_IDENTITY_FILE_NAME" ]; then
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
   echo "$VAR_SSH_FILE_NAME" > $(dirname "$0")/data/ssh_id_file.txt
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_id_file.txt
+else
+  echo "SSH private key file: $VAR_SSH_FILE_NAME"
 fi
 
 PRM_SSH_KEYID=$(echo $PRM_SSH_KEYID | awk '{print $1" "$2}')
