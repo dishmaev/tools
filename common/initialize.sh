@@ -107,25 +107,25 @@ if [ -z "$SSH_AGENT_PID" ]; then
   ssh-add -l
 fi
 
-if [ -z "$PRM_SSH_KEYID" ]; then
-  VAR_SSH_FILE_NAME=${PRM_SSH_IDENTITY_FILE_NAME:-$CONST_SSH_IDENTITY_FILE_NAME}
+VAR_SSH_FILE_NAME=${PRM_SSH_IDENTITY_FILE_NAME:-$CONST_SSH_IDENTITY_FILE_NAME}
+if ! isAutoYesMode; then
+  read -r -p "SSH private key file? [$VAR_SSH_FILE_NAME] " VAR_INPUT
+else
+  VAR_INPUT=''
+fi
+VAR_SSH_FILE_NAME=${VAR_INPUT:-$CONST_SSH_IDENTITY_FILE_NAME}
+if [ ! -r $VAR_SSH_FILE_NAME ]; then
   if ! isAutoYesMode; then
-    read -r -p "SSH private key file? [$VAR_SSH_FILE_NAME] " VAR_INPUT
+    read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
   else
     VAR_INPUT=''
   fi
-  VAR_SSH_FILE_NAME=${VAR_INPUT:-$CONST_SSH_IDENTITY_FILE_NAME}
-  if [ ! -r $VAR_SSH_FILE_NAME ]; then
-    if ! isAutoYesMode; then
-      read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
-    else
-      VAR_INPUT=''
-    fi
-    VAR_INPUT=${VAR_INPUT:-'y'}
-    if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $VAR_SSH_FILE_NAME not found"; fi
-    ssh-keygen -t rsa -N "" -f $VAR_SSH_FILE_NAME
-    checkRetValOK "Must generate or install SSH private key"
-  fi
+  VAR_INPUT=${VAR_INPUT:-'y'}
+  if [ "$VAR_INPUT" != "Y" ] && [ "$VAR_INPUT" != "y" ]; then exitError "SSH private key file $VAR_SSH_FILE_NAME not found"; fi
+  ssh-keygen -t rsa -N "" -f $VAR_SSH_FILE_NAME
+  checkRetValOK "Must generate or install SSH private key"
+fi
+if [ "$VAR_SSH_FILE_NAME" != "$PRM_SSH_IDENTITY_FILE_NAME" ]; then
   echo "Save changes to $(dirname "$0")/data/ssh_keyid.pub"
   ssh-keygen -y -f $VAR_SSH_FILE_NAME > $(dirname "$0")/data/ssh_keyid.pub
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_keyid.pub
