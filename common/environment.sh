@@ -3,7 +3,7 @@
 ##using files: consts.sh, function.sh
 
 #set correct path before using this tools
-readonly ENV_ROOT_DIR=$(getParentDirectoryPath "$PWD")
+readonly ENV_ROOT_DIR=$(getParentDirectoryPath "$(realpath $(dirname "$0"))")
 if isEmpty "$ENV_ROOT_DIR"; then checkNotEmptyEnvironment "ENV_ROOT_DIR"; fi
 #script file name
 readonly ENV_SCRIPT_FILE_NAME=$(basename "$0")
