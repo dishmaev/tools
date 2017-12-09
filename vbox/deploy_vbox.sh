@@ -96,7 +96,7 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   #check for vbox repo
   if ! isFileExistAndRead "$CONST_SOURCE_FILE_PATH_RPM"; then
-    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | rpm --import -
+    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo rpm --import -
     checkRetValOK
     sudo yum -y install yum-utils
     checkRetValOK
