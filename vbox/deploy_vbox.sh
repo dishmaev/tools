@@ -103,7 +103,7 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
     sudo yum-config-manager --add-repo http://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo
     checkRetValOK
   fi
-  sudo yum -y install virtualbox-$PRM_VERSION
+  sudo yum -y install VirtualBox-${PRM_VERSION}
   checkRetValOK
 fi
 
