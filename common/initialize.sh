@@ -113,7 +113,7 @@ if ! isAutoYesMode; then
 else
   VAR_INPUT=''
 fi
-VAR_SSH_FILE_NAME=${VAR_INPUT:-$CONST_SSH_IDENTITY_FILE_NAME}
+VAR_SSH_FILE_NAME=${VAR_INPUT:-$VAR_SSH_FILE_NAME}
 if [ ! -r $VAR_SSH_FILE_NAME ]; then
   if ! isAutoYesMode; then
     read -r -p "Start generate SSH pair key? [Y/n] " VAR_INPUT
