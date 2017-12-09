@@ -132,6 +132,7 @@ if [ "$VAR_SSH_FILE_NAME" != "$PRM_SSH_IDENTITY_FILE_NAME" ]; then
   ssh-add $VAR_SSH_FILE_NAME
   checkRetValOK "Must be load SSH private key to the ssh-agent, try to load the required SSH private key using the 'ssh-add $VAR_SSH_FILE_NAME' command manually"
   PRM_SSH_KEYID=$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub)
+  echo "Save changes to $(dirname "$0")/data/ssh_id_file.txt"
   echo "$VAR_SSH_FILE_NAME" > $(dirname "$0")/data/ssh_id_file.txt
   chmod u=rw,g=,o= $(dirname "$0")/data/ssh_id_file.txt
 else
