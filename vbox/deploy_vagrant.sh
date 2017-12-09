@@ -82,7 +82,7 @@ if isAPTLinux "$VAR_LINUX_BASED"; then
   sudo apt -y install $VAR_ORIG_FILE_PATH
   checkRetValOK
 elif isRPMLinux "$VAR_LINUX_BASED"; then
-  sudo apt -y install $VAR_ORIG_FILE_PATH
+  sudo yum -y install $VAR_ORIG_FILE_PATH
   checkRetValOK
 fi
 
