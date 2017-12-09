@@ -180,7 +180,7 @@ if ! isAutoYesMode; then
 else
   VAR_INPUT=''
 fi
-VAR_INPUT=${VAR_INPUT:-$CONST_DEFAULT_VM_TEMPLATE}
+VAR_INPUT=${VAR_INPUT:-$PRM_DEFAULT_VM_TEMPLATE}
 if isAutoYesMode; then
   VAR_INPUT=${VAR_INPUT:-$3}
 fi
@@ -197,7 +197,7 @@ if ! isAutoYesMode; then
 else
   VAR_INPUT=''
 fi
-VAR_INPUT=${VAR_INPUT:-$CONST_VM_TYPES_POOL}
+VAR_INPUT=${VAR_INPUT:-$PRM_VM_TYPES_POOL}
 if isAutoYesMode; then
   VAR_INPUT=${VAR_INPUT:-$4}
 fi
