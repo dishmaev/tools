@@ -9,14 +9,23 @@ echo ''
 readonly CONST_SSH_IDENTITY_FILE_NAME=$HOME/.ssh/id_rsa
 readonly CONST_SCRIPT_DIR_NAME=$(dirname "$0")
 readonly CONST_DEFAULT_VM_TEMPLATE='dbn'
+readonly CONST_VMWARE_VM_TYPE='ex' #Vmware
+readonly CONST_DOCKER_VM_TYPE='dc' #Docker
+readonly CONST_KUBERNETES_VM_TYPE='ku' #Kubernetes
+readonly CONST_VBOX_VM_TYPE='vb' #Virtual Box
+readonly CONST_VM_TYPES_POOL="\
+$CONST_VMWARE_VM_TYPE \
+$CONST_DOCKER_VM_TYPE \
+$CONST_KUBERNETES_VM_TYPE \
+$CONST_VBOX_VM_TYPE"
 
 ##private vars
 PRM_SSH_KEYID=$(eval 'if [ -r $(dirname "$0")/data/ssh_keyid.pub ]; then echo "$(ssh-keygen -lf $(dirname "$0")/data/ssh_keyid.pub))"; fi')
 PRM_SSH_USER_NAME=$(eval 'if [ -r $(dirname "$0")/data/user.txt ]; then cat $(dirname "$0")/data/user.txt; else echo $(whoami); fi')
 PRM_SSH_USER_PASS=$(eval 'if [ -r $(dirname "$0")/data/ssh_pwd.txt ]; then cat $(dirname "$0")/data/ssh_pwd.txt; fi')
 PRM_SSH_IDENTITY_FILE_NAME=$(eval 'if [ -r $(dirname "$0")/data/ssh_id_file.txt ]; then cat $(dirname "$0")/data/ssh_id_file.txt; fi')
-PRM_DEFAULT_VM_TEMPLATE=$(eval 'if [ -r $(dirname "$0")/data/vm_template.cfg ]; then cat $(dirname "$0")/data/ssh_pwd.txt; else echo '$CONST_DEFAULT_VM_TEMPLATE' fi')
-PRM_VM_TYPES_POOL=$(eval 'if [ -r $(dirname "$0")/common/data/vm_types.cfg ]; then cat $(dirname "$0")/common/data/vm_types.cfg; else echo '$COMMON_CONST_VM_TYPES_POOL'; fi')
+PRM_DEFAULT_VM_TEMPLATE=$(eval 'if [ -r $(dirname "$0")/data/vm_template.cfg ]; then cat $(dirname "$0")/data/vm_template.cfg; else echo '$CONST_DEFAULT_VM_TEMPLATE' fi')
+PRM_VM_TYPES_POOL=$(eval 'if [ -r $(dirname "$0")/data/vm_types.cfg ]; then cat $(dirname "$0")/data/vm_types.cfg; else echo '$CONST_VM_TYPES_POOL'; fi')
 VAR_INPUT=''
 VAR_COUNT=''
 VAR_SSH_AGENT=''
