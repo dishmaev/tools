@@ -936,8 +936,7 @@ exitOK(){
 #[$1] message, [$2] if set $COMMON_CONST_EXIT_ERROR, it is child error
 exitError(){
   if [ "$2" != "$COMMON_CONST_EXIT_ERROR" ]; then
-    echo -n "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}"
-    echo ". See '$ENV_SCRIPT_FILE_NAME --help'"
+    echo "Error: ${1:-$COMMON_CONST_ERROR_MESS_UNKNOWN}. See '$ENV_SCRIPT_FILE_NAME --help'"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       getTrace
     fi
