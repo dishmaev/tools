@@ -98,7 +98,10 @@ if isLinuxOS; then
     checkRetValOK
   fi
 elif isMacOS; then
-  :
+  hdiutil attach $VAR_ORIG_FILE_PATH
+  checkRetValOK
+  hdiutil unmount /Volumes/Vagrant
+  checkRetValOK
 fi
 
 vagrant --version
