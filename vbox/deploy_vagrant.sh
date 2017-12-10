@@ -101,6 +101,7 @@ elif isMacOS; then
   hdiutil attach $VAR_ORIG_FILE_PATH
   checkRetValOK
   sudo installer -verbose -pkg /Volumes/Vagrant/vagrant.pkg -target /
+  checkRetValOK
   hdiutil unmount /Volumes/Vagrant
   checkRetValOK
 fi
