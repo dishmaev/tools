@@ -959,17 +959,23 @@ getTrace(){
   local VAR_CP=$$ # PID of the script itself [1]
   local VAR_PP=''
   local VAR_CMD_LINE=''
-  while true # safe because "all starts with init..."
-  do
-    VAR_CMD_LINE=$(ps -o args= -f -p $VAR_CP) || exitChildError "$VAR_CMD_LINE"
-    VAR_PP=$(grep PPid /proc/$VAR_CP/status | awk '{ print $2; }') || exitChildError "$VAR_PP" # [2]
-    VAR_TRACE="$VAR_TRACE [$VAR_CP]:$VAR_CMD_LINE\n"
-    if [ "$VAR_CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
-      break
-    fi
-    VAR_CP=$VAR_PP
-  done
-  VAR_TRACE=$(echo "$VAR_TRACE" | tac | grep -n ":" | tac) # using tac to "print in reverse" [3]
+  if isLinuxOS; then
+    while true # safe because "all starts with init..."
+    do
+      VAR_CMD_LINE=$(ps -o args= -f -p $VAR_CP) || exitChildError "$VAR_CMD_LINE"
+      VAR_PP=$(grep PPid /proc/$VAR_CP/status | awk '{ print $2; }') || exitChildError "$VAR_PP" # [2]
+      VAR_TRACE="$VAR_TRACE [$VAR_CP]:$VAR_CMD_LINE\n"
+      if [ "$VAR_CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
+        break
+      fi
+      VAR_CP=$VAR_PP
+    done
+    VAR_TRACE=$(echo "$VAR_TRACE" | tac | grep -n ":" | tac) # using tac to "print in reverse" [3]
+  elif isMacOS; then
+    echoWarning "TO-DO MacOS stack trace"
+  elif isFreeBSDOS; then
+    echoWarning "TO-DO FreeBSD stack trace"
+  fi
   echo "Debug: begin trace"
   echoResult "$VAR_TRACE"
   echo "Debug: end trace"
