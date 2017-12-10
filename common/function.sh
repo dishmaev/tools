@@ -1231,7 +1231,12 @@ isCommandExist(){
 
 isLinuxOS(){
   checkParmsCount $# 0 'isLinuxOS'
-  [ "$(uname)" = "Linux" ]
+  [ "$(uname -s)" = "Linux" ]
+}
+
+isMacOS(){
+  checkParmsCount $# 0 'isMacOS'
+  [ "$(uname -s)" = "Darwin" ]
 }
 
 isAPTLinux()
@@ -1248,7 +1253,7 @@ isRPMLinux()
 
 isFreeBSDOS(){
   checkParmsCount $# 0 'isLinuxOS'
-  [ "$(uname)" = "FreeBSD" ]
+  [ "$(uname -s)" = "FreeBSD" ]
 }
 
 isFileSystemMounted(){

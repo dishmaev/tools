@@ -5,13 +5,14 @@
 targetDescription 'Deploy Vagrant on the local OS x86_64'
 
 ##private consts
-readonly CONST_FILE_APT_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.deb' #url for download
+readonly CONST_FILE_APT_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.deb' #APT-based Linux url for download
 readonly CONST_FILE_RPM_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.rpm' #RPM-based Linux url for download
+readonly CONST_FILE_MACOS_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.dmg' #MacOS url for download
 readonly CONST_FILE_VERSION='2.0.1'
 
 ##private vars
 PRM_VERSION='' #vagrant version
-VAR_LINUX_BASED='' #for checking supported OS
+VAR_LINUX_BASED='' #for checking supported Linux OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
 VAR_FILE_URL='' #url specific version of boost for download
@@ -34,8 +35,6 @@ PRM_VERSION=${1:-$CONST_FILE_VERSION}
 checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
-
-checkDependencies 'wget'
 
 ###check required files
 
@@ -60,30 +59,44 @@ if isCommandExist 'vagrant'; then
   exitOK
 fi
 #check supported OS
-if ! isLinuxOS; then exitError 'not supported OS'; fi
-VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-
-if isAPTLinux "$VAR_LINUX_BASED"; then
-  VAR_FILE_URL="$CONST_FILE_APT_URL"
-elif isRPMLinux "$VAR_LINUX_BASED"; then
-  VAR_FILE_URL="$CONST_FILE_RPM_URL"
+if isLinuxOS; then
+  checkDependencies 'wget'
+  VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+  if isAPTLinux "$VAR_LINUX_BASED"; then
+    VAR_FILE_URL="$CONST_FILE_APT_URL"
+  elif isRPMLinux "$VAR_LINUX_BASED"; then
+    VAR_FILE_URL="$CONST_FILE_RPM_URL"
+  else
+    exitError "unknown Linux based package system"
+  fi
+elif isMacOS; then
+  VAR_FILE_URL="$CONST_FILE_MACOS_URL"
 else
-  exitError "unknown Linux based package system"
+  exitError 'not supported OS'
 fi
+
 VAR_FILE_URL=$(echo "$VAR_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#g") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-  wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-  checkRetValOK
+  if isLinuxOS; then
+    wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+    checkRetValOK
+  elif isMacOS; then
+    curl -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+    checkRetValOK
 fi
-if isAPTLinux "$VAR_LINUX_BASED"; then
-  checkDpkgUnlock
-  sudo apt -y install $VAR_ORIG_FILE_PATH
-  checkRetValOK
-elif isRPMLinux "$VAR_LINUX_BASED"; then
-  sudo yum -y install $VAR_ORIG_FILE_PATH
-  checkRetValOK
+if isLinuxOS; then
+  if isAPTLinux "$VAR_LINUX_BASED"; then
+    checkDpkgUnlock
+    sudo apt -y install $VAR_ORIG_FILE_PATH
+    checkRetValOK
+  elif isRPMLinux "$VAR_LINUX_BASED"; then
+    sudo yum -y install $VAR_ORIG_FILE_PATH
+    checkRetValOK
+  fi
+elif isMacOS; then
+  :
 fi
 
 vagrant --version
