@@ -39,6 +39,8 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if isCommandExist 'subl'; then
   echoInfo "already deployed"
   subl --version
+  checkRetValOK
+  
   doneFinalStage
   exitOK
 fi
@@ -67,6 +69,7 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
 fi
 
 subl --version
+checkRetValOK
 
 doneFinalStage
 exitOK

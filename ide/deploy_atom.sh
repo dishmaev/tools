@@ -53,6 +53,8 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if isCommandExist 'atom'; then
   echoInfo "already deployed"
   atom --version
+  checkRetValOK
+  
   doneFinalStage
   exitOK
 fi
@@ -93,6 +95,7 @@ apm install termination
 checkRetValOK
 
 atom --version
+checkRetValOK
 
 doneFinalStage
 exitOK

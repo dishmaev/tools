@@ -54,6 +54,8 @@ VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
 if isCommandExist 'vboxmanage'; then
   echoInfo "already deployed"
   vboxmanage --version
+  checkRetValOK
+
   doneFinalStage
   exitOK
 fi
@@ -108,6 +110,7 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
 fi
 
 vboxmanage --version
+checkRetValOK
 
 doneFinalStage
 exitOK

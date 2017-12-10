@@ -54,6 +54,7 @@ if isCommandExist 'vagrant'; then
   else
     echoInfo "already deployed"
     vagrant --version
+    checkRetValOK
   fi
   doneFinalStage
   exitOK
@@ -101,6 +102,7 @@ elif isMacOS; then
 fi
 
 vagrant --version
+checkRetValOK
 
 doneFinalStage
 exitOK
