@@ -2,6 +2,8 @@
 /common/data/ssh_pwd.txt
 /common/data/ssh_keyid.pub
 /common/data/ssh_id_file.txt
+/common/data/vm_types.cfg
+/common/data/vm_template.cfg
 /test/
 /repo/repos
 /project/data/*

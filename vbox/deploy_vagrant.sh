@@ -85,6 +85,7 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   elif isMacOS; then
     curl -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
     checkRetValOK
+  fi
 fi
 if isLinuxOS; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
