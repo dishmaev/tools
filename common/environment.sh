@@ -3,7 +3,6 @@
 ##using files: consts.sh, function.sh
 
 #set correct path before using this tools
-#readonly ENV_ROOT_DIR=$(getParentDirectoryPath "$(realpath $(dirname "$0"))")
 readonly ENV_ROOT_DIR=$(cd $(dirname "$0")/..; pwd)
 if isEmpty "$ENV_ROOT_DIR"; then checkNotEmptyEnvironment "ENV_ROOT_DIR"; fi
 #script file name
@@ -16,7 +15,7 @@ if isEmpty "$ENV_SCRIPT_DIR_NAME"; then checkNotEmptyEnvironment "ENV_SCRIPT_DIR
 readonly ENV_SUBMODULE_MODE=$(if [ -r $ENV_ROOT_DIR/../../.gitmodules ] && [ $(grep "url = $ENV_TOOLS_REPO" $ENV_ROOT_DIR/../../.gitmodules | wc -l) = 1 ]; then echo $COMMON_CONST_TRUE; else echo $COMMON_CONST_FALSE; fi)
 if isEmpty "$ENV_SUBMODULE_MODE"; then checkNotEmptyEnvironment "ENV_SUBMODULE_MODE"; fi
 #project name
-readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; VL=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; if [ -x "$(command -v git)" ]; then cd $VP; git config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -r 's/([.]GIT)$//' ; fi); if [ -z "$VL" ]; then VL=$(getFileNameFromUrlString "$ENV_ROOT_DIR" | tr '[a-z]' '[A-Z]'); fi; echo $VL)
+readonly ENV_PROJECT_NAME=$(VP=$ENV_ROOT_DIR; VL=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; if [ -x "$(command -v git)" ]; then cd $VP; git config remote.origin.url | awk -F/ '{print $(NF)}' | tr '[a-z]' '[A-Z]' | sed  -E 's/([.]GIT)$//' ; fi); if [ -z "$VL" ]; then VL=$(getFileNameFromUrlString "$ENV_ROOT_DIR" | tr '[a-z]' '[A-Z]'); fi; echo $VL)
 if isEmpty "$ENV_PROJECT_NAME"; then checkNotEmptyEnvironment "ENV_PROJECT_NAME"; fi
 #project repository
 readonly ENV_PROJECT_REPO=$(VP=$ENV_ROOT_DIR; if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then VP=$VP/../..; fi; if [ -x "$(command -v git)" ]; then cd $VP; git config remote.origin.url; fi)
