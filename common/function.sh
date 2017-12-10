@@ -835,6 +835,9 @@ checkSSHKeyExistEsxi(){
   local VAR_RESULT="$COMMON_CONST_FALSE"
   local VAR_TMP_FILE_PATH=''
   local VAR_TMP_FILE_NAME=''
+  if ! isHostAvailableEx "$1"; then
+    exitError "host $1 unavailable"
+  fi
   VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
   VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
   checkRequiredFiles "$ENV_SSH_KEYID"
