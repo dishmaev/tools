@@ -11,6 +11,42 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+#$1 project action ($COMMON_CONST_PROJECT_ACTION_CREATE etc), $2 start time, $3 stop time, $4 result bool, $5 src file path, $6 bin file path, $7 log file path
+addHistoryLog(){
+  checkParmsCount $# 7 'addHistoryLog'
+  local VAR_RESULT='error'
+  local VAR_START_STRING=''
+  local VAR_STOP_STRING=''
+  local VAR_FILE_NAME=''
+  local VAR_FILE_PATH=''
+  if isTrue "$4"; then VAR_RESULT='ok'; fi
+  VAR_START_STRING=$(getTimeAsString "$2")
+  VAR_STOP_STRING=$(getTimeAsString "$3")
+  VAR_FILE_NAME=${ENV_PROJECT_NAME}_${1}_($VAR_START_STRING - $VAR_STOP_STRING)_${VAR_RESULT}.tar.gz
+  VAR_FILE_PATH=$COMMON_CONST_LOCAL_HISTORY_PATH/$VAR_FILE_PATH
+  if ! isEmpty "$5"; then
+    if isFileExistAndRead "$5"; then
+      :
+    else
+      echoWarning "source file $5 not found, skip add to history"
+    fi
+  fi
+  if ! isEmpty "$6"; then
+    if isFileExistAndRead "$6"; then
+      :
+    else
+      echoWarning "binary file $6 not found, skip add to history"
+    fi
+  fi
+  if isFileExistAndRead "$7"; then
+    :
+  else
+    echoWarning "log file $7 not found, skip add to history"
+  fi
+  if ! isFileExistAndRead "$VAR_FILE_PATH"; then
+    echoWarning "history file $VAR_FILE_PATH not found"
+  fi
+}
 #$1 vm ip, $2 vm ssh port, $3 VAR_REMOTE_SCRIPT_FILE_NAME, $4 $VAR_LOG_TAR_FILE_PATH
 packLogFiles(){
   checkParmsCount $# 4 'packLogFiles'
@@ -143,6 +179,9 @@ getTimeAsString(){
   checkParmsCount $# 1 'getTimeAsString'
   local VAR_RESULT=''
   VAR_RESULT=$(echo $1 | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+  if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
+    VAR_RESULT=$(echo $VAR_RESULT | awk '{print $2}')
+  fi
   echo "$VAR_RESULT"
 }
 #$1 mh stop, $2 yy stop
@@ -214,15 +253,11 @@ showElapsedTime(){
 
   if ! isEmpty "$VAR_START_TIME"; then
     VAR_STOP_TAB="$(getTime)"
-
     VAR_ESPD=$(getElapsedTime "$VAR_START_TIME" "$VAR_STOP_TAB") || exitChildError "$VAR_ESPD"
-
     VAR_START=$(getTimeAsString "$VAR_START_TIME")
     VAR_STOP=$(getTimeAsString "$VAR_STOP_TAB")
 
     if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
-      VAR_START=$(echo $VAR_START | awk '{print $2}')
-      VAR_STOP=$(echo $VAR_STOP | awk '{print $2}')
       VAR_ESPD=$(echo $VAR_ESPD | awk '{print $2}')
     fi
 
@@ -1095,10 +1130,7 @@ startPrompt(){
   fi
   VAR_START_TIME="$(getTime)"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    VAR_TIME_STRING=$(echo $VAR_START_TIME | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
-    if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
-      VAR_TIME_STRING=$(echo $VAR_TIME_STRING | awk '{print $2}')
-    fi
+    VAR_TIME_STRING=$(getTimeAsString "$VAR_START_TIME")
     echo "Start session [$$] at $VAR_TIME_STRING"
   fi
 }

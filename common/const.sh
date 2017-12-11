@@ -30,12 +30,13 @@ readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
 readonly COMMON_CONST_DATA_CFG_SEPARATOR='::' #default separator for data config files
 readonly COMMON_CONST_SHOW_DEBUG="$COMMON_CONST_TRUE" #if true, show log details with error trace
+readonly COMMON_CONST_HISTORY_LOG="$COMMON_CONST_TRUE" #if true, save history all project action (create, build, deploy) in $COMMON_CONST_LOCAL_HISTORY_PATH
 readonly COMMON_CONST_LOCAL_HEAD='localHEAD' # HEAD of current branch on local git repository
 readonly COMMON_CONST_REMOTE_DEVELOP_HEAD='remoteHEAD' # HEAD of develop branch on remote git repository
 readonly COMMON_CONST_ELAPSED_LONG="$COMMON_CONST_FALSE" #if true, show elapsed time long version with year, month, day
-readonly COMMON_CONST_PROJECT_ACTION_CREATE='create'
-readonly COMMON_CONST_PROJECT_ACTION_BUILD='build'
-readonly COMMON_CONST_PROJECT_ACTION_DEPLOY='deploy'
+readonly COMMON_CONST_PROJECT_ACTION_CREATE='create' #create project action
+readonly COMMON_CONST_PROJECT_ACTION_BUILD='build' #build project action
+readonly COMMON_CONST_PROJECT_ACTION_DEPLOY='deploy' #deploy project action
 
 #package
 readonly COMMON_CONST_PACKAGE_LINUX_APT=package-apt.bash
