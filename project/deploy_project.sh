@@ -59,6 +59,9 @@ startPrompt
 
 ###body
 
+#remove known_hosts file to prevent future script errors
+removeKnownHosts
+
 VAR_CONFIG_FILE_NAME=${PRM_SUITE}_${PRM_VM_ROLE}.cfg
 VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
 if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
