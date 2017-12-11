@@ -43,6 +43,7 @@ addHistoryLog(){
   else
     echoWarning "log file $7 not found, skip add to history"
   fi
+  echo $VAR_FILE_PATH
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
     echoWarning "history file $VAR_FILE_PATH not found"
   fi
