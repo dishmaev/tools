@@ -24,24 +24,30 @@ addHistoryLog(){
   VAR_STOP_STRING=$(getTimeAsString "$3")
   VAR_FILE_NAME=${ENV_PROJECT_NAME}_${1}_'('${VAR_START_STRING}-${VAR_STOP_STRING}')'_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$COMMON_CONST_LOCAL_HISTORY_PATH/$VAR_FILE_NAME
+  if isFileExistAndRead "$VAR_FILE_PATH"; then
+    exitError "history file $VAR_FILE_PATH already exist"
+  fi
   if ! isEmpty "$5"; then
     if isFileExistAndRead "$5"; then
-      :
+      tar -rvf VAR_FILE_PATH $5
+      checkRetValOK
     else
-      echoWarning "source file $5 not found, skip add to history"
+      exitError "source file $5 not found"
     fi
   fi
   if ! isEmpty "$6"; then
     if isFileExistAndRead "$6"; then
-      :
+      tar -rvf VAR_FILE_PATH $6
+      checkRetValOK
     else
-      echoWarning "binary file $6 not found, skip add to history"
+      exitError "binary file $6 not found"
     fi
   fi
   if isFileExistAndRead "$7"; then
-    :
+    tar -rvf VAR_FILE_PATH $7
+    checkRetValOK
   else
-    echoWarning "log file $7 not found, skip add to history"
+    exitError "log file $7 not found"
   fi
   echo $VAR_FILE_PATH
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
