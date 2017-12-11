@@ -29,7 +29,7 @@ addHistoryLog(){
   fi
   if ! isEmpty "$5"; then
     if isFileExistAndRead "$5"; then
-      tar -rvf $VAR_FILE_PATH $5
+      tar -rvf $VAR_FILE_PATH -C $COMMON_CONST_LOCAL_BUILD_PATH $5
       checkRetValOK
     else
       exitError "source file $5 not found"
@@ -37,19 +37,18 @@ addHistoryLog(){
   fi
   if ! isEmpty "$6"; then
     if isFileExistAndRead "$6"; then
-      tar -rvf $VAR_FILE_PATH $6
+      tar -rvf $VAR_FILE_PATH -C $COMMON_CONST_LOCAL_BUILD_PATH $6
       checkRetValOK
     else
       exitError "binary file $6 not found"
     fi
   fi
   if isFileExistAndRead "$7"; then
-    tar -rvf $VAR_FILE_PATH $7
+    tar -rvf $VAR_FILE_PATH -C $COMMON_CONST_LOCAL_BUILD_PATH $7
     checkRetValOK
   else
     exitError "log file $7 not found"
   fi
-  echo $VAR_FILE_PATH
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
     echoWarning "history file $VAR_FILE_PATH not found"
   fi
