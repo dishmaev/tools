@@ -282,6 +282,7 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_KUBERNETES_VM_TYPE" ]; then
 fi
 #add history log
 if isTrue "$COMMON_CONST_HISTORY_LOG"; then
+  echoInfo "add history log"
   addHistoryLog "$COMMON_CONST_PROJECT_ACTION_BUILD" "$VAR_SCRIPT_START" "$VAR_SCRIPT_STOP" "$VAR_SCRIPT_RESULT" "$VAR_SRC_TAR_FILE_PATH" "$VAR_BIN_TAR_FILE_PATH" "$VAR_LOG_TAR_FILE_PATH"
   checkRetValOK
 fi

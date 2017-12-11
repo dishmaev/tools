@@ -46,6 +46,7 @@ addHistoryLog(){
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
     echoWarning "history file $VAR_FILE_PATH not found"
   fi
+  return $COMMON_CONST_EXIT_SUCCESS
 }
 #$1 vm ip, $2 vm ssh port, $3 VAR_REMOTE_SCRIPT_FILE_NAME, $4 $VAR_LOG_TAR_FILE_PATH
 packLogFiles(){
