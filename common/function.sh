@@ -22,7 +22,7 @@ addHistoryLog(){
   if isTrue "$4"; then VAR_RESULT='ok'; fi
   VAR_START_STRING=$(getTimeAsString "$2")
   VAR_STOP_STRING=$(getTimeAsString "$3")
-  VAR_FILE_NAME=${ENV_PROJECT_NAME}_${1}_($VAR_START_STRING - $VAR_STOP_STRING)_${VAR_RESULT}.tar.gz
+  VAR_FILE_NAME=${ENV_PROJECT_NAME}_${1}_\($VAR_START_STRING - $VAR_STOP_STRING\)_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$COMMON_CONST_LOCAL_HISTORY_PATH/$VAR_FILE_PATH
   if ! isEmpty "$5"; then
     if isFileExistAndRead "$5"; then
