@@ -6,7 +6,6 @@ targetDescription "Build and deploy of project $ENV_PROJECT_NAME"
 
 ##private consts
 CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
-#CONST_PROJECT_ACTION='build'
 
 ##private vars
 PRM_SUITES_POOL='' #suite pool

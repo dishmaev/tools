@@ -11,6 +11,15 @@ VAR_TARGET_DESCRIPTION='' #target description
 VAR_COMMAND_VALUE='' #value of commands
 VAR_START_TIME='' #start execution script
 
+#$1 vm ip, $2 vm ssh port, $3 VAR_REMOTE_SCRIPT_FILE_NAME, $4 $VAR_LOG_TAR_FILE_PATH
+packLogFiles(){
+  checkParmsCount $# 4 'packLogFiles'
+  local VAR_LOG_TAR_FILE_NAME=''
+  VAR_LOG_TAR_FILE_NAME=$(getFileNameFromUrlString "$4") || exitChildError "$VAR_LOG_TAR_FILE_PATH"
+  $SSH_CLIENT -p $2 $1 "tar -cvf $VAR_LOG_TAR_FILE_NAME --exclude='*.sh' ${3}*.*"
+  $SCP_CLIENT -P $2 ${1}:$VAR_LOG_TAR_FILE_NAME $3
+  return $COMMON_CONST_EXIT_SUCCESS
+}
 #$1 vm types pool
 getAvailableVMType(){
   checkParmsCount $# 1 'getAvailableVMType'
@@ -122,6 +131,18 @@ getCharCountString(){
     echo -n $1
   done
 }
+
+getTime(){
+  checkParmsCount $# 0 'getTime'
+  echo "$(date +%Y%t%m%t%d%t%H%t%M%t%S)"
+}
+#$1 time with tab delimiter
+getTimeAsString(){
+  checkParmsCount $# 1 'getTimeAsString'
+  local VAR_RESULT=''
+  VAR_RESULT=$(echo $1 | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+  echo "$VAR_RESULT"
+}
 #$1 mh stop, $2 yy stop
 getMhDays(){
   checkParmsCount $# 2 'getMhDays'
@@ -136,13 +157,9 @@ getMhDays(){
   esac
   echo "$VAR_MH_STOP"
 }
-
-#$1 start time, $2 elapsed long version
+#$1 start time, $2 stop time
 getElapsedTime(){
   checkParmsCount $# 2 'getElapsedTime'
-  local VAR_END_TAB
-  local VAR_END
-  local VAR_START
   local VAR_ESPD
   local VAR_SS_START=0
   local VAR_SS_STOP=0
@@ -157,20 +174,18 @@ getElapsedTime(){
   local VAR_YY_START=0
   local VAR_YY_STOP=0
 
-  VAR_END_TAB="$(date +%Y%t%m%t%d%t%H%t%M%t%S)"
-
   VAR_SS_START=$(echo $1 | awk '{printf ("%d", $6)}')
-  VAR_SS_STOP=$(echo $VAR_END_TAB | awk '{printf ("%d", $6)}')
+  VAR_SS_STOP=$(echo $2 | awk '{printf ("%d", $6)}')
   VAR_MM_START=$(echo $1 | awk '{printf ("%d", $5)}')
-  VAR_MM_STOP=$(echo $VAR_END_TAB | awk '{printf ("%d", $5)}')
+  VAR_MM_STOP=$(echo $2 | awk '{printf ("%d", $5)}')
   VAR_HH_START=$(echo $1 | awk '{printf ("%d", $4)}')
-  VAR_HH_STOP=$(echo $VAR_END_TAB | awk '{printf ("%d", $4)}')
+  VAR_HH_STOP=$(echo $2 | awk '{printf ("%d", $4)}')
   VAR_DD_START=$(echo $1 | awk '{printf ("%d", $3)}')
-  VAR_DD_STOP=$(echo $VAR_END_TAB | awk '{printf ("%d", $3)}')
+  VAR_DD_STOP=$(echo $2 | awk '{printf ("%d", $3)}')
   VAR_MH_START=$(echo $1 | awk '{printf ("%d", $2)}')
-  VAR_MH_STOP=$(echo $VAR_END_TAB | awk '{printf ("%d", $2)}')
+  VAR_MH_STOP=$(echo $2 | awk '{printf ("%d", $2)}')
   VAR_YY_START=$(echo $1 | awk '{printf ("%d", $1)}')
-  VAR_YY_STOP=$(echo $VAR_END_TAB | awk '{printf ("%d", $1)}')
+  VAR_YY_STOP=$(echo $2 | awk '{printf ("%d", $1)}')
 
   if [ "${VAR_SS_STOP}" -lt "${VAR_SS_START}" ]; then VAR_SS_STOP=$((VAR_SS_STOP+60)); VAR_MM_STOP=$((VAR_MM_STOP-1)); fi
   if [ "${VAR_MM_STOP}" -lt "0" ]; then VAR_MM_STOP=$((VAR_MM_STOP+60)); VAR_HH_STOP=$((VAR_HH_STOP-1)); fi
@@ -184,18 +199,33 @@ getElapsedTime(){
   if [ "${VAR_MH_STOP}" -lt "0" ]; then VAR_MH_STOP=$((VAR_MH_STOP+12)); VAR_YY_STOP=$((VAR_YY_STOP-1)); fi
   if [ "${VAR_MH_STOP}" -lt "${VAR_MH_START}" ]; then VAR_MH_STOP=$((VAR_MH_STOP+12)); VAR_YY_STOP=$((VAR_YY_STOP-1)); fi
 
-  VAR_START=$(echo $1| sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
-  VAR_END=$(echo $VAR_END_TAB | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+  VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+  echoResult "$VAR_ESPD"
+}
 
-  if isTrue "$2"; then
-    VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
-  else
-    VAR_START=$(echo $VAR_START | awk '{print $2}')
-    VAR_END=$(echo $VAR_END | awk '{print $2}')
-    VAR_ESPD=$(printf "%02d:%02d:%02d" $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
+showElapsedTime(){
+  checkParmsCount $# 0 'showElapsedTime'
+  local VAR_START=''
+  local VAR_STOP=''
+  local VAR_ESPD=''
+  local VAR_STOP_TAB=''
+
+  if ! isEmpty "$VAR_START_TIME"; then
+    VAR_STOP_TAB="$(getTime)"
+
+    VAR_ESPD=$(getElapsedTime "$VAR_START_TIME" "$VAR_STOP_TAB") || exitChildError "$VAR_ESPD"
+
+    VAR_START=$(getTimeAsString "$VAR_START_TIME")
+    VAR_STOP=$(getTimeAsString "$VAR_STOP_TAB")
+
+    if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
+      VAR_START=$(echo $VAR_START | awk '{print $2}')
+      VAR_STOP=$(echo $VAR_STOP | awk '{print $2}')
+      VAR_ESPD=$(echo $VAR_ESPD | awk '{print $2}')
+    fi
+
+    echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_STOP"
   fi
-
-  echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_END"
 }
 #$1 VMID, $2 snapshotName, $3 snapshotId
 getChildSnapshotsPoolVb(){
@@ -929,7 +959,7 @@ exitOK(){
     echo $1
   fi
   if ! isEmpty "$VAR_START_TIME"; then
-    getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
+    showElapsedTime
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
     fi
@@ -943,9 +973,7 @@ exitError(){
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       getTrace
     fi
-    if ! isEmpty "$VAR_START_TIME"; then
-      getElapsedTime "$VAR_START_TIME" "$COMMON_CONST_FALSE"
-    fi
+    showElapsedTime
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
     fi
@@ -1063,9 +1091,12 @@ startPrompt(){
       exitOK 'Good bye!'
     fi
   fi
-  VAR_START_TIME=$(date +%Y%t%m%t%d%t%H%t%M%t%S)
+  VAR_START_TIME="$(getTime)"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    VAR_TIME_STRING=$(echo $VAR_START_TIME | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2' | awk '{print $2}')
+    VAR_TIME_STRING=$(echo $VAR_START_TIME | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+    if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
+      VAR_TIME_STRING=$(echo $VAR_TIME_STRING | awk '{print $2}')
+    fi
     echo "Start session [$$] at $VAR_TIME_STRING"
   fi
 }

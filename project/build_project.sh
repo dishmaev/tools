@@ -6,7 +6,6 @@ targetDescription "Build of project $ENV_PROJECT_NAME"
 
 ##private consts
 CONST_SUITES_POOL="$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_TEST_SUITE $COMMON_CONST_RELEASE_SUITE"
-CONST_PROJECT_ACTION='build'
 CONST_MAKE_OUTPUT=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
 
 ##private vars
@@ -28,6 +27,8 @@ VAR_SRC_TAR_FILE_NAME='' #source archive file name
 VAR_SRC_TAR_FILE_PATH='' #source archive file name with local path
 VAR_BIN_TAR_FILE_NAME='' #binary archive file name
 VAR_BIN_TAR_FILE_PATH='' #binary archive file name with local path
+VAR_LOG_TAR_FILE_NAME='' #log archive file name
+VAR_LOG_TAR_FILE_PATH='' #log archive file name with local path
 VAR_VM_PORT='' #$COMMON_CONST_VAGRANT_IP_ADDRESS port address for access to vbox vm by ssh
 VAR_LOG='' #log execute script
 
@@ -68,6 +69,7 @@ startPrompt
 
 #$1 $VAR_BIN_TAR_FILE_PATH, $2 $VAR_VM_TEMPLATE, $3 $PRM_SUITE
 addToDistribRepotory(){
+  checkParmsCount $# 3 'addToDistribRepotory'
   local VAR_RESULT=''
   local VAR_TMP_DIR_PATH='' #temporary directory name
   local VAR_PACKAGE_EXT='' #extention package
@@ -93,6 +95,7 @@ addToDistribRepotory(){
 
 #$1 $PRM_VERSION, $2 $VAR_SRC_TAR_FILE_PATH
 packSourceFiles(){
+  checkParmsCount $# 2 'packSourceFiles'
   local VAR_TMP_DIR_PATH='' #temporary directory name
   local VAR_CUR_DIR_PATH='' #current directory name
   if [ "$1" = "$COMMON_CONST_REMOTE_DEVELOP_HEAD" ]; then
@@ -137,30 +140,33 @@ if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
   checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
 fi
 
-VAR_RESULT=$(getProjectVMForAction "$CONST_PROJECT_ACTION" "$COMMON_CONST_RUNNER_SUITE" "$PRM_VM_ROLE") || exitChildError "$VAR_RESULT"
+VAR_RESULT=$(getProjectVMForAction "$COMMON_CONST_PROJECT_ACTION_BUILD" "$COMMON_CONST_RUNNER_SUITE" "$PRM_VM_ROLE") || exitChildError "$VAR_RESULT"
 if isEmpty "$VAR_RESULT"; then
-  exitError "not available any VM for project action $CONST_PROJECT_ACTION suite $COMMON_CONST_RUNNER_SUITE role $PRM_VM_ROLE"
+  exitError "not available any VM for project action $COMMON_CONST_PROJECT_ACTION_BUILD suite $COMMON_CONST_RUNNER_SUITE role $PRM_VM_ROLE"
 fi
 VAR_VM_TYPE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
 VAR_VM_TEMPLATE=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
 VAR_VM_NAME=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $3}') || exitChildError "$VAR_VM_NAME"
 
-VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_${CONST_PROJECT_ACTION}
+VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${PRM_VM_ROLE}_${COMMON_CONST_PROJECT_ACTION_BUILD}
 VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
 if [ "$PRM_VM_ROLE" != "$COMMON_CONST_DEFAULT_VM_ROLE" ] && ! isFileExistAndRead "$VAR_SCRIPT_FILE_PATH"; then
-  VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${COMMON_CONST_DEFAULT_VM_ROLE}_${CONST_PROJECT_ACTION}
+  VAR_SCRIPT_FILE_NAME=${VAR_VM_TEMPLATE}_${COMMON_CONST_DEFAULT_VM_ROLE}_${COMMON_CONST_PROJECT_ACTION_BUILD}
   VAR_SCRIPT_FILE_PATH=$ENV_PROJECT_TRIGGER_PATH/${VAR_SCRIPT_FILE_NAME}.sh
   echoWarning "trigger script for role $PRM_VM_ROLE not found, try to use script for role $COMMON_CONST_DEFAULT_VM_ROLE"
 fi
 checkRequiredFiles "$VAR_SCRIPT_FILE_PATH"
 
-#add package file name extention
-VAR_SRC_TAR_FILE_NAME=${CONST_MAKE_OUTPUT}-${PRM_SUITE}-${PRM_VM_ROLE}-src.tar.gz
+VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
+
+VAR_SRC_TAR_FILE_NAME=${CONST_MAKE_OUTPUT}_${PRM_SUITE}_${PRM_VM_ROLE}_src.tar.gz
 VAR_SRC_TAR_FILE_PATH=$COMMON_CONST_LOCAL_BUILDS_PATH/$VAR_SRC_TAR_FILE_NAME
-VAR_BIN_TAR_FILE_NAME=${CONST_MAKE_OUTPUT}-${PRM_SUITE}-${PRM_VM_ROLE}-bin.tar.gz
+VAR_BIN_TAR_FILE_NAME=${CONST_MAKE_OUTPUT}_${PRM_SUITE}_${PRM_VM_ROLE}_bin.tar.gz
 VAR_BIN_TAR_FILE_PATH=$COMMON_CONST_LOCAL_BUILDS_PATH/$VAR_BIN_TAR_FILE_NAME
+VAR_LOG_TAR_FILE_NAME=${CONST_MAKE_OUTPUT}_${PRM_SUITE}_${PRM_VM_ROLE}_log.tar.gz
+VAR_LOG_TAR_FILE_PATH=$COMMON_CONST_LOCAL_BUILDS_PATH/$VAR_LOG_TAR_FILE_NAME
 #remove old files
-rm -f "$VAR_SRC_TAR_FILE_PATH" "$VAR_BIN_TAR_FILE_PATH"
+rm -f "$VAR_SRC_TAR_FILE_PATH" "$VAR_BIN_TAR_FILE_PATH" "$VAR_LOG_TAR_FILE_PATH"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
@@ -179,13 +185,15 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   $SCP_CLIENT $VAR_SRC_TAR_FILE_PATH $VAR_VM_IP:$VAR_SRC_TAR_FILE_NAME
   #copy create script on vm
-  VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT $VAR_SCRIPT_FILE_PATH $VAR_VM_IP:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   checkRetValOK
   #exec trigger script
   echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   VAR_RESULT=$($SSH_CLIENT $VAR_VM_IP "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $CONST_MAKE_OUTPUT $VAR_BIN_TAR_FILE_NAME; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+  packLogFiles "$VAR_VM_IP" "$COMMON_CONST_DEFAULT_SSH_PORT" "$VAR_REMOTE_SCRIPT_FILE_NAME" "$VAR_LOG_TAR_FILE_PATH"
+  checkRetValOK
+
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     VAR_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echoInfo "stdout\n$VAR_LOG"; fi
@@ -194,6 +202,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
   VAR_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst; fi") || exitChildError "$VAR_LOG"
   if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
+
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   else
@@ -223,13 +232,15 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
   VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
   $SCP_CLIENT -P $VAR_VM_PORT $VAR_SRC_TAR_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_SRC_TAR_FILE_NAME
   #copy create script on vm
-  VAR_REMOTE_SCRIPT_FILE_NAME=${ENV_PROJECT_NAME}_$VAR_SCRIPT_FILE_NAME
   $SCP_CLIENT -P $VAR_VM_PORT $VAR_SCRIPT_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:${VAR_REMOTE_SCRIPT_FILE_NAME}.sh
   checkRetValOK
   #exec trigger script
   echoInfo "start ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh executing on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   VAR_RESULT=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "chmod u+x ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh;./${VAR_REMOTE_SCRIPT_FILE_NAME}.sh $VAR_REMOTE_SCRIPT_FILE_NAME $PRM_SUITE $CONST_MAKE_OUTPUT $VAR_BIN_TAR_FILE_NAME; \
 if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok; else echo $COMMON_CONST_FALSE; fi") || exitChildError "$VAR_RESULT"
+  packLogFiles "$COMMON_CONST_VAGRANT_IP_ADDRESS" "$VAR_VM_PORT" "$VAR_REMOTE_SCRIPT_FILE_NAME" "$VAR_LOG_TAR_FILE_PATH"
+  checkRetValOK
+
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
     VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$VAR_LOG"
     if ! isEmpty "$VAR_LOG"; then echoInfo "stdout\n$VAR_LOG"; fi
@@ -238,6 +249,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
   VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst; fi") || exitChildError "$VAR_LOG"
   if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
+
   if ! isTrue "$VAR_RESULT"; then
     exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   else
