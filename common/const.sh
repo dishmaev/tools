@@ -30,6 +30,15 @@ readonly COMMON_CONST_DEFAULT_VM_ROLE='main' # default version name
 readonly COMMON_CONST_DEFAULT_VM_NAME='autogen' # default vm name
 readonly COMMON_CONST_DATA_CFG_SEPARATOR='::' #default separator for data config files
 readonly COMMON_CONST_SHOW_DEBUG="$COMMON_CONST_TRUE" #if true, show log details with error trace
+readonly COMMON_CONST_LOCAL_HEAD='localHEAD' # HEAD of current branch on local git repository
+readonly COMMON_CONST_REMOTE_DEVELOP_HEAD='remoteHEAD' # HEAD of develop branch on remote git repository
+
+#package
+readonly COMMON_CONST_PACKAGE_LINUX_APT=package-apt.bash
+readonly COMMON_CONST_PACKAGE_LINUX_RPM=package-rpm.bash
+readonly COMMON_CONST_PACKAGE_SPEC=package-spec.cfg
+#package fields
+readonly COMMON_CONST_FIELD_SPEC_VERSION=CONST_PACKAGE_VERSION
 
 #incorp infrastructure
 readonly COMMON_CONST_INCORP_MAILSERVER_HOST='mail'

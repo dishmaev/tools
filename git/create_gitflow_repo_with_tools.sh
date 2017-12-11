@@ -62,6 +62,18 @@ checkRetValOK
 doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Add tools submodule'
+if ! isFileExistAndRead "$COMMON_CONST_PACKAGE_LINUX_APT"; then
+  cp $ENV_SCRIPT_DIR_NAME/$COMMON_CONST_PACKAGE_LINUX_APT .
+  checkRetValOK
+fi
+if ! isFileExistAndRead "$COMMON_CONST_PACKAGE_LINUX_RPM"; then
+  cp $ENV_SCRIPT_DIR_NAME/$COMMON_CONST_PACKAGE_LINUX_RPM .
+  checkRetValOK
+fi
+if ! isFileExistAndRead "$COMMON_CONST_PACKAGE_SPEC"; then
+  cp $ENV_SCRIPT_DIR_NAME/$COMMON_CONST_PACKAGE_SPEC .
+  checkRetValOK
+fi
 #add tools submodule
 mkdir tools
 checkRetValOK

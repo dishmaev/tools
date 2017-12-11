@@ -37,15 +37,15 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 4 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [version=$COMMON_CONST_DEFAULT_VERSION] [addToDistribRepository=$COMMON_CONST_FALSE]' \
-"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_DEFAULT_VERSION $COMMON_CONST_FALSE" \
-"Version $COMMON_CONST_DEFAULT_VERSION is HEAD of develop branch, otherwise is tag or branch name. Available suites: $CONST_SUITES_POOL. Distrib repository: $ENV_DISTRIB_REPO"
+echoHelp $# 4 '[suite=$COMMON_CONST_DEVELOP_SUITE] [vmRole=$COMMON_CONST_DEFAULT_VM_ROLE] [version=$COMMON_CONST_LOCAL_HEAD | $COMMON_CONST_REMOTE_DEVELOP_HEAD | tag/branch ] [addToDistribRepository=$COMMON_CONST_FALSE]' \
+"$COMMON_CONST_DEVELOP_SUITE $COMMON_CONST_DEFAULT_VM_ROLE $COMMON_CONST_LOCAL_HEAD $COMMON_CONST_FALSE" \
+"Version $COMMON_CONST_LOCAL_HEAD is HEAD of current branch on local git repository, version $COMMON_CONST_REMOTE_DEVELOP_HEAD is HEAD of develop branch on remote git repository, otherwise is tag or branch name. Available suites: $CONST_SUITES_POOL. Distrib repository: $ENV_DISTRIB_REPO"
 
 ###check commands
 
 PRM_SUITE=${1:-$COMMON_CONST_DEVELOP_SUITE}
 PRM_VM_ROLE=${2:-$COMMON_CONST_DEFAULT_VM_ROLE}
-PRM_VERSION=${3:-$COMMON_CONST_DEFAULT_VERSION}
+PRM_VERSION=${3:-$COMMON_CONST_LOCAL_HEAD}
 PRM_ADD_TO_DISTRIB_REPOSITORY=${4:-$COMMON_CONST_FALSE}
 
 checkCommandExist 'suite' "$PRM_SUITE" "$CONST_SUITES_POOL"
@@ -95,10 +95,17 @@ addToDistribRepotory(){
 packSourceFiles(){
   local VAR_TMP_DIR_PATH='' #temporary directory name
   local VAR_CUR_DIR_PATH='' #current directory name
-  VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
-  if [ "$1" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
+  if [ "$1" = "$COMMON_CONST_REMOTE_DEVELOP_HEAD" ]; then
+    VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
     git clone -b develop $ENV_PROJECT_REPO $VAR_TMP_DIR_PATH
+  elif [ "$1" = "$COMMON_CONST_LOCAL_HEAD" ]; then
+    if isTrue "$ENV_SUBMODULE_MODE"; then
+      VAR_TMP_DIR_PATH=$(cd $ENV_ROOT_DIR/../..; pwd)
+    else
+      VAR_TMP_DIR_PATH=$ENV_ROOT_DIR
+    fi
   else
+    VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
     git clone -b $1 $ENV_PROJECT_REPO $VAR_TMP_DIR_PATH
   fi
   checkRetValOK
@@ -111,8 +118,10 @@ packSourceFiles(){
   #remote temporary directory
   cd $VAR_CUR_DIR_PATH
   checkRetValOK
-  rm -fR $VAR_TMP_DIR_PATH
-  checkRetValOK
+  if [ "$1" != "$COMMON_CONST_LOCAL_HEAD" ]; then
+    rm -fR $VAR_TMP_DIR_PATH
+    checkRetValOK
+  fi
   return $COMMON_CONST_EXIT_SUCCESS
 }
 
