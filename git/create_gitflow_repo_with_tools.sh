@@ -63,15 +63,21 @@ doneStage
 #new stage
 beginStage $CONST_STAGE_COUNT 'Add tools submodule'
 if ! isFileExistAndRead "$COMMON_CONST_PACKAGE_LINUX_APT"; then
-  cp $ENV_SCRIPT_DIR_NAME/$COMMON_CONST_PACKAGE_LINUX_APT .
+  cp $ENV_ROOT_DIR/git/$COMMON_CONST_PACKAGE_LINUX_APT .
+  checkRetValOK
+  git add $COMMON_CONST_PACKAGE_LINUX_APT
   checkRetValOK
 fi
 if ! isFileExistAndRead "$COMMON_CONST_PACKAGE_LINUX_RPM"; then
-  cp $ENV_SCRIPT_DIR_NAME/$COMMON_CONST_PACKAGE_LINUX_RPM .
+  cp $ENV_ROOT_DIR/git/$COMMON_CONST_PACKAGE_LINUX_RPM .
+  checkRetValOK
+  git add $COMMON_CONST_PACKAGE_LINUX_RPM
   checkRetValOK
 fi
 if ! isFileExistAndRead "$COMMON_CONST_PACKAGE_SPEC"; then
-  cp $ENV_SCRIPT_DIR_NAME/$COMMON_CONST_PACKAGE_SPEC .
+  cp $ENV_ROOT_DIR/git/$COMMON_CONST_PACKAGE_SPEC .
+  checkRetValOK
+  git add $COMMON_CONST_PACKAGE_SPEC
   checkRetValOK
 fi
 #add tools submodule
