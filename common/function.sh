@@ -17,7 +17,7 @@ packLogFiles(){
   local VAR_LOG_TAR_FILE_NAME=''
   VAR_LOG_TAR_FILE_NAME=$(getFileNameFromUrlString "$4") || exitChildError "$VAR_LOG_TAR_FILE_PATH"
   $SSH_CLIENT -p $2 $1 "tar -cvf $VAR_LOG_TAR_FILE_NAME --exclude='*.sh' ${3}*.*"
-  $SCP_CLIENT -P $2 ${1}:$VAR_LOG_TAR_FILE_NAME $3
+  $SCP_CLIENT -P $2 ${1}:$VAR_LOG_TAR_FILE_NAME $4
   return $COMMON_CONST_EXIT_SUCCESS
 }
 #$1 vm types pool
