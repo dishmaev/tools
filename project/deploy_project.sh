@@ -109,6 +109,7 @@ if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   #copy build file on vm
   VAR_VM_IP=$(getIpAddressByVMNameEx "$VAR_VM_NAME" "$VAR_HOST" "$COMMON_CONST_FALSE") || exitChildError "$VAR_VM_IP"
   VAR_BIN_TAR_FILE_NAME=$(getFileNameFromUrlString "$VAR_BIN_TAR_FILE_PATH") || exitChildError "$VAR_BIN_TAR_FILE_NAME"
+  echoInfo "put build file $VAR_BIN_TAR_FILE_PATH on VM $VAR_VM_NAME ip $VAR_VM_IP"
   $SCP_CLIENT $VAR_BIN_TAR_FILE_PATH $VAR_VM_IP:$VAR_BIN_TAR_FILE_NAME
   checkRetValOK
   #copy create script on vm
@@ -131,7 +132,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
 
   if ! isTrue "$VAR_RESULT"; then
-    exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
+    exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host, details in $VAR_LOG_TAR_FILE_PATH"
   else
     echoInfo "finish execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $VAR_VM_IP on $VAR_HOST host"
   fi
@@ -147,6 +148,7 @@ elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
   #copy build file on vm
   VAR_VM_PORT=$(getPortAddressByVMNameVb "$VAR_VM_NAME") || exitChildError "$VAR_VM_PORT"
   VAR_BIN_TAR_FILE_NAME=$(getFileNameFromUrlString "$VAR_BIN_TAR_FILE_PATH") || exitChildError "$VAR_BIN_TAR_FILE_NAME"
+  echoInfo "put build file $VAR_BIN_TAR_FILE_PATH on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   $SCP_CLIENT -P $VAR_VM_PORT $VAR_BIN_TAR_FILE_PATH $COMMON_CONST_VAGRANT_IP_ADDRESS:$VAR_BIN_TAR_FILE_NAME
   checkRetValOK
   #copy create script on vm
@@ -169,7 +171,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
   if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
 
   if ! isTrue "$VAR_RESULT"; then
-    exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
+    exitError "failed execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT, details in $VAR_LOG_TAR_FILE_PATH"
   else
     echoInfo "finish execute ${VAR_REMOTE_SCRIPT_FILE_NAME}.sh on VM $VAR_VM_NAME ip $COMMON_CONST_VAGRANT_IP_ADDRESS port $VAR_VM_PORT"
   fi
