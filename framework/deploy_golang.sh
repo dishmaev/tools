@@ -88,7 +88,7 @@ else
     if isLinuxOS; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       checkRetValOK
-      if ! isDirectoryExist "\$HOME/go${PRM_VERSION}"
+      if ! isDirectoryExist "\$HOME/go${PRM_VERSION}"; then
         mkdir "${HOME}/go${PRM_VERSION}"
         tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
         checkRetValOK
