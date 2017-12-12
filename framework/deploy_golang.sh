@@ -102,7 +102,9 @@ else
       checkRetValOK
       export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/go/bin
       checkRetValOK
-      source $HOME/.bashrc
+      if isCommandExist "source"; then
+        source "$HOME/.bashrc"
+      fi
       checkRetValOK
     fi
   elif isMacOS; then
