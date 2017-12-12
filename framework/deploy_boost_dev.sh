@@ -67,8 +67,10 @@ else
   VAR_FILE_URL=$(echo "$CONST_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
-  wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-  checkRetValOK
+  if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
+    wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+    checkRetValOK
+  fi
   echoWarning "TO-DO custom version install, downgrade or make from sources"
 fi
 

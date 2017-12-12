@@ -54,7 +54,7 @@ if isCommandExist 'atom'; then
   echoInfo "already deployed"
   atom --version
   checkRetValOK
-  
+
   doneFinalStage
   exitOK
 fi
@@ -86,6 +86,10 @@ fi
 apm install atom-ide-ui
 checkRetValOK
 apm install ide-java
+checkRetValOK
+apm install go-plus
+checkRetValOK
+apm install go-debug
 checkRetValOK
 apm install git-plus
 checkRetValOK
