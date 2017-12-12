@@ -99,11 +99,11 @@ else
       checkRetValOK
     fi
   fi
-  if isLinuxOS; then
-    if ! isDirectoryExist "$HOME/go${PRM_VERSION}"; then
-      mkdir "${HOME}/go${PRM_VERSION}"
-      tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
-      checkRetValOK
+  if ! isDirectoryExist "$HOME/go${PRM_VERSION}"; then
+    mkdir "${HOME}/go${PRM_VERSION}"
+    tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
+    checkRetValOK
+    if isLinuxOS; then
       echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
       echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
       checkRetValOK
@@ -115,13 +115,18 @@ else
         source "$HOME/.bashrc"
         checkRetValOK
       fi
-      if ! isDirectoryExist "$HOME/go"; then
-        mkdir "$HOME/go"
-      fi
+    elif isMacOS; then
+      echo -n "$CONST_GOPATH/bin" | sudo tee /etc/paths.d/go
       checkRetValOK
+      source /etc/paths.d/go
+      checkRetValOK
+
+#    sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
+#    checkRetValOK
     fi
-  elif isMacOS; then
-    sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
+  fi
+  if ! isDirectoryExist "$HOME/go"; then
+    mkdir "$HOME/go"
     checkRetValOK
   fi
 fi
