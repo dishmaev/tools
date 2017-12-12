@@ -121,7 +121,8 @@ else
       checkRetValOK
     fi
   elif isMacOS; then
-    echoWarning "TO-DO custom version install for MacOS"
+    sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
+    checkRetValOK
   fi
 fi
 
