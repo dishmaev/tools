@@ -6,7 +6,7 @@ targetDescription 'Deploy Golang packages on the local OS'
 
 ##private consts
 readonly CONST_FILE_LINUX_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
-readonly CONST_FILE_MACOS_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
+#readonly CONST_FILE_MACOS_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
 readonly CONST_GOPATH="$HOME/go"
 readonly CONST_MACOS_VERSION='1.9.2'
 
@@ -69,7 +69,8 @@ if isLinuxOS; then
     exitError "unknown Linux based package system"
   fi
 elif isMacOS; then
-  VAR_FILE_URL="$CONST_FILE_MACOS_URL"
+  VAR_FILE_URL="$CONST_FILE_LINUX_URL"
+#  VAR_FILE_URL="$CONST_FILE_MACOS_URL"
 else
   exitError 'not supported OS'
 fi
