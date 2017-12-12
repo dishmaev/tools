@@ -6,7 +6,7 @@ targetDescription 'Deploy Golang packages on the local OS'
 
 ##private consts
 readonly CONST_FILE_LINUX_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
-#readonly CONST_FILE_MACOS_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
+readonly CONST_FILE_MACOS_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
 readonly CONST_GOPATH="$HOME/go"
 readonly CONST_MACOS_VERSION='1.9.2'
 
@@ -69,8 +69,7 @@ if isLinuxOS; then
     exitError "unknown Linux based package system"
   fi
 elif isMacOS; then
-  VAR_FILE_URL="$CONST_FILE_LINUX_URL"
-#  VAR_FILE_URL="$CONST_FILE_MACOS_URL"
+  VAR_FILE_URL="$CONST_FILE_MACOS_URL"
 else
   exitError 'not supported OS'
 fi
@@ -100,39 +99,36 @@ else
       checkRetValOK
     fi
   fi
-  if ! isDirectoryExist "$HOME/go${PRM_VERSION}"; then
+  if isLinuxOS; then
     mkdir "${HOME}/go${PRM_VERSION}"
     tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
     checkRetValOK
-    if isLinuxOS; then
-      echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+    echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+    checkRetValOK
+    echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+    checkRetValOK
+    export PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
+    checkRetValOK
+    export GOBIN=$CONST_GOPATH/bin
+    checkRetValOK
+    if isCommandExist "source"; then
+      source "$HOME/.bashrc"
       checkRetValOK
-      echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+    fi
+  elif isMacOS; then
+    sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
+    checkRetValOK
+    echo "export PATH=$PATH:$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
+    checkRetValOK
+    echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
+    checkRetValOK
+    PATH=$PATH:$CONST_GOPATH/bin
+    checkRetValOK
+    GOBIN=$CONST_GOPATH/bin
+    checkRetValOK
+    if isCommandExist "source"; then
+      source "$HOME/.bash_profile"
       checkRetValOK
-      export PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
-      checkRetValOK
-      export GOBIN=$CONST_GOPATH/bin
-      checkRetValOK
-      if isCommandExist "source"; then
-        source "$HOME/.bashrc"
-        checkRetValOK
-      fi
-    elif isMacOS; then
-      echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
-      checkRetValOK
-      echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
-      checkRetValOK
-      PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
-      checkRetValOK
-      GOBIN=$CONST_GOPATH/bin
-      checkRetValOK
-      if isCommandExist "source"; then
-        source "$HOME/.bash_profile"
-        checkRetValOK
-      fi
-
-#    sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
-#    checkRetValOK
     fi
   fi
   if ! isDirectoryExist "$HOME/go"; then
