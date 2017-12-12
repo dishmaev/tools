@@ -110,5 +110,8 @@ else
   fi
 fi
 
+go version
+checkRetValOK
+
 doneFinalStage
 exitOK

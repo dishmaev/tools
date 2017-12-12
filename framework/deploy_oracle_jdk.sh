@@ -57,6 +57,7 @@ if isCommandExist 'java'; then
   if [ "$?" = "0" ]; then
     echoInfo "already deployed"
     java -version
+    checkRetValOK
     doneFinalStage
     exitOK
   fi
@@ -92,6 +93,9 @@ elif isRPMLinux "$VAR_LINUX_BASED"; then
   sudo yum -y install $VAR_ORIG_FILE_PATH
   checkRetValOK
 fi
+
+java -version
+checkRetValOK
 
 doneFinalStage
 exitOK
