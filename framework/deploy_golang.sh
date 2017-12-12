@@ -95,7 +95,7 @@ else
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       checkRetValOK
     elif isMacOS; then
-      curl -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+      curl $VAR_FILE_URL -o "$VAR_ORIG_FILE_PATH"
       checkRetValOK
     fi
   fi
