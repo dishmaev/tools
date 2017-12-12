@@ -88,12 +88,21 @@ else
     if isLinuxOS; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       checkRetValOK
+      if ! isDirectoryExist "\$HOME/go${PRM_VERSION}"
+        mkdir "${HOME}/go${PRM_VERSION}"
+        tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
+        checkRetValOK
+        echo "export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/bin" | tee -a "$HOME/.bashrc"
+        checkRetValOK
+        export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/bin
+        checkRetValOK
+      fi
     elif isMacOS; then
       curl -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       checkRetValOK
+      echoWarning "TO-DO custom version install for MacOS"
     fi
   fi
-  echoWarning "TO-DO custom version install"
 fi
 
 doneFinalStage
