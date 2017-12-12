@@ -8,6 +8,7 @@ targetDescription 'Deploy Golang packages on the local OS'
 readonly CONST_FILE_LINUX_URL='https://redirector.gvt1.com/edgedl/go/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
 readonly CONST_FILE_MACOS_URL='https://redirector.gvt1.com/edgedl/go/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
 readonly CONST_GOPATH="$HOME/go"
+readonly CONST_MACOS_VERSION='1.9.2'
 
 ##private vars
 PRM_VERSION='' #lib version
@@ -28,6 +29,10 @@ echoHelp $# 1 '[version=$COMMON_CONST_DEFAULT_VERSION]' \
 PRM_VERSION=${1:-$COMMON_CONST_DEFAULT_VERSION}
 
 checkCommandExist 'version' "$PRM_VERSION" ''
+
+if isMacOS && [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
+  PRM_VERSION=$CONST_MACOS_VERSION
+fi
 
 ###check body dependencies
 
