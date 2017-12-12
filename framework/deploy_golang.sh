@@ -28,11 +28,11 @@ echoHelp $# 1 '[version=$COMMON_CONST_DEFAULT_VERSION]' \
 
 PRM_VERSION=${1:-$COMMON_CONST_DEFAULT_VERSION}
 
-checkCommandExist 'version' "$PRM_VERSION" ''
-
 if isMacOS && [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   PRM_VERSION=$CONST_MACOS_VERSION
 fi
+
+checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
