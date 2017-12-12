@@ -5,8 +5,8 @@
 targetDescription 'Deploy Golang packages on the local OS'
 
 ##private consts
-readonly CONST_FILE_LINUX_URL='https://redirector.gvt1.com/edgedl/go/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
-readonly CONST_FILE_MACOS_URL='https://redirector.gvt1.com/edgedl/go/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
+readonly CONST_FILE_LINUX_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
+readonly CONST_FILE_MACOS_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
 readonly CONST_GOPATH="$HOME/go"
 readonly CONST_MACOS_VERSION='1.9.2'
 
