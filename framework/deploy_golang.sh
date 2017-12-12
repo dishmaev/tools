@@ -106,7 +106,7 @@ else
         source "$HOME/.bashrc"
         checkRetValOK
       fi
-      if ! isDirectoryExist "$HOME/go"
+      if ! isDirectoryExist "$HOME/go"; then
         mkdir "$HOME/go"
       fi
       checkRetValOK
