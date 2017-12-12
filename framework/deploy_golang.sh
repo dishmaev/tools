@@ -100,10 +100,14 @@ else
       checkRetValOK
       echo "export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/bin" | tee -a "$HOME/.bashrc"
       checkRetValOK
-      export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/go/bin
+      export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$HOME/go/bin
       checkRetValOK
       if isCommandExist "source"; then
         source "$HOME/.bashrc"
+        checkRetValOK
+      fi
+      if ! isDirectoryExist "$HOME/go"
+        mkdir "$HOME/go"
       fi
       checkRetValOK
     fi
