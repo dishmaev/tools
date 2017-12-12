@@ -104,9 +104,12 @@ else
       mkdir "${HOME}/go${PRM_VERSION}"
       tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
       checkRetValOK
-      echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin\nexport GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+      echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+      echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
       checkRetValOK
       export PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
+      checkRetValOK
+      export GOBIN=$CONST_GOPATH/bin
       checkRetValOK
       if isCommandExist "source"; then
         source "$HOME/.bashrc"
