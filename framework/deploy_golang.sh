@@ -7,6 +7,7 @@ targetDescription 'Deploy Golang packages on the local OS'
 ##private consts
 readonly CONST_FILE_LINUX_URL='https://redirector.gvt1.com/edgedl/go/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
 readonly CONST_FILE_MACOS_URL='https://redirector.gvt1.com/edgedl/go/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
+readonly CONST_GOPATH="$HOME/go"
 
 ##private vars
 PRM_VERSION='' #lib version
@@ -98,9 +99,9 @@ else
       mkdir "${HOME}/go${PRM_VERSION}"
       tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
       checkRetValOK
-      echo "export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$HOME/go/bin" | tee -a "$HOME/.bashrc"
+      echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin\nexport GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
       checkRetValOK
-      export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$HOME/go/bin
+      export PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
       checkRetValOK
       if isCommandExist "source"; then
         source "$HOME/.bashrc"
