@@ -105,6 +105,7 @@ else
     checkRetValOK
     if isLinuxOS; then
       echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+      checkRetValOK
       echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
       checkRetValOK
       export PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
@@ -116,10 +117,18 @@ else
         checkRetValOK
       fi
     elif isMacOS; then
-      echo -n "$CONST_GOPATH/bin" | sudo tee /etc/paths.d/go
+      echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
       checkRetValOK
-      source /etc/paths.d/go
+      echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
       checkRetValOK
+      PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
+      checkRetValOK
+      GOBIN=$CONST_GOPATH/bin
+      checkRetValOK
+      if isCommandExist "source"; then
+        source "$HOME/.bash_profile"
+        checkRetValOK
+      fi
 
 #    sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
 #    checkRetValOK
