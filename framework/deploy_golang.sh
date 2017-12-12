@@ -118,11 +118,11 @@ else
   elif isMacOS; then
     sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
     checkRetValOK
-    echo "export PATH=$PATH:$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
+    echo "export PATH=$PATH:/usr/local/go/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
     checkRetValOK
     echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
     checkRetValOK
-    PATH=$PATH:$CONST_GOPATH/bin
+    PATH=$PATH:/usr/local/go/bin:$CONST_GOPATH/bin
     checkRetValOK
     GOBIN=$CONST_GOPATH/bin
     checkRetValOK
