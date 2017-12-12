@@ -88,13 +88,15 @@ else
     if isLinuxOS; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       checkRetValOK
-      if ! isDirectoryExist "\$HOME/go${PRM_VERSION}"; then
+      if ! isDirectoryExist "$HOME/go${PRM_VERSION}"; then
         mkdir "${HOME}/go${PRM_VERSION}"
         tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
         checkRetValOK
         echo "export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/bin" | tee -a "$HOME/.bashrc"
         checkRetValOK
-        export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/bin
+        export PATH=$PATH:$HOME/go${PRM_VERSION}/bin:$GOPATH/go/bin
+        checkRetValOK
+        source $HOME/.bashrc
         checkRetValOK
       fi
     elif isMacOS; then
