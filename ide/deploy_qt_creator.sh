@@ -45,7 +45,7 @@ startPrompt
 if ! isLinuxOS; then exitError 'not supported OS'; fi
 
 VAR_VERSION=$(echo "$PRM_VERSION" | awk -F. '{print $1"."$2}') || exitChildError "$VAR_VERSION"
-VAR_FILE_URL=$(echo "$CONST_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#g;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
+VAR_FILE_URL=$(echo "$CONST_FILE_URL" | $SED -e "s#@PRM_VERSION@#$PRM_VERSION#g;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then

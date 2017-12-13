@@ -121,7 +121,7 @@ if ! isCommandExist 'vagrant'; then
 fi
 
 VAR_VBOX_VERSION=$(vboxmanage --version | awk -Fr '{print $1}')
-VAR_FILE_URL=$(echo "$CONST_VBOX_GUESTADD_URL" | sed -e "s#@PRM_VERSION@#$VAR_VBOX_VERSION#g") || exitChildError "$VAR_FILE_URL"
+VAR_FILE_URL=$(echo "$CONST_VBOX_GUESTADD_URL" | $SED -e "s#@PRM_VERSION@#$VAR_VBOX_VERSION#g") || exitChildError "$VAR_FILE_URL"
 VAR_DISC_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_DISC_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_DISC_FILE_NAME
 VAR_SCRIPT_FILE_PATH="$ENV_ROOT_DIR/vbox/template/$CONST_VBOX_GUESTADD_SCRIPT"
@@ -164,7 +164,7 @@ if isDirectoryExist "$VAR_TMP_DIR_PATH"; then
 fi
 mkdir -p "$VAR_TMP_DIR_PATH"
 checkRetValOK
-cat $VAR_VAGRANT_FILE_PATH | sed -e "s#@VAR_FILE_URL@#$VAR_FILE_URL#;s#@PRM_VM_TEMPLATE@#$PRM_VM_TEMPLATE#;s#@VAR_SCRIPT_FILE_PATH@#$VAR_SCRIPT_FILE_PATH#" > $VAR_TMP_DIR_PATH/$COMMON_CONST_VAGRANT_FILE_NAME
+cat $VAR_VAGRANT_FILE_PATH | $SED -e "s#@VAR_FILE_URL@#$VAR_FILE_URL#;s#@PRM_VM_TEMPLATE@#$PRM_VM_TEMPLATE#;s#@VAR_SCRIPT_FILE_PATH@#$VAR_SCRIPT_FILE_PATH#" > $VAR_TMP_DIR_PATH/$COMMON_CONST_VAGRANT_FILE_NAME
 checkRetValOK
 VAR_CUR_DIR_PATH=$PWD
 cd $VAR_TMP_DIR_PATH
@@ -178,7 +178,7 @@ VAR_VM_ID=$(getVMIDByVMNameVb "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VM_ID"
 #  ps -ef | grep -i "$VAR_VM_ID"
 pausePrompt "Pause 1 of 3: Check guest OS type, virtual hardware on template VM ${PRM_VM_TEMPLATE}. Typically for Linux without GUI: \
 vCPUs - $COMMON_CONST_DEFAULT_VCPU_COUNT, Memory - ${COMMON_CONST_DEFAULT_MEMORY_SIZE}MB, HDD - ${COMMON_CONST_DEFAULT_HDD_SIZE}G"
-VAR_CONTROLLER_NAME=$(vboxmanage showvminfo "$PRM_VM_TEMPLATE" | grep -i 'storage controller name' | sed -n 1p | awk -F: '{print $2}' | sed 's/^[ \t]*//') || exitChildError "$VAR_CONTROLLER_NAME"
+VAR_CONTROLLER_NAME=$(vboxmanage showvminfo "$PRM_VM_TEMPLATE" | grep -i 'storage controller name' | $SED -n 1p | awk -F: '{print $2}' | $SED 's/^[ \t]*//') || exitChildError "$VAR_CONTROLLER_NAME"
 if isEmpty "$VAR_CONTROLLER_NAME"; then exitError "storage controller VM ${PRM_VM_TEMPLATE} not found"; fi
 sleep $COMMON_CONST_SLEEP_LONG
 echoInfo "set VM $PRM_VM_TEMPLATE portcount=2 in storage controller '$VAR_CONTROLLER_NAME' for ISO image file with VirtualBox Guest Additions"

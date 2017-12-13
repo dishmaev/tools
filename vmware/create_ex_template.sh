@@ -278,7 +278,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
       wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
       checkRetValOK
     fi
-    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE$(echo $VAR_VM_TEMPLATE_VER | sed 's/[.-]//g').ova
+    VAR_TMP_FILE_NAME=$PRM_VM_TEMPLATE$(echo $VAR_VM_TEMPLATE_VER | $SED 's/[.-]//g').ova
     VAR_TMP_FILE_PATH=$COMMON_CONST_ESXI_IMAGES_PATH/$VAR_TMP_FILE_NAME
     #check exist base ova on esxi host in the images directory
     VAR_RESULT=$($SSH_CLIENT $PRM_ESXI_HOST "if [ -r '$VAR_TMP_FILE_PATH' ]; then echo $COMMON_CONST_TRUE; fi;") || exitChildError "$VAR_RESULT"
@@ -299,7 +299,7 @@ if ! isFileExistAndRead "$VAR_OVA_FILE_PATH"; then
         #add vm box file
         vagrant init $PRM_VM_TEMPLATE $VAR_ORIG_FILE_PATH
         checkRetValOK
-        sed -i Vagrantfile -e "/config.vm.box = \"$PRM_VM_TEMPLATE\"/ a\ \n\  config.vm.provider :virtualbox do |vb|\n    vb.name = \"$PRM_VM_TEMPLATE\"\n  end"
+        $SED -i Vagrantfile -e "/config.vm.box = \"$PRM_VM_TEMPLATE\"/ a\ \n\  config.vm.provider :virtualbox do |vb|\n    vb.name = \"$PRM_VM_TEMPLATE\"\n  end"
         checkRetValOK
         vagrant up
         checkRetValOK

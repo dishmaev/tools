@@ -63,8 +63,8 @@ if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
   fi
   checkRetValOK
 else
-  VAR_VERSION=$(echo "$PRM_VERSION" | sed 's/[.]/_/g') || exitChildError "$VAR_VERSION"
-  VAR_FILE_URL=$(echo "$CONST_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
+  VAR_VERSION=$(echo "$PRM_VERSION" | $SED 's/[.]/_/g') || exitChildError "$VAR_VERSION"
+  VAR_FILE_URL=$(echo "$CONST_FILE_URL" | $SED -e "s#@PRM_VERSION@#$PRM_VERSION#;s#@VAR_VERSION@#$VAR_VERSION#") || exitChildError "$VAR_FILE_URL"
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
   if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then

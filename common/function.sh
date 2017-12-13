@@ -194,7 +194,7 @@ getTime(){
 getTimeAsString(){
   checkParmsCount $# 1 'getTimeAsString'
   local VAR_RESULT=''
-  VAR_RESULT=$(echo $1 | sed 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
+  VAR_RESULT=$(echo $1 | $SED 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
   if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
     VAR_RESULT=$(echo $VAR_RESULT | awk '{print $2}')
   fi
@@ -287,11 +287,11 @@ getChildSnapshotsPoolVb(){
   local VAR_CUR_SSID=''
   local VAR_CUR_SSNAME=''
   local VAR_SS_LIST=''
-  VAR_CUR_SSNAME=$(vboxmanage snapshot ${1} list --machinereadable | grep ${3} | sed -n 1p | awk -F= '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
+  VAR_CUR_SSNAME=$(vboxmanage snapshot ${1} list --machinereadable | grep ${3} | $SED -n 1p | awk -F= '{print $1}') || exitChildError "$VAR_CUR_SSNAME"
   if isEmpty "$VAR_CUR_SSNAME"; then
     exitError "snapshot $2 ID $3 not found for VMID $1"
   fi
-  VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | sed 's/["]//g' | tac) || exitChildError "$VAR_CUR_SSNAME"
+  VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tac) || exitChildError "$VAR_CUR_SSNAME"
   for VAR_CUR_SSID in $VAR_SS_LIST; do
     VAR_RESULT="$VAR_RESULT $VAR_CUR_SSID"
   done
@@ -319,7 +319,7 @@ getChildSnapshotsPoolEx(){
     VAR_CUR_SSID=$(echo $VAR_CUR_STR | awk -F: '{print $2}') || exitChildError "$VAR_CUR_SSID"
     if [ "$2:$3" = "$VAR_CUR_SSNAME:$VAR_CUR_SSID" ]; then
       VAR_CUR_LEVEL=$(echo $VAR_CUR_STR | awk -F: '{print $3}') || exitChildError "$VAR_CUR_LEVEL"
-      VAR_SS_LIST2=$(echo "$VAR_SS_LIST" | sed -n '/'$VAR_CUR_SSNAME:$VAR_CUR_SSID:$VAR_CUR_LEVEL'/,$p' | sed 1d) || exitChildError "$VAR_SS_LIST2"
+      VAR_SS_LIST2=$(echo "$VAR_SS_LIST" | $SED -n '/'$VAR_CUR_SSNAME:$VAR_CUR_SSID:$VAR_CUR_LEVEL'/,$p' | $SED 1d) || exitChildError "$VAR_SS_LIST2"
       VAR_CUR_LEVEL=$((VAR_CUR_LEVEL+1)) || exitChildError "$VAR_CUR_LEVEL"
       for VAR_CUR_STR2 in $VAR_SS_LIST2; do
         VAR_CUR_LEVEL2=$(echo $VAR_CUR_STR2 | awk -F: '{print $3}') || exitChildError "$VAR_CUR_LEVEL2"
@@ -345,7 +345,7 @@ getChildSnapshotsPoolEx(){
 getVMSnapshotNameByIDVb(){
   checkParmsCount $# 2 'getVMSnapshotNameByIDVb'
   local VAR_RESULT=''
-  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | sed -n "/${2}/{g;1!p;};h" | sed -n 1p | awk -F= '{print $2}' | sed 's/["]//g') || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | $SED -n "/${2}/{g;1!p;};h" | $SED -n 1p | awk -F= '{print $2}' | $SED 's/["]//g') || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 snapshotID, $3 host
@@ -377,7 +377,7 @@ getVMSnapshotNameByIDEx(){
 getVMSnapshotIDByNameVb(){
   checkParmsCount $# 2 'getVMSnapshotIDByNameVb'
   local VAR_RESULT=''
-  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | sed -n "/${2}/,+1p" | sed -n 2p | awk -F= '{print $2}' | sed 's/["]//g') || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(vboxmanage snapshot ${1} list --machinereadable | $SED -n "/${2}/,+1p" | $SED -n 2p | awk -F= '{print $2}' | $SED 's/["]//g') || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 #$1 VMID, $2 snapshotName, $3 host
@@ -439,7 +439,7 @@ getAvailableVMTemplateVersions(){
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed 1d $FCONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($SED 1d $FCONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}'| awk '{ORS=FS} 1') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -464,7 +464,7 @@ getDefaultVMTemplateVersion(){
   fi
   for VAR_VM_TEMPLATE in $COMMON_CONST_VM_TEMPLATES_POOL; do
     if [ "$1" = "$VAR_VM_TEMPLATE" ]; then
-      VAR_RESULT=$(sed -n 2p $FCONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_RESULT"
+      VAR_RESULT=$($SED -n 2p $FCONST_FILE_PATH | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_RESULT"
       VAR_FOUND=$COMMON_CONST_TRUE
       break
     fi
@@ -480,7 +480,7 @@ getDefaultVMTemplateVersion(){
 #$1 path
 getParentDirectoryPath(){
   checkParmsCount $# 1 'getParentDirectoryPath'
-  echo $1 | rev | sed 's!/!:!' | rev | awk -F: '{print $1}'
+  echo $1 | rev | $SED 's!/!:!' | rev | awk -F: '{print $1}'
 }
 #$1 vm name
 powerOnVMVb()
@@ -669,9 +669,9 @@ getVmsPoolVb(){
   checkParmsCount $# 1 'getVmsPoolVb'
   local VAR_RESULT=''
   if [ "$1" = "$COMMON_CONST_ALL" ]; then
-    VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | sed 's/["{}]//g') || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | $SED 's/["{}]//g') || exitChildError "$VAR_RESULT"
   else
-    VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | grep "${1}-" | sed 's/["{}]//g') || exitChildError "$VAR_RESULT"
+    VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | grep "${1}-" | $SED 's/["{}]//g') || exitChildError "$VAR_RESULT"
   fi
   echo "$VAR_RESULT"
 }
@@ -703,7 +703,7 @@ awk '{print \$1\":\"\$2}' | grep ':'$1'-' | awk -F: '{print \$2\":$VAR_CUR_ESXI:
 getVMIDByVMNameVb() {
   checkParmsCount $# 1 'getVMIDByVMNameVb'
   local VAR_RESULT
-  VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | grep -e "\"${1}\":" | awk -F: '{print $2}' |  sed 's/[{}]//g') || exitChildError "$VAR_RESULT"
+  VAR_RESULT=$(vboxmanage list vms | awk '{print $1":"$2}' | grep -e "\"${1}\":" | awk -F: '{print $2}' |  $SED 's/[{}]//g') || exitChildError "$VAR_RESULT"
   echo "$VAR_RESULT"
 }
 #$1 vm name, $2 esxi host
@@ -1177,7 +1177,7 @@ getFileNameFromUrlString()
 getFileNameWithoutExt()
 {
   checkParmsCount $# 1 'getFileNameWithoutExt'
-  echo $1 | rev | sed 's/[.]/:/' | rev | awk -F: '{print $1}'
+  echo $1 | rev | $SED 's/[.]/:/' | rev | awk -F: '{print $1}'
 }
 #$1 parm count, $2 must be count, $3 function name
 checkParmsCount(){

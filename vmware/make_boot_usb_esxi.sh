@@ -98,7 +98,7 @@ sleep 3
 
 cp -r $VAR_TMP_ISO_DIR_NAME/* $VAR_TMP_USB_DIR_NAME/
 checkRetValOK
-cat $VAR_TMP_USB_DIR_NAME/isolinux.cfg | sed -e "s#APPEND -c boot.cfg#APPEND -c boot.cfg -p 1#" > $VAR_TMP_USB_DIR_NAME/syslinux.cfg
+cat $VAR_TMP_USB_DIR_NAME/isolinux.cfg | $SED -e "s#APPEND -c boot.cfg#APPEND -c boot.cfg -p 1#" > $VAR_TMP_USB_DIR_NAME/syslinux.cfg
 checkRetValOK
 rm $VAR_TMP_USB_DIR_NAME/isolinux.cfg
 checkRetValOK
