@@ -74,14 +74,20 @@ getAvailableVMType(){
   local VAR_RESULT=''
   local VAR_CUR_VM_TYPE=''
   local VAR_CUR_HOST=''
+  local VAR_HOST_ERROR=''
   for VAR_CUR_VM_TYPE in $1; do
-    if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
+    if [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ] && ! isEmpty "$COMMON_CONST_ESXI_HOSTS_POOL"; then
+      VAR_HOST_ERROR="$COMMON_CONST_FALSE"
       for VAR_CUR_HOST in $COMMON_CONST_ESXI_HOSTS_POOL; do
-        if isHostAvailableEx "$VAR_CUR_HOST"; then
-          VAR_RESULT=$VAR_CUR_VM_TYPE
+        if ! isHostAvailableEx "$VAR_CUR_HOST"; then
+          VAR_HOST_ERROR="$COMMON_CONST_TRUE"
           break
         fi
       done
+      if ! isTrue "$VAR_HOST_ERROR"; then
+        VAR_RESULT="$COMMON_CONST_VMWARE_VM_TYPE"
+        break
+      fi
     elif [ "$VAR_CUR_VM_TYPE" = "$COMMON_CONST_DOCKER_VM_TYPE" ]; then
 #      echoWarning "TO-DO support Docker containers"
       :
@@ -917,7 +923,7 @@ checkSSHKeyExistEsxi(){
   VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
   VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
   checkRequiredFiles "$ENV_SSH_KEYID"
-  for VAR_CUR_ESXI in $VAR_ESXI_HOSTS_POOL; do
+  for VAR_CUR_ESXI in $1; do
     VAR_RESULT=$($SSHP_CLIENT $VAR_CUR_ESXI "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
 if [ ! -r $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
 cat > $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
@@ -1382,7 +1388,7 @@ isSnapshotVMExistEx(){
 #$1 esxi host
 isHostAvailableEx(){
   checkParmsCount $# 1 'isHostAvailableEx'
-  local VAR_RESULT="$COMMON_CONST_TRUE"
-  $(checkSSHKeyExistEsxi "$1") || VAR_RESULT="$COMMON_CONST_FALSE"
-  isTrue "$VAR_RESULT"
+  local VAR_RESULT=''
+  VAR_RESULT=$(checkSSHKeyExistEsxi "$1") || return "$COMMON_CONST_EXIT_ERROR"
+  return  "$COMMON_CONST_EXIT_SUCCESS"
 }
