@@ -99,6 +99,26 @@ checkRetValOK
 cd $VAR_CUR_DIR_PATH
 checkRetValOK
 
+if isLinuxOS; then
+  echo "export PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bashrc"
+  checkRetValOK
+  PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin
+  checkRetValOK
+  if isCommandExist "source"; then
+    source "$HOME/.bashrc"
+    checkRetValOK
+  fi
+elif isMacOS; then
+  echo "export PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bash_profile"
+  checkRetValOK
+  PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin
+  checkRetValOK
+  if isCommandExist "source"; then
+    source "$HOME/.bash_profile"
+    checkRetValOK
+  fi
+fi
+
 $COMMON_CONST_MACOS_SED --version
 checkRetValOK
 
