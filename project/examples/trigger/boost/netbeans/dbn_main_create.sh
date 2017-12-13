@@ -73,6 +73,9 @@ uname -a
 #install packages
 if [ "$2" = "run" ]; then
   checkDpkgUnlock
+  sudo apt -y update
+  checkRetValOK
+  checkDpkgUnlock
   sudo apt -y install build-essential
   checkRetValOK
   checkDpkgUnlock
