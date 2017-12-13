@@ -45,10 +45,10 @@ readonly ENV_OVFTOOL_USER_PASS=$(getOVFToolPassword "$ENV_SSH_USER_PASS")
 readonly ENV_DOWNLOAD_PATH=$(if [ ! -d "$HOME/Downloads/tools" ]; then mkdir -p "$HOME/Downloads/tools"; fi; echo "$HOME/Downloads/tools")
 if isEmpty "$ENV_DOWNLOAD_PATH"; then checkNotEmptyEnvironment "ENV_DOWNLOAD_PATH"; fi
 #directory for project data
-readonly ENV_PROJECT_DATA_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
+readonly ENV_PROJECT_DATA_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then cd $(dirname "$0")/..; echo $PWD/data; else echo ${ENV_ROOT_DIR}/project/data; fi;)
 if isEmpty "$ENV_PROJECT_DATA_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_DATA_PATH"; fi
 #directory for project triggers
-readonly ENV_PROJECT_TRIGGER_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo $(getParentDirectoryPath $ENV_ROOT_DIR)/trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
+readonly ENV_PROJECT_TRIGGER_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then echo cd $(dirname "$0")/..; echo $PWD/trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
 if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
 readonly ENV_TOOLS_HIDDEN_PATH="$HOME/.tools"
 if isEmpty "$ENV_TOOLS_HIDDEN_PATH"; then checkNotEmptyEnvironment "ENV_TOOLS_HIDDEN_PATH"; fi
