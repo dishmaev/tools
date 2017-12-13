@@ -16,7 +16,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[esxiHostsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" \
+echoHelp $# 1 '[esxiHostsPool=$COMMON_CONST_ALL]' "'$COMMON_CONST_ALL'" \
 "Available esxi hosts: $COMMON_CONST_ESXI_HOSTS_POOL"
 
 ###check commands

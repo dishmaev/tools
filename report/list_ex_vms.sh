@@ -29,7 +29,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 2 '[esxiHostsPool=$COMMON_CONST_ALL] [filterRegex=$COMMON_CONST_ALL]' \
-"$COMMON_CONST_ALL $COMMON_CONST_ALL" \
+"'$COMMON_CONST_ALL' '$COMMON_CONST_ALL'" \
 "Available esxi hosts: $COMMON_CONST_ESXI_HOSTS_POOL"
 
 ###check commands

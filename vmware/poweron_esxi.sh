@@ -14,7 +14,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[MACsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" \
+echoHelp $# 1 '[MACsPool=$COMMON_CONST_ALL]' "'$COMMON_CONST_ALL'" \
 "Available MAC addresses: $COMMON_CONST_ESXI_MACS_POOL"
 
 ###check commands

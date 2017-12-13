@@ -19,7 +19,7 @@ checkAutoYes "$1" || shift
 
 ###help
 
-echoHelp $# 1 '[vmsPool=$COMMON_CONST_ALL]' "$COMMON_CONST_ALL" "Use '*' or VM names with space delimiter"
+echoHelp $# 1 '[vmsPool=$COMMON_CONST_ALL]' "'$COMMON_CONST_ALL'" "Use '*' or VM names with space delimiter"
 
 ###check commands
 

@@ -19,7 +19,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 2 '[vmsPool=$COMMON_CONST_ALL] [esxiHost=$COMMON_CONST_ESXI_HOST]' \
-"$COMMON_CONST_ALL $COMMON_CONST_ESXI_HOST" "Use '*' or VM names with space delimiter"
+"'$COMMON_CONST_ALL' $COMMON_CONST_ESXI_HOST" "Use '*' or VM names with space delimiter"
 
 ###check commands
 
