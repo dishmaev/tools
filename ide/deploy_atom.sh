@@ -79,7 +79,7 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
     wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
     checkRetValOK
   elif isMacOS; then
-    curl -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+    curl -L -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
     checkRetValOK
   fi
 fi
