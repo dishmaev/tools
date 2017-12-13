@@ -73,9 +73,6 @@ if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/create_vm_project.sh -y $ENV_DEFAULT_VM_TEMPLATE $PRM_SUITE $PRM_VM_ROLE) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
-else
-  checkSSHKeyExistEsxi "$COMMON_CONST_ESXI_HOSTS_POOL"
-  checkRetValOK
 fi
 
 VAR_RESULT=$(getProjectVMForAction "$COMMON_CONST_PROJECT_ACTION_DEPLOY" "$PRM_SUITE" "$PRM_VM_ROLE") || exitChildError "$VAR_RESULT"
