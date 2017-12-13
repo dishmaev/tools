@@ -100,7 +100,7 @@ elif isMacOS; then
   checkRetValOK
   unzip -d $VAR_TMP_DIR_PATH $VAR_ORIG_FILE_PATH
   checkRetValOK
-  mv Atom.app $HOME/Applications
+  mv $VAR_TMP_DIR_PATH/Atom.app $HOME/Applications
   checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
