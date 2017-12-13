@@ -291,7 +291,11 @@ getChildSnapshotsPoolVb(){
   if isEmpty "$VAR_CUR_SSNAME"; then
     exitError "snapshot $2 ID $3 not found for VMID $1"
   fi
-  VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tac) || exitChildError "$VAR_CUR_SSNAME"
+  if isCommandExist "tac"; then
+    VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tac) || exitChildError "$VAR_CUR_SSNAME"
+  elif isCommandExist "tail"; then
+    VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tail -r) || exitChildError "$VAR_CUR_SSNAME"
+  fi
   for VAR_CUR_SSID in $VAR_SS_LIST; do
     VAR_RESULT="$VAR_RESULT $VAR_CUR_SSID"
   done
