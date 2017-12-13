@@ -56,7 +56,6 @@ if isCommandExist 'go'; then
   doneFinalStage
   exitOK
 fi
-
 #check supported OS
 if isLinuxOS; then
   checkDependencies 'wget'

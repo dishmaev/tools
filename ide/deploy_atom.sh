@@ -7,7 +7,8 @@ targetDescription 'Deploy Atom on the local OS x64'
 ##private consts
 readonly CONST_FILE_APT_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-amd64.deb' #APT-based Linux url for download
 readonly CONST_FILE_RPM_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom.x86_64.rpm' #RPM-based Linux url for download
-readonly CONST_FILE_VERSION='1.22.1'
+readonly CONST_FILE_MACOS_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-mac.zip' #MacOS url for download
+readonly CONST_FILE_VERSION='1.23.0'
 
 ##private vars
 PRM_VERSION='' #IDE version
@@ -34,7 +35,6 @@ checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-checkDependencies 'wget'
 
 ###check required files
 
@@ -46,10 +46,6 @@ startPrompt
 
 ###body
 
-#check supported OS
-if ! isLinuxOS; then exitError 'not supported OS'; fi
-VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
-#if already deployed, exit OK
 if isCommandExist 'atom'; then
   echoInfo "already deployed"
   atom --version
@@ -58,30 +54,48 @@ if isCommandExist 'atom'; then
   doneFinalStage
   exitOK
 fi
-
-if isAPTLinux "$VAR_LINUX_BASED"; then
-  VAR_FILE_URL="$CONST_FILE_APT_URL"
-elif isRPMLinux "$VAR_LINUX_BASED"; then
-  VAR_FILE_URL="$CONST_FILE_RPM_URL"
+#check supported OS
+if isLinuxOS; then
+  checkDependencies 'wget'
+  VAR_LINUX_BASED=$(checkLinuxAptOrRpm) || exitChildError "$VAR_LINUX_BASED"
+  if isAPTLinux "$VAR_LINUX_BASED"; then
+    VAR_FILE_URL="$CONST_FILE_APT_URL"
+  elif isRPMLinux "$VAR_LINUX_BASED"; then
+    VAR_FILE_URL="$CONST_FILE_RPM_URL"
+  else
+    exitError "unknown Linux based package system"
+  fi
+elif isMacOS; then
+  VAR_FILE_URL="$CONST_FILE_MACOS_URL"
 else
-  exitError "unknown Linux based package system"
+  exitError 'not supported OS'
 fi
+
 VAR_FILE_URL=$(echo "$VAR_FILE_URL" | sed -e "s#@PRM_VERSION@#$PRM_VERSION#") || exitChildError "$VAR_FILE_URL"
 VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
 VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
 if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
-  wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
-  checkRetValOK
+  if isLinuxOS; then
+    wget -O $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+    checkRetValOK
+  elif isMacOS; then
+    curl -o $VAR_ORIG_FILE_PATH $VAR_FILE_URL
+    checkRetValOK
+  fi
 fi
-if isAPTLinux "$VAR_LINUX_BASED"; then
-  checkDpkgUnlock
-  sudo apt -y install $VAR_ORIG_FILE_PATH
-  checkRetValOK
-  sudo apt -y install -f
-  checkRetValOK
-elif isRPMLinux "$VAR_LINUX_BASED"; then
-  sudo yum -y install $VAR_ORIG_FILE_PATH
-  checkRetValOK
+if isLinuxOS; then
+  if isAPTLinux "$VAR_LINUX_BASED"; then
+    checkDpkgUnlock
+    sudo apt -y install $VAR_ORIG_FILE_PATH
+    checkRetValOK
+    sudo apt -y install -f
+    checkRetValOK
+  elif isRPMLinux "$VAR_LINUX_BASED"; then
+    sudo yum -y install $VAR_ORIG_FILE_PATH
+    checkRetValOK
+  fi
+elif isMacOS; then
+  exitOK
 fi
 apm install atom-ide-ui
 checkRetValOK
