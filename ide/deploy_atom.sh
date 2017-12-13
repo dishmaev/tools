@@ -26,7 +26,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 1 '[version=$CONST_FILE_VERSION]' \
-"$COMMON_CONST_DEFAULT_VERSION 0 $CONST_TOOLSET" "Version format 'X.X[X].X'. Atom text editor url https://atom.io/"
+"$CONST_FILE_VERSION 0 $CONST_TOOLSET" "Version format 'X.X[X].X'. Atom text editor url https://atom.io/"
 
 ###check commands
 
@@ -67,6 +67,7 @@ if isLinuxOS; then
     exitError "unknown Linux based package system"
   fi
 elif isMacOS; then
+  checkDependencies 'unzip'
   VAR_FILE_URL="$CONST_FILE_MACOS_URL"
 else
   exitError 'not supported OS'

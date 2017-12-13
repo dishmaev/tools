@@ -37,6 +37,8 @@ readonly COMMON_CONST_ELAPSED_LONG="$COMMON_CONST_FALSE" #if true, show elapsed 
 readonly COMMON_CONST_PROJECT_ACTION_CREATE='create' #create project action
 readonly COMMON_CONST_PROJECT_ACTION_BUILD='build' #build project action
 readonly COMMON_CONST_PROJECT_ACTION_DEPLOY='deploy' #deploy project action
+readonly COMMON_CONST_LINUX_SED='sed' #GNU sed in Linux OS
+readonly COMMON_CONST_MACOS_SED="g$COMMON_CONST_LINUX_SED" #GNU sed in MacOS
 
 #package
 readonly COMMON_CONST_PACKAGE_LINUX_APT=package-apt.bash

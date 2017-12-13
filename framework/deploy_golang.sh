@@ -130,8 +130,8 @@ else
       checkRetValOK
     fi
   fi
-  if ! isDirectoryExist "$HOME/go"; then
-    mkdir "$HOME/go"
+  if ! isDirectoryExist "$CONST_GOPATH"; then
+    mkdir "$CONST_GOPATH"
     checkRetValOK
   fi
 fi

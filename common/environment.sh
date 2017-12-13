@@ -74,6 +74,7 @@ readonly SSHP_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME
 readonly SSHX_CLIENT="ssh -X -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SCP_CLIENT="scp -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $ENV_SSH_KEYID"
+readonly SED=$(if isMacOS || isFreeBSDOS; then echo $COMMON_CONST_MACOS_SED; else echo $COMMON_CONST_LINUX_SED; fi)
 
 #create directories if not exist
 if [ ! -d "$ENV_PROJECT_DATA_PATH" ]; then mkdir $ENV_PROJECT_DATA_PATH; fi
