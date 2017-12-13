@@ -104,9 +104,9 @@ elif isMacOS; then
   checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
-  echo "export PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS" | tee -a "$HOME/.bash_profile"
+  echo "export PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS:$HOME/Applications/Atom.app/Contents/Resources/app/apm/bin" | tee -a "$HOME/.bash_profile"
   checkRetValOK
-  PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS
+  PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS:$HOME/Applications/Atom.app/Contents/Resources/app/apm/bin
   checkRetValOK
   if isCommandExist "source"; then
     source "$HOME/.bash_profile"
@@ -132,4 +132,13 @@ atom --version
 checkRetValOK
 
 doneFinalStage
+
+echo ''
+echo "Now start Atom IDE from lauchpad and make some final things: "
+echo 'install additional packages that required for IDE'
+if isMacOS; then
+  echo 'xcode-select --install'
+  echo 'go get -u github.com/derekparker/delve/cmd/dlv'
+fi
+
 exitOK
