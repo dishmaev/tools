@@ -104,7 +104,6 @@ elif isMacOS; then
   checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
-  exitOK
   echo "export PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS" | tee -a "$HOME/.bash_profile"
   checkRetValOK
   PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS
