@@ -109,7 +109,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
     VAR_CONFIG_FILE_PATH=$ENV_PROJECT_DATA_PATH/${VAR_CONFIG_FILE_NAME}
     if isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
       VAR_RESULT=$(cat $VAR_CONFIG_FILE_PATH | grep -E "^$VAR_VM_TYPE" | wc -l) || exitChildError "$VAR_RESULT"
-      if [ "$VAR_RESULT" != "0" ]; then
+      if [ $VAR_RESULT -ne 0 ]; then
         echoWarning "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE already exist, skip create"
         continue
       fi
