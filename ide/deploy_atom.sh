@@ -105,20 +105,28 @@ elif isMacOS; then
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
   exitOK
+  echo "export PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS" | tee -a "$HOME/.bash_profile"
+  checkRetValOK
+  PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS
+  checkRetValOK
+  if isCommandExist "source"; then
+    source "$HOME/.bash_profile"
+    checkRetValOK
+  fi
 fi
 #apm install atom-ide-ui
 #checkRetValOK
 #apm install ide-java
 #checkRetValOK
-apm install go-plus
-checkRetValOK
-apm install go-debug
-checkRetValOK
 apm install git-plus
 checkRetValOK
 apm install tree-view-git-status
 checkRetValOK
 apm install termination
+checkRetValOK
+apm install go-plus
+checkRetValOK
+apm install go-debug
 checkRetValOK
 
 atom --version
