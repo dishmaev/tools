@@ -43,10 +43,11 @@ if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
   PRM_ESXI_HOSTS_POOL=$COMMON_CONST_ESXI_HOSTS_POOL
 fi
 
+checkSSHKeyExistEsxi "$PRM_ESXI_HOSTS_POOL"
+checkRetValOK
+
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   echoInfo "esxi host $VAR_HOST"
-  checkSSHKeyExistEsxi "$VAR_HOST"
-  checkRetValOK
   VAR_RESULT=$($SSH_CLIENT $VAR_HOST "echo $COMMON_CONST_TRUE; poweroff") || exitChildError "$VAR_RESULT"
 #  VAR_RESULT=$($SSH_CLIENT $VAR_HOST "esxcli system maintenanceMode set --enable true; echo $COMMON_CONST_TRUE; esxcli system shutdown poweroff --reason='by $ENV_SSH_USER_NAME'") || exitChildError "$VAR_RESULT"
 

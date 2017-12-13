@@ -906,7 +906,7 @@ checkNotEmptyEnvironment(){
     setErrorEnvironment "set variable $1"
   fi
 }
-#$1 host
+#$1 esxi hosts pool
 checkSSHKeyExistEsxi(){
   checkParmsCount $# 1 'checkSSHKeyExistEsxi'
   local FCONST_HV_SSHKEYS_DIRNAME="/etc/ssh/keys-$ENV_SSH_USER_NAME"

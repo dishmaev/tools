@@ -74,6 +74,9 @@ if ! isFileExistAndRead "$VAR_CONFIG_FILE_PATH"; then
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/create_vm_project.sh -y $ENV_DEFAULT_VM_TEMPLATE $PRM_SUITE $PRM_VM_ROLE) || exitChildError "$VAR_RESULT"
   echoResult "$VAR_RESULT"
   checkRequiredFiles "$VAR_CONFIG_FILE_PATH"
+else
+  checkSSHKeyExistEsxi "$COMMON_CONST_ESXI_HOSTS_POOL"
+  checkRetValOK
 fi
 
 VAR_RESULT=$(getProjectVMForAction "$COMMON_CONST_PROJECT_ACTION_DEPLOY" "$PRM_SUITE" "$PRM_VM_ROLE") || exitChildError "$VAR_RESULT"
@@ -102,8 +105,6 @@ rm -f "$VAR_LOG_TAR_FILE_PATH"
 
 if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
   VAR_HOST=$(echo $VAR_RESULT | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
-  checkSSHKeyExistEsxi "$VAR_HOST"
-  checkRetValOK
   #restore project snapshot
   echoInfo "restore VM $VAR_VM_NAME snapshot $ENV_PROJECT_NAME on $VAR_HOST host"
   VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $ENV_PROJECT_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"

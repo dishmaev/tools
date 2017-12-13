@@ -78,6 +78,9 @@ startPrompt
 #remove known_hosts file to prevent future script errors
 removeKnownHosts
 
+checkSSHKeyExistEsxi "$COMMON_CONST_ESXI_HOSTS_POOL"
+checkRetValOK
+
 VAR_VM_TYPE=$(getAvailableVMType "$PRM_VM_TYPES_POOL") || exitChildError "$VAR_VM_TYPE"
 if ! isEmpty "$VAR_VM_TYPE"; then
   echoInfo "use available VM type $VAR_VM_TYPE"
