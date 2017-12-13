@@ -75,6 +75,7 @@ if [ "$2" = "run" ]; then
   checkDpkgUnlock
   sudo apt -y install build-essential
   checkRetValOK
+  checkDpkgUnlock
   sudo apt -y install libboost-all-dev
   checkRetValOK
 fi
