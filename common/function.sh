@@ -1382,7 +1382,7 @@ isSnapshotVMExistEx(){
 #$1 esxi host
 isHostAvailableEx(){
   checkParmsCount $# 1 'isHostAvailableEx'
-  local VAR_RESULT=''
-  VAR_RESULT=$(checkSSHKeyExistEsxi "$1") #not exit if even an error
+  local VAR_RESULT="$COMMON_CONST_TRUE"
+  $(checkSSHKeyExistEsxi "$1") || VAR_RESULT="$COMMON_CONST_FALSE"
   isTrue "$VAR_RESULT"
 }
