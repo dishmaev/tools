@@ -46,6 +46,7 @@ startPrompt
 ###body
 
 checkSSHKeyExistEsxi "$PRM_ESXI_HOST"
+checkRetValOK
 
 for VAR_CUR_VM_NAME in $PRM_VMS_POOL; do
   #check vm name

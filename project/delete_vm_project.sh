@@ -22,6 +22,7 @@ VAR_CUR_SUITE='' #current suite
 VAR_CUR_VM_ROLE='' #current role for create VM
 VAR_CUR_SUITE='' #current suite
 VAR_CUR_VM='' #vm exp
+VAR_HOST_ERROR=$COMMON_CONST_FALSE #esxi host unavailable
 
 ###check autoyes
 
@@ -65,6 +66,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       echoWarning "project VM suite $VAR_CUR_SUITE role $VAR_CUR_VM_ROLE not exist, skip delete"
       continue
     fi
+    VAR_HOST_ERROR=$COMMON_CONST_FALSE
     while read VAR_CUR_VM; do
       VAR_VM_TYPE=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $1}') || exitChildError "$VAR_VM_TYPE"
       VAR_VM_TEMPLATE=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $2}') || exitChildError "$VAR_VM_TEMPLATE"
@@ -73,7 +75,6 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
       if [ "$VAR_VM_TYPE" = "$COMMON_CONST_VMWARE_VM_TYPE" ]; then
         VAR_HOST=$(echo $VAR_CUR_VM | awk -F$COMMON_CONST_DATA_CFG_SEPARATOR '{print $4}') || exitChildError "$VAR_HOST"
         if isHostAvailableEx "$VAR_HOST"; then
-          checkSSHKeyExistEsxi "$VAR_HOST"
           if isVMExistEx "$VAR_VM_NAME" "$VAR_HOST"; then
             echoInfo "restore VM $VAR_VM_NAME snapshot $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME on $VAR_HOST host"
             VAR_RESULT=$($ENV_SCRIPT_DIR_NAME/../vmware/restore_${VAR_VM_TYPE}_vm_snapshot.sh -y $VAR_VM_NAME $COMMON_CONST_SNAPSHOT_TEMPLATE_NAME $VAR_HOST) || exitChildError "$VAR_RESULT"
@@ -83,6 +84,7 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
           fi
         else
           echoWarning "host $VAR_HOST unavailable, skip snapshot restore"
+          VAR_HOST_ERROR=$COMMON_CONST_TRUE
         fi
       elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
         if isVMExistVb "$VAR_VM_NAME"; then
@@ -99,9 +101,13 @@ for VAR_CUR_SUITE in $PRM_SUITES_POOL; do
         echoWarning "TO-DO support Kubernetes containers"
       fi
     done < "$VAR_CONFIG_FILE_PATH"
-    echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
-    rm $VAR_CONFIG_FILE_PATH
-    checkRetValOK
+    if ! isTrue "$VAR_HOST_ERROR"; then
+      echoInfo "remove config file $VAR_CONFIG_FILE_PATH"
+      rm $VAR_CONFIG_FILE_PATH
+      checkRetValOK
+    else
+      echoWarning "any host not available, skip remove config file $VAR_CONFIG_FILE_PATH"
+    fi
   done
 done
 

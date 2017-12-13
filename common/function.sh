@@ -681,6 +681,7 @@ getVmsPoolEx(){
   for VAR_CUR_ESXI in $VAR_ESXI_HOSTS_POOL; do
     local VAR_RESULT1
     checkSSHKeyExistEsxi "$VAR_CUR_ESXI"
+    checkRetValOK
     if [ "$1" = "$COMMON_CONST_ALL" ]; then
       VAR_RESULT1=$($SSH_CLIENT $VAR_CUR_ESXI "vim-cmd vmsvc/getallvms | sed -e '1d' | \
 awk '{print \$1\":\"\$2}' | awk -F: '{print \$2\":$VAR_CUR_ESXI:\"\$1}'") || exitChildError "$VAR_RESULT1"
@@ -912,18 +913,18 @@ checkSSHKeyExistEsxi(){
   local VAR_RESULT="$COMMON_CONST_FALSE"
   local VAR_TMP_FILE_PATH=''
   local VAR_TMP_FILE_NAME=''
-  if ! isHostAvailableEx "$1"; then
-    exitError "host $1 unavailable"
-  fi
+  local VAR_CUR_ESXI=''
   VAR_TMP_FILE_PATH=$(mktemp -u) || exitChildError "$VAR_TMP_FILE_PATH"
   VAR_TMP_FILE_NAME=$(basename $VAR_TMP_FILE_PATH) || exitChildError "$VAR_TMP_FILE_NAME"
   checkRequiredFiles "$ENV_SSH_KEYID"
-  VAR_RESULT=$($SSHP_CLIENT $1 "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
+  for VAR_CUR_ESXI in $VAR_ESXI_HOSTS_POOL; do
+    VAR_RESULT=$($SSHP_CLIENT $VAR_CUR_ESXI "if [ ! -d $FCONST_HV_SSHKEYS_DIRNAME ]; then mkdir $FCONST_HV_SSHKEYS_DIRNAME; fi; \
 if [ ! -r $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys ]; then \
 cat > $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; else cat > $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; \
 cat $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys | grep -F - -f $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME || cat $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME >> $FCONST_HV_SSHKEYS_DIRNAME/authorized_keys; \
 rm $FCONST_HV_SSHKEYS_DIRNAME/$VAR_TMP_FILE_NAME; fi; echo $COMMON_CONST_TRUE" < $ENV_SSH_KEYID) || exitChildError "$VAR_RESULT"
-  if ! isTrue "$VAR_RESULT"; then return "$COMMON_CONST_EXIT_ERROR"; fi
+  done
+  return "$COMMON_CONST_EXIT_SUCCESS"
 }
 
 checkProjectRepository(){
@@ -1380,6 +1381,8 @@ isSnapshotVMExistEx(){
 }
 #$1 esxi host
 isHostAvailableEx(){
-  ssh -o PubkeyAuthentication=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ChallengeResponseAuthentication=no -o ConnectTimeout=3 $1 2>/dev/null
-  [ "$?" = "0" ]
+  checkParmsCount $# 1 'isHostAvailableEx'
+  local VAR_RESULT=''
+  VAR_RESULT=$(checkSSHKeyExistEsxi "$1") #not exit if even an error
+  isTrue "$VAR_RESULT"
 }

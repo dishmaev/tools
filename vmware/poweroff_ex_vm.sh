@@ -40,6 +40,7 @@ startPrompt
 ###body
 
 checkSSHKeyExistEsxi "$PRM_ESXI_HOST"
+checkRetValOK
 
 if [ "$PRM_VMS_POOL" = "$COMMON_CONST_ALL" ]; then
   VAR_TMP_VMS_POOL=$(getVmsPoolEx "$COMMON_CONST_ALL" "$PRM_ESXI_HOST") || exitChildError "$VAR_TMP_VMS_POOL"

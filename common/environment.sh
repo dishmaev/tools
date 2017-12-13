@@ -70,7 +70,7 @@ readonly COMMON_CONST_LOCAL_HISTORY_PATH="$ENV_TOOLS_HIDDEN_PATH/history"
 
 #aliases
 readonly SSH_CLIENT="ssh -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
-readonly SSHP_CLIENT="ssh -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
+readonly SSHP_CLIENT="ssh -o StrictHostKeyChecking=no -o ConnectTimeout=$COMMON_CONST_SLEEP_LONG -o User=$ENV_SSH_USER_NAME"
 readonly SSHX_CLIENT="ssh -X -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SCP_CLIENT="scp -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
 readonly SSH_COPY_ID="ssh-copy-id -o StrictHostKeyChecking=no -f -i $ENV_SSH_KEYID"

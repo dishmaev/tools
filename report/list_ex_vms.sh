@@ -60,6 +60,7 @@ fi
 
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   checkSSHKeyExistEsxi "$VAR_HOST"
+  checkRetValOK
   VAR_VMS_POOL=$(getVmsPoolEx "$COMMON_CONST_ALL" "$VAR_HOST") || exitChildError "$VAR_VMS_POOL"
   for VAR_CUR_VM in $VAR_VMS_POOL; do
     if [ "$PRM_FILTER_REGEX" != "$COMMON_CONST_ALL" ]; then

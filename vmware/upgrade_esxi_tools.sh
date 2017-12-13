@@ -61,6 +61,7 @@ removeKnownHosts
 for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
   echoInfo "esxi host $VAR_HOST"
   checkSSHKeyExistEsxi "$VAR_HOST"
+  checkRetValOK
   #get local tools version
   VAR_LOCAL_TOOLS_VER=$(cat $ENV_SCRIPT_DIR_NAME/template/$CONST_TOOLSVER_FILENAME) || exitChildError "$VAR_LOCAL_TOOLS_VER"
   #get local ovftools version

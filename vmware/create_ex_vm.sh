@@ -63,6 +63,9 @@ startPrompt
 #remove known_hosts file to prevent future script errors
 removeKnownHosts
 
+checkSSHKeyExistEsxi "$PRM_ESXI_HOST"
+checkRetValOK
+
 #get vm template current version
 VAR_VM_VER=$(getDefaultVMTemplateVersion "$PRM_VM_TEMPLATE" "$COMMON_CONST_VMWARE_VM_TYPE") || exitChildError "$VAR_VM_VER"
 VAR_OVA_FILE_NAME="${PRM_VM_TEMPLATE}-${VAR_VM_VER}.ova"
