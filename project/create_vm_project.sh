@@ -38,7 +38,6 @@ VAR_LOG_TAR_FILE_PATH='' #log archive file name with local path
 VAR_CUR_SUITE='' #current suite
 VAR_CUR_VM_ROLE='' #current role for create VM
 VAR_CUR_VM='' #vm exp
-VAR_LOG='' #log execute script
 VAR_TIME_STRING='' #time as standard string
 
 ###check autoyes
@@ -166,16 +165,6 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
       VAR_SCRIPT_STOP="$(getTime)"
       packLogFiles "$VAR_VM_IP" "$COMMON_CONST_DEFAULT_SSH_PORT" "$VAR_REMOTE_SCRIPT_FILE_NAME" "$VAR_LOG_TAR_FILE_PATH"
       checkRetValOK
-
-#      if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-#        VAR_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$VAR_LOG"
-#        if ! isEmpty "$VAR_LOG"; then echoInfo "stdout\n$VAR_LOG"; fi
-#      fi
-#      VAR_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$VAR_LOG"
-#      if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
-#      VAR_LOG=$($SSH_CLIENT $VAR_VM_IP "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst; fi") || exitChildError "$VAR_LOG"
-#      if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
-
       if ! isTrue "$VAR_SCRIPT_RESULT"; then
         #add history log
         if isTrue "$COMMON_CONST_HISTORY_LOG"; then
@@ -195,7 +184,7 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
       echoInfo "save config file $VAR_CONFIG_FILE_PATH"
       echo $VAR_VM_TYPE$COMMON_CONST_DATA_CFG_SEPARATOR\
 $PRM_VM_TEMPLATE$COMMON_CONST_DATA_CFG_SEPARATOR\
-$VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST > $VAR_CONFIG_FILE_PATH
+$VAR_VM_NAME$COMMON_CONST_DATA_CFG_SEPARATOR$VAR_HOST >> $VAR_CONFIG_FILE_PATH
     elif [ "$VAR_VM_TYPE" = "$COMMON_CONST_VBOX_VM_TYPE" ]; then
       echoInfo "try to find a free VM"
       VAR_VMS_POOL=$(getVmsPoolVb "$PRM_VM_TEMPLATE") || exitChildError "$VAR_VMS_POOL"
@@ -243,16 +232,6 @@ if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.ok ]; then cat ${VAR_REMOTE_SCRIPT_FILE_N
       VAR_SCRIPT_STOP="$(getTime)"
       packLogFiles "$COMMON_CONST_VAGRANT_IP_ADDRESS" "$VAR_VM_PORT" "$VAR_REMOTE_SCRIPT_FILE_NAME" "$VAR_LOG_TAR_FILE_PATH"
       checkRetValOK
-
-#      if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-#        VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.log ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.log; fi") || exitChildError "$VAR_LOG"
-#        if ! isEmpty "$VAR_LOG"; then echoInfo "stdout\n$VAR_LOG"; fi
-#      fi
-#      VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.err ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.err; fi") || exitChildError "$VAR_LOG"
-#      if ! isEmpty "$VAR_LOG"; then echoInfo "stderr\n$VAR_LOG"; fi
-#      VAR_LOG=$($SSH_CLIENT -p $VAR_VM_PORT $COMMON_CONST_VAGRANT_IP_ADDRESS "if [ -r ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst ]; then cat ${VAR_REMOTE_SCRIPT_FILE_NAME}.tst; fi") || exitChildError "$VAR_LOG"
-#      if ! isEmpty "$VAR_LOG"; then echoInfo "stdtst\n$VAR_LOG"; fi
-
       if ! isTrue "$VAR_SCRIPT_RESULT"; then
         #add history log
         if isTrue "$COMMON_CONST_HISTORY_LOG"; then
