@@ -17,6 +17,7 @@ VAR_VERSION='' #lib short version format MAJOR.MINOR
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
 VAR_FILE_URL='' #url specific version of boost for download
+VAR_TMP_DIR_PATH='' #temporary directory name
 
 ###check autoyes
 
@@ -95,12 +96,20 @@ if isLinuxOS; then
     checkRetValOK
   fi
 elif isMacOS; then
+  VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
+  checkRetValOK
+  unzip -d $VAR_TMP_DIR_PATH $VAR_ORIG_FILE_PATH
+  checkRetValOK
+  mv Atom.app $HOME/Applications
+  checkRetValOK
+  rm -fR $VAR_TMP_DIR_PATH
+  checkRetValOK
   exitOK
 fi
-apm install atom-ide-ui
-checkRetValOK
-apm install ide-java
-checkRetValOK
+#apm install atom-ide-ui
+#checkRetValOK
+#apm install ide-java
+#checkRetValOK
 apm install go-plus
 checkRetValOK
 apm install go-debug
