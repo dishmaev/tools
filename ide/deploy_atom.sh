@@ -129,8 +129,13 @@ checkRetValOK
 apm install go-debug
 checkRetValOK
 
-atom --version
-checkRetValOK
+if ! isMacOS; then
+  atom --version
+  checkRetValOK
+else
+  /Users/dish/Applications/Atom.app/Contents/MacOS/Atom --version
+  checkRetValOK
+fi
 
 doneFinalStage
 
