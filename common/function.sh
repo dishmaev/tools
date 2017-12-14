@@ -21,7 +21,8 @@ addHistoryLog(){
   local VAR_FILE_NAME=''
   local VAR_FILE_PATH=''
   if isTrue "$4"; then VAR_RESULT='ok'; fi
-  VAR_STOP_STRING=$(getTimeAsString "$3" "$COMMON_CONST_TRUE") | $SED 's/ /_/'
+  VAR_STOP_STRING=$(getTimeAsString "$3" "$COMMON_CONST_TRUE")
+  VAR_STOP_STRING=$(echo "$VAR_STOP_STRING" | $SED 's/[ ]/_/g;s/[:]/*/g')
   VAR_ESPD=$(getElapsedTime "$2" "$3" "$COMMON_CONST_FALSE") || exitChildError "$VAR_ESPD"
   VAR_FILE_NAME=${FCONST_PROJECT}_${VAR_STOP_STRING}_${VAR_ESPD}_${1}_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$ENV_PROJECT_HISTORY_PATH/$VAR_FILE_NAME
