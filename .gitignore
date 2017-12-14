@@ -4,7 +4,8 @@
 /common/data/ssh_id_file.txt
 /common/data/vm_types.cfg
 /common/data/vm_template.cfg
-/test/
 /repo/repos
-/project/data/*
 .DS_Store
+/test/
+/project/data/*
+/project/history/*
