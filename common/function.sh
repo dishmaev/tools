@@ -58,7 +58,7 @@ addHistoryLog(){
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
     echoWarning "history file $VAR_FILE_PATH not found"
   else
-    echoInfo "save history log file $VAR_FILE_PATH"
+    echoInfo "save history file $VAR_FILE_PATH"
   fi
   return $COMMON_CONST_EXIT_SUCCESS
 }
