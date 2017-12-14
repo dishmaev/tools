@@ -14,15 +14,16 @@ VAR_START_TIME='' #start execution script
 #$1 project action ($COMMON_CONST_PROJECT_ACTION_CREATE etc), $2 start time, $3 stop time, $4 result bool, $5 src file path, $6 bin file path, $7 log file path
 addHistoryLog(){
   checkParmsCount $# 7 'addHistoryLog'
+  local FCONST_PROJECT=$(echo $ENV_PROJECT_NAME | tr '[A-Z]' '[a-z]')
   local VAR_RESULT='error'
   local VAR_ESPD=''
   local VAR_STOP_STRING=''
   local VAR_FILE_NAME=''
   local VAR_FILE_PATH=''
   if isTrue "$4"; then VAR_RESULT='ok'; fi
-  VAR_STOP_STRING=$(getTimeAsString "$3" "$COMMON_CONST_TRUE")
+  VAR_STOP_STRING=$(getTimeAsString "$3" "$COMMON_CONST_TRUE") | $SED 's/ /_/'
   VAR_ESPD=$(getElapsedTime "$2" "$3" "$COMMON_CONST_FALSE") || exitChildError "$VAR_ESPD"
-  VAR_FILE_NAME=${VAR_STOP_STRING}_${VAR_ESPD}_${1}_${VAR_RESULT}.tar.gz
+  VAR_FILE_NAME=${FCONST_PROJECT}_${VAR_STOP_STRING}_${VAR_ESPD}_${1}_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$ENV_PROJECT_HISTORY_PATH/$VAR_FILE_NAME
   if isFileExistAndRead "$VAR_FILE_PATH"; then
     exitError "history file '$VAR_FILE_PATH' already exist"
