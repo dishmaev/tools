@@ -50,9 +50,12 @@ if isEmpty "$ENV_PROJECT_DATA_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_
 #directory for project triggers
 readonly ENV_PROJECT_TRIGGER_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then cd $(dirname "$0")/../..; echo $PWD/trigger; else echo ${ENV_ROOT_DIR}/project/trigger; fi;)
 if isEmpty "$ENV_PROJECT_TRIGGER_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TRIGGER_PATH"; fi
-#directory for project triggers
+#directory for project history
 readonly ENV_PROJECT_HISTORY_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then cd $(dirname "$0")/../..; echo $PWD/history; else echo ${ENV_ROOT_DIR}/project/history; fi;)
 if isEmpty "$ENV_PROJECT_HISTORY_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_HISTORY_PATH"; fi
+#directory for project temporaries
+readonly ENV_PROJECT_TMP_PATH=$(if [ "$ENV_SUBMODULE_MODE" = "$COMMON_CONST_TRUE" ]; then cd $(dirname "$0")/../..; echo $PWD/tmp; else echo ${ENV_ROOT_DIR}/project/tmp; fi;)
+if isEmpty "$ENV_PROJECT_TMP_PATH"; then checkNotEmptyEnvironment "ENV_PROJECT_TMP_PATH"; fi
 readonly ENV_TOOLS_HIDDEN_PATH="$HOME/.tools"
 if isEmpty "$ENV_TOOLS_HIDDEN_PATH"; then checkNotEmptyEnvironment "ENV_TOOLS_HIDDEN_PATH"; fi
 readonly ENV_SHELL_WITH_ESC=$(eval 'VAR_COUNT=$(echo "a\nb" | wc -l); if [ $VAR_COUNT -eq 1 ]; then echo '$COMMON_CONST_FALSE'; else echo '$COMMON_CONST_TRUE'; fi')
@@ -67,7 +70,6 @@ if isEmpty "$ENV_DEFAULT_VM_TYPE"; then checkNotEmptyEnvironment "ENV_DEFAULT_VM
 readonly COMMON_CONST_LOCAL_VMTOOLS_PATH="$ENV_DOWNLOAD_PATH/$COMMON_CONST_VMTOOLS_FILE_NAME"
 readonly COMMON_CONST_LOCAL_VMS_PATH="$ENV_TOOLS_HIDDEN_PATH/vms"
 readonly COMMON_CONST_LOCAL_DATA_PATH="$ENV_TOOLS_HIDDEN_PATH/data"
-readonly COMMON_CONST_LOCAL_BUILD_PATH="$ENV_TOOLS_HIDDEN_PATH/build"
 
 #aliases
 readonly SSH_CLIENT="ssh -o PreferredAuthentications=publickey -o StrictHostKeyChecking=no -o User=$ENV_SSH_USER_NAME"
@@ -81,6 +83,6 @@ readonly SED=$(if isMacOS || isFreeBSDOS; then echo $COMMON_CONST_MACOS_SED; els
 if [ ! -d "$ENV_PROJECT_DATA_PATH" ]; then mkdir $ENV_PROJECT_DATA_PATH; fi
 if [ ! -d "$ENV_PROJECT_TRIGGER_PATH" ]; then mkdir $ENV_PROJECT_TRIGGER_PATH; fi
 if [ ! -d "$ENV_PROJECT_HISTORY_PATH" ]; then mkdir $ENV_PROJECT_HISTORY_PATH; fi
+if [ ! -d "$ENV_PROJECT_TMP_PATH" ]; then mkdir $ENV_PROJECT_TMP_PATH; fi
 if [ ! -d "$COMMON_CONST_LOCAL_VMS_PATH" ]; then mkdir -p $COMMON_CONST_LOCAL_VMS_PATH; fi
 if [ ! -d "$COMMON_CONST_LOCAL_DATA_PATH" ]; then mkdir -p $COMMON_CONST_LOCAL_DATA_PATH; fi
-if [ ! -d "$COMMON_CONST_LOCAL_BUILD_PATH" ]; then mkdir -p $COMMON_CONST_LOCAL_BUILD_PATH; fi

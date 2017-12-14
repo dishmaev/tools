@@ -30,7 +30,7 @@ addHistoryLog(){
   if ! isEmpty "$5"; then
     if isFileExistAndRead "$5"; then
       VAR_FILE_NAME=$(getFileNameFromUrlString "$5") || exitChildError "$VAR_FILE_NAME"
-      tar -rvf $VAR_FILE_PATH -C $COMMON_CONST_LOCAL_BUILD_PATH $VAR_FILE_NAME
+      tar -rvf $VAR_FILE_PATH -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
       checkRetValOK
     else
       exitError "source file $5 not found"
@@ -39,7 +39,7 @@ addHistoryLog(){
   if ! isEmpty "$6"; then
     if isFileExistAndRead "$6"; then
       VAR_FILE_NAME=$(getFileNameFromUrlString "$6") || exitChildError "$VAR_FILE_NAME"
-      tar -rvf $VAR_FILE_PATH -C $COMMON_CONST_LOCAL_BUILD_PATH $VAR_FILE_NAME
+      tar -rvf $VAR_FILE_PATH -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
       checkRetValOK
     else
       exitError "binary file $6 not found"
@@ -47,7 +47,7 @@ addHistoryLog(){
   fi
   if isFileExistAndRead "$7"; then
     VAR_FILE_NAME=$(getFileNameFromUrlString "$7") || exitChildError "$VAR_FILE_NAME"
-    tar -rvf $VAR_FILE_PATH -C $COMMON_CONST_LOCAL_BUILD_PATH $VAR_FILE_NAME
+    tar -rvf $VAR_FILE_PATH -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
     checkRetValOK
   else
     exitError "log file $7 not found"
