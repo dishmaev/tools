@@ -28,7 +28,7 @@ addHistoryLog(){
   VAR_FILE_NAME=${FCONST_PROJECT}_${VAR_STOP_STRING}_${VAR_ESPD}_${1}_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$ENV_PROJECT_HISTORY_PATH/$VAR_FILE_NAME
   if isFileExistAndRead "$VAR_FILE_PATH"; then
-    exitError "history file '$VAR_FILE_PATH' already exist"
+    exitError "history file $VAR_FILE_PATH already exist"
   fi
   if ! isEmpty "$5"; then
     if isFileExistAndRead "$5"; then
@@ -56,7 +56,9 @@ addHistoryLog(){
     exitError "log file $7 not found"
   fi
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
-    echoWarning "history file '$VAR_FILE_PATH' not found"
+    echoWarning "history file $VAR_FILE_PATH not found"
+  else
+    echoInfo "add history log file $VAR_FILE_PATH"
   fi
   return $COMMON_CONST_EXIT_SUCCESS
 }
