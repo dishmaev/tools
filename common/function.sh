@@ -25,12 +25,12 @@ addHistoryLog(){
   VAR_FILE_NAME=${VAR_STOP_STRING}_${VAR_ESPD}_${1}_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$ENV_PROJECT_HISTORY_PATH/$VAR_FILE_NAME
   if isFileExistAndRead "$VAR_FILE_PATH"; then
-    exitError "history file $VAR_FILE_PATH already exist"
+    exitError "history file '$VAR_FILE_PATH' already exist"
   fi
   if ! isEmpty "$5"; then
     if isFileExistAndRead "$5"; then
       VAR_FILE_NAME=$(getFileNameFromUrlString "$5") || exitChildError "$VAR_FILE_NAME"
-      tar -rvf $VAR_FILE_PATH -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
+      tar -rvf "$VAR_FILE_PATH" -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
       checkRetValOK
     else
       exitError "source file $5 not found"
@@ -39,7 +39,7 @@ addHistoryLog(){
   if ! isEmpty "$6"; then
     if isFileExistAndRead "$6"; then
       VAR_FILE_NAME=$(getFileNameFromUrlString "$6") || exitChildError "$VAR_FILE_NAME"
-      tar -rvf $VAR_FILE_PATH -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
+      tar -rvf "$VAR_FILE_PATH" -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
       checkRetValOK
     else
       exitError "binary file $6 not found"
@@ -47,13 +47,13 @@ addHistoryLog(){
   fi
   if isFileExistAndRead "$7"; then
     VAR_FILE_NAME=$(getFileNameFromUrlString "$7") || exitChildError "$VAR_FILE_NAME"
-    tar -rvf $VAR_FILE_PATH -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
+    tar -rvf "$VAR_FILE_PATH" -C $ENV_PROJECT_TMP_PATH $VAR_FILE_NAME
     checkRetValOK
   else
     exitError "log file $7 not found"
   fi
   if ! isFileExistAndRead "$VAR_FILE_PATH"; then
-    echoWarning "history file $VAR_FILE_PATH not found"
+    echoWarning "history file '$VAR_FILE_PATH' not found"
   fi
   return $COMMON_CONST_EXIT_SUCCESS
 }
