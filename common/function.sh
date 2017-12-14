@@ -15,14 +15,14 @@ VAR_START_TIME='' #start execution script
 addHistoryLog(){
   checkParmsCount $# 7 'addHistoryLog'
   local VAR_RESULT='error'
-  local VAR_START_STRING=''
+  local VAR_ESPD=''
   local VAR_STOP_STRING=''
   local VAR_FILE_NAME=''
   local VAR_FILE_PATH=''
   if isTrue "$4"; then VAR_RESULT='ok'; fi
-  VAR_START_STRING=$(getTimeAsString "$2")
-  VAR_STOP_STRING=$(getTimeAsString "$3")
-  VAR_FILE_NAME=${1}_'('${VAR_START_STRING}-${VAR_STOP_STRING}')'_${VAR_RESULT}.tar.gz
+  VAR_STOP_STRING=$(getTimeAsString "$3" "$COMMON_CONST_TRUE")
+  VAR_ESPD=$(getElapsedTime "$2" "$3" "$COMMON_CONST_FALSE") || exitChildError "$VAR_ESPD"
+  VAR_FILE_NAME=${VAR_STOP_STRING}_${VAR_ESPD}_${1}_${VAR_RESULT}.tar.gz
   VAR_FILE_PATH=$ENV_PROJECT_HISTORY_PATH/$VAR_FILE_NAME
   if isFileExistAndRead "$VAR_FILE_PATH"; then
     exitError "history file $VAR_FILE_PATH already exist"
@@ -190,12 +190,12 @@ getTime(){
   checkParmsCount $# 0 'getTime'
   echo "$(date +%Y%t%m%t%d%t%H%t%M%t%S)"
 }
-#$1 time with tab delimiter
+#$1 time with tab delimiter, $2 $COMMON_CONST_TIME_FORMAT_LONG
 getTimeAsString(){
-  checkParmsCount $# 1 'getTimeAsString'
+  checkParmsCount $# 2 'getTimeAsString'
   local VAR_RESULT=''
   VAR_RESULT=$(echo $1 | $SED 's/[ \t]/-/;s/[ \t]/-/;s/[ \t]/:/2;s/[ \t]/:/2')
-  if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
+  if ! isTrue "$2"; then
     VAR_RESULT=$(echo $VAR_RESULT | awk '{print $2}')
   fi
   echo "$VAR_RESULT"
@@ -214,9 +214,9 @@ getMhDays(){
   esac
   echo "$VAR_MH_STOP"
 }
-#$1 start time, $2 stop time
+#$1 start time, $2 stop time, $3 $COMMON_CONST_TIME_FORMAT_LONG
 getElapsedTime(){
-  checkParmsCount $# 2 'getElapsedTime'
+  checkParmsCount $# 3 'getElapsedTime'
   local VAR_ESPD
   local VAR_SS_START=0
   local VAR_SS_STOP=0
@@ -257,11 +257,16 @@ getElapsedTime(){
   if [ "${VAR_MH_STOP}" -lt "${VAR_MH_START}" ]; then VAR_MH_STOP=$((VAR_MH_STOP+12)); VAR_YY_STOP=$((VAR_YY_STOP-1)); fi
 
   VAR_ESPD=$(printf "%04d-%02d-%02d %02d:%02d:%02d" $((${VAR_YY_STOP}-${VAR_YY_START})) $((${VAR_MH_STOP}-${VAR_MH_START})) $((${VAR_DD_STOP}-${VAR_DD_START})) $((${VAR_HH_STOP}-${VAR_HH_START})) $((${VAR_MM_STOP}-${VAR_MM_START})) $((${VAR_SS_STOP}-${VAR_SS_START})))
-  echoResult "$VAR_ESPD"
-}
 
+  if ! isTrue "$3"; then
+    VAR_ESPD=$(echo $VAR_ESPD | awk '{print $2}')
+  fi
+
+  echo "$VAR_ESPD"
+}
+#$1 $COMMON_CONST_TIME_FORMAT_LONG
 showElapsedTime(){
-  checkParmsCount $# 0 'showElapsedTime'
+  checkParmsCount $# 1 'showElapsedTime'
   local VAR_START=''
   local VAR_STOP=''
   local VAR_ESPD=''
@@ -269,13 +274,9 @@ showElapsedTime(){
 
   if ! isEmpty "$VAR_START_TIME"; then
     VAR_STOP_TAB="$(getTime)"
-    VAR_ESPD=$(getElapsedTime "$VAR_START_TIME" "$VAR_STOP_TAB") || exitChildError "$VAR_ESPD"
-    VAR_START=$(getTimeAsString "$VAR_START_TIME")
-    VAR_STOP=$(getTimeAsString "$VAR_STOP_TAB")
-
-    if ! isTrue "$COMMON_CONST_ELAPSED_LONG"; then
-      VAR_ESPD=$(echo $VAR_ESPD | awk '{print $2}')
-    fi
+    VAR_ESPD=$(getElapsedTime "$VAR_START_TIME" "$VAR_STOP_TAB" "$1") || exitChildError "$VAR_ESPD"
+    VAR_START=$(getTimeAsString "$VAR_START_TIME" "$1")
+    VAR_STOP=$(getTimeAsString "$VAR_STOP_TAB" "$1")
 
     echo "Elapsed time: $VAR_ESPD, from $VAR_START to $VAR_STOP"
   fi
@@ -1017,7 +1018,7 @@ exitOK(){
     echo $1
   fi
   if ! isEmpty "$VAR_START_TIME"; then
-    showElapsedTime
+    showElapsedTime "$COMMON_CONST_TIME_FORMAT_LONG"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       echo "Stop session [$$] with $COMMON_CONST_EXIT_SUCCESS (Ok)"
     fi
@@ -1031,7 +1032,7 @@ exitError(){
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       getTrace
     fi
-    showElapsedTime
+    showElapsedTime "$COMMON_CONST_TIME_FORMAT_LONG"
     if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
       echo "Stop session [$$] with $COMMON_CONST_EXIT_ERROR (Error)"
     fi
@@ -1151,7 +1152,7 @@ startPrompt(){
   fi
   VAR_START_TIME="$(getTime)"
   if isTrue "$COMMON_CONST_SHOW_DEBUG"; then
-    VAR_TIME_STRING=$(getTimeAsString "$VAR_START_TIME")
+    VAR_TIME_STRING=$(getTimeAsString "$VAR_START_TIME" "$COMMON_CONST_TIME_FORMAT_LONG")
     echo "Start session [$$] at $VAR_TIME_STRING"
   fi
 }
