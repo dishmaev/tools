@@ -14,7 +14,7 @@ if !has('nvim')
  Plug 'Shougo/vimshell.vim' " need for sebdah/vim-delve
 endif
 if has('nvim')
- Plug 'Shougo/deoplete.nvim'
+ Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
  " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " if not work command above, see CheckHealth
  Plug 'zchee/deoplete-go', { 'do': 'make'}
 " Plug 'zchee/deoplete-go', {'build': {'unix': 'make'}} " if not work command above, see CheckHealth

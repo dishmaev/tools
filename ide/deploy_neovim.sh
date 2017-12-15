@@ -55,7 +55,7 @@ rm -fR ~/.vim/
 rm -fR ~/.config/nvim/
 #test!
 
-if ! isCommandExist 'go' || ! isCommandExist 'gocode'; then
+if ! isCommandExist 'go'; then
   exitError "missing command vboxmanage. Try to exec $ENV_ROOT_DIR/framework/deploy_golang.sh"
 fi
 
@@ -98,15 +98,25 @@ fi
 
 mkdir -p "${CONST_NVIM_PATH}-$PRM_VERSION"
 checkRetValOK
+if ! isCommandExist "gocode"; then
+  go get -u github.com/nsf/gocode
+  checkRetValOK
+fi
+if ! isCommandExist "dlv"; then
+  go get github.com/derekparker/delve/cmd/dlv
+  checkRetValOK
+fi
 
 if isLinuxOS; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
-    sudo apt -y install vim
-    checkRetValOK
-    sudo apt -y install vim-python-jedi
-    checkRetValOK
+#    sudo apt -y install vim
+#    checkRetValOK
+#    sudo apt -y install vim-python-jedi
+#    checkRetValOK
 #    sudo apt -y install python-pip
 #    checkRetValOK
+    sudo apt-get install fuse
+    checkRetValOK
     sudo apt -y install python3-pip
     checkRetValOK
 #    pip2 install --upgrade neovim
@@ -144,11 +154,17 @@ elif isMacOS; then
 fi
 
 mkdir -p $HOME/.config/nvim/autoload
+checkRetValOK
 mkdir -p $HOME/.vim/autoload
+checkRetValOK
 wget -O $HOME/.vim/autoload/plug.vim $CONST_VIM_PLUG_URL
+checkRetValOK
 ln -s $HOME/.vim/autoload/plug.vim $HOME/.config/nvim/autoload/plug.vim
+checkRetValOK
 cp "$ENV_SCRIPT_DIR_NAME/init.vim" $HOME/.vimrc
+checkRetValOK
 ln -s $HOME/.vimrc $HOME/.config/nvim/init.vim
+checkRetValOK
 
 $CONST_NVIM_NAME --version
 checkRetValOK
