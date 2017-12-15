@@ -115,18 +115,31 @@ if isLinuxOS; then
     checkRetValOK
 #    sudo apt -y install python-pip
 #    checkRetValOK
-    sudo apt-get install fuse
+    sudo apt -y install fuse
     checkRetValOK
     sudo apt -y install python3-pip
     checkRetValOK
 #    pip2 install --upgrade neovim
 #    checkRetValOK
-    pip3 install --upgrade neovim
+    pip3 install --user --upgrade neovim
     checkRetValOK
 #    sudo apt -y install ruby-neovim
 #    checkRetValOK
   elif isRPMLinux "$VAR_LINUX_BASED"; then
-    :
+    sudo yum -y install epel-release
+    checkRetValOK
+    sudo yum -y install vim
+    checkRetValOK
+    sudo yum -y install python34-jedi
+    checkRetValOK
+    sudo yum -y install fuse
+    checkRetValOK
+    sudo yum -y install fuse-libs
+    checkRetValOK
+    sudo yum -y install python34-pip
+    checkRetValOK
+    pip3 install --user --upgrade neovim
+    checkRetValOK
   fi
   cp "$VAR_ORIG_FILE_PATH" "${CONST_NVIM_PATH}-$PRM_VERSION/$CONST_NVIM_NAME"
   checkRetValOK
