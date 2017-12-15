@@ -109,10 +109,10 @@ fi
 
 if isLinuxOS; then
   if isAPTLinux "$VAR_LINUX_BASED"; then
-#    sudo apt -y install vim
-#    checkRetValOK
-#    sudo apt -y install vim-python-jedi
-#    checkRetValOK
+    sudo apt -y install vim
+    checkRetValOK
+    sudo apt -y install vim-python-jedi
+    checkRetValOK
 #    sudo apt -y install python-pip
 #    checkRetValOK
     sudo apt-get install fuse
@@ -174,6 +174,7 @@ doneFinalStage
 echo ''
 echo "Now start $CONST_NVIM_NAME and make some final things:"
 echo ':PlugInstall'
+echo ':UpdateRemotePlugins'
 echo ':GoInstallBinaries'
 
 exitOK
