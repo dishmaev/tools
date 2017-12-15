@@ -15,7 +15,7 @@ PRM_VERSION='' #vagrant version
 VAR_LINUX_BASED='' #for checking supported Linux OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
-VAR_FILE_URL='' #url specific version of boost for download
+VAR_FILE_URL='' #url specific version for download
 VAR_VERSION='' #current version
 
 ###check autoyes

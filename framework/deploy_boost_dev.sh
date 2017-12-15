@@ -14,7 +14,7 @@ PRM_VERSION='' #lib version
 PRM_TOOLSET='' #toolSet for build specific version of boost
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_VERSION='' #lib version wth '_' instead '.'
-VAR_FILE_URL='' #url specific version of boost for download
+VAR_FILE_URL='' #url specific version for download
 
 
 ###check autoyes

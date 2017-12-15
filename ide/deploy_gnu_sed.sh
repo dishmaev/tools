@@ -6,7 +6,7 @@ targetDescription "Deploy GNU sed ($COMMON_CONST_MACOS_SED) from source on the l
 
 ##private consts
 readonly CONST_FILE_URL='http://ftp.gnu.org/gnu/sed/sed-@PRM_VERSION@.tar.xz' #Source url for download
-readonly CONST_SEDPATH="$HOME/sed"
+readonly CONST_SED_PATH="$HOME/sed"
 readonly CONST_FILE_VERSION='4.4'
 
 ##private vars
@@ -14,7 +14,7 @@ PRM_VERSION='' #lib version
 VAR_LINUX_BASED='' #for checking supported OS
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
-VAR_FILE_URL='' #url specific version of boost for download
+VAR_FILE_URL='' #url specific version for download
 VAR_CUR_DIR_PATH='' #current directory name
 VAR_TMP_DIR_PATH='' #temporary directory name
 
@@ -83,14 +83,14 @@ if ! isFileExistAndRead "$VAR_ORIG_FILE_PATH"; then
   fi
 fi
 
-mkdir -p "${CONST_SEDPATH}-$PRM_VERSION/src"
+mkdir -p "${CONST_SED_PATH}-$PRM_VERSION/src"
 checkRetValOK
-tar --strip-component=1 -C "${CONST_SEDPATH}-$PRM_VERSION/src" -xvf "$VAR_ORIG_FILE_PATH"
+tar --strip-component=1 -C "${CONST_SED_PATH}-$PRM_VERSION/src" -xvf "$VAR_ORIG_FILE_PATH"
 checkRetValOK
 VAR_CUR_DIR_PATH=$PWD
-cd "${CONST_SEDPATH}-$PRM_VERSION/src"
+cd "${CONST_SED_PATH}-$PRM_VERSION/src"
 checkRetValOK
-./configure --prefix="${CONST_SEDPATH}-$PRM_VERSION" --program-prefix=g #see $COMMON_CONST_MACOS_SED
+./configure --prefix="${CONST_SED_PATH}-$PRM_VERSION" --program-prefix=g #see $COMMON_CONST_MACOS_SED
 checkRetValOK
 make
 checkRetValOK
@@ -100,18 +100,18 @@ cd $VAR_CUR_DIR_PATH
 checkRetValOK
 
 if isLinuxOS; then
-  echo "export PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bashrc"
+  echo "export PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bashrc"
   checkRetValOK
-  PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin
+  PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin
   checkRetValOK
   if isCommandExist "source"; then
     source "$HOME/.bashrc"
     checkRetValOK
   fi
 elif isMacOS; then
-  echo "export PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bash_profile"
+  echo "export PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bash_profile"
   checkRetValOK
-  PATH=$PATH:${CONST_SEDPATH}-$PRM_VERSION/bin
+  PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin
   checkRetValOK
   if isCommandExist "source"; then
     source "$HOME/.bash_profile"

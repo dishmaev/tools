@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy Atom on the local OS x64'
+targetDescription 'Deploy Atom with Go plugin on the local OS x64'
 
 ##private consts
 readonly CONST_FILE_APT_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-amd64.deb' #APT-based Linux url for download
@@ -13,10 +13,9 @@ readonly CONST_FILE_VERSION='1.23.1'
 ##private vars
 PRM_VERSION='' #IDE version
 VAR_LINUX_BASED='' #for checking supported OS
-VAR_VERSION='' #lib short version format MAJOR.MINOR
 VAR_ORIG_FILE_NAME='' #original file name
 VAR_ORIG_FILE_PATH='' #original file name with local path
-VAR_FILE_URL='' #url specific version of boost for download
+VAR_FILE_URL='' #url specific version for download
 VAR_TMP_DIR_PATH='' #temporary directory name
 
 ###check autoyes
@@ -26,7 +25,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 1 '[version=$CONST_FILE_VERSION]' \
-"$CONST_FILE_VERSION 0 $CONST_TOOLSET" "Version format 'X.X[X].X'. Atom text editor url https://atom.io/"
+"$CONST_FILE_VERSION" "Version format 'X.X[X].X'. Atom text editor url https://atom.io/"
 
 ###check commands
 

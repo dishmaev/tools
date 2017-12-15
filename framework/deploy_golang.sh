@@ -7,7 +7,7 @@ targetDescription 'Deploy Golang packages on the local OS'
 ##private consts
 readonly CONST_FILE_LINUX_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.linux-amd64.tar.gz' #Linux url for download
 readonly CONST_FILE_MACOS_URL='https://storage.googleapis.com/golang/go@PRM_VERSION@.darwin-amd64.pkg' #MacOS url for download
-readonly CONST_GOPATH="$HOME/go"
+readonly CONST_GO_PATH="$HOME/go"
 readonly CONST_MACOS_VERSION='1.9.2'
 
 ##private vars
@@ -102,13 +102,13 @@ else
     mkdir "${HOME}/go${PRM_VERSION}"
     tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
     checkRetValOK
-    echo "export PATH=$PATH:$CONST_GOPATH${PRM_VERSION}/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+    echo "export PATH=$PATH:$CONST_GO_PATH${PRM_VERSION}/bin:$CONST_GO_PATH/bin" | tee -a "$HOME/.bashrc"
     checkRetValOK
-    echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bashrc"
+    echo "export GOBIN=$CONST_GO_PATH/bin" | tee -a "$HOME/.bashrc"
     checkRetValOK
-    export PATH=$PATH:${CONST_GOPATH}${PRM_VERSION}/bin:$CONST_GOPATH/bin
+    export PATH=$PATH:${CONST_GO_PATH}${PRM_VERSION}/bin:$CONST_GO_PATH/bin
     checkRetValOK
-    export GOBIN=$CONST_GOPATH/bin
+    export GOBIN=$CONST_GO_PATH/bin
     checkRetValOK
     if isCommandExist "source"; then
       source "$HOME/.bashrc"
@@ -117,21 +117,21 @@ else
   elif isMacOS; then
     sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
     checkRetValOK
-    echo "export PATH=$PATH:/usr/local/go/bin:$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
+    echo "export PATH=$PATH:/usr/local/go/bin:$CONST_GO_PATH/bin" | tee -a "$HOME/.bash_profile"
     checkRetValOK
-    echo "export GOBIN=$CONST_GOPATH/bin" | tee -a "$HOME/.bash_profile"
+    echo "export GOBIN=$CONST_GO_PATH/bin" | tee -a "$HOME/.bash_profile"
     checkRetValOK
-    PATH=$PATH:/usr/local/go/bin:$CONST_GOPATH/bin
+    PATH=$PATH:/usr/local/go/bin:$CONST_GO_PATH/bin
     checkRetValOK
-    GOBIN=$CONST_GOPATH/bin
+    GOBIN=$CONST_GO_PATH/bin
     checkRetValOK
     if isCommandExist "source"; then
       source "$HOME/.bash_profile"
       checkRetValOK
     fi
   fi
-  if ! isDirectoryExist "$CONST_GOPATH"; then
-    mkdir "$CONST_GOPATH"
+  if ! isDirectoryExist "$CONST_GO_PATH"; then
+    mkdir "$CONST_GO_PATH"
     checkRetValOK
   fi
 fi
