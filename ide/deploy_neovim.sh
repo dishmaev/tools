@@ -49,6 +49,12 @@ startPrompt
 
 ###body
 
+#test!
+rm -fR "${CONST_NVIM_PATH}-$PRM_VERSION"
+rm -fR ~/.vim/
+rm -fR ~/.config/nvim/
+#test!
+
 if ! isCommandExist 'go' || ! isCommandExist 'gocode'; then
   exitError "missing command vboxmanage. Try to exec $ENV_ROOT_DIR/framework/deploy_golang.sh"
 fi
@@ -99,16 +105,16 @@ if isLinuxOS; then
     checkRetValOK
     sudo apt -y install vim-python-jedi
     checkRetValOK
-    sudo apt -y install python-pip
-    checkRetValOK
+#    sudo apt -y install python-pip
+#    checkRetValOK
     sudo apt -y install python3-pip
     checkRetValOK
-    pip2 install --upgrade neovim
-    checkRetValOK
+#    pip2 install --upgrade neovim
+#    checkRetValOK
     pip3 install --upgrade neovim
     checkRetValOK
-    sudo apt -y install ruby-neovim
-    checkRetValOK
+#    sudo apt -y install ruby-neovim
+#    checkRetValOK
   elif isRPMLinux "$VAR_LINUX_BASED"; then
     :
   fi
@@ -136,11 +142,6 @@ elif isMacOS; then
     checkRetValOK
   fi
 fi
-
-#test!
-rm -fR ~/.vim/
-rm -fR ~/.config/nvim/
-#test!
 
 mkdir -p $HOME/.config/nvim/autoload
 mkdir -p $HOME/.vim/autoload
