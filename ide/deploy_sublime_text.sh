@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy Sublime Text on the local OS x86_64'
+targetDescription 'Deploy Sublime Text with Go plugin on the local OS x86_64'
 
 ##private consts
 readonly CONST_FILE_LINUX_URL='https://download.sublimetext.com/sublime_text_3_build_@PRM_VERSION@_x64.tar.bz2' #Linux url for download
@@ -98,6 +98,7 @@ if [ "$PRM_VERSION" = "$COMMON_CONST_DEFAULT_VERSION" ]; then
     fi
   fi
 else
+  checkDependencies 'tar'
   VAR_FILE_URL=$(echo "$VAR_FILE_URL" | $SED -e "s#@PRM_VERSION@#$PRM_VERSION#") || exitChildError "$VAR_FILE_URL"
   VAR_ORIG_FILE_NAME=$(getFileNameFromUrlString "$VAR_FILE_URL") || exitChildError "$VAR_ORIG_FILE_NAME"
   VAR_ORIG_FILE_PATH=$ENV_DOWNLOAD_PATH/$VAR_ORIG_FILE_NAME
@@ -111,8 +112,18 @@ else
     fi
   fi
   if isLinuxOS; then
-    tar --strip-component=2 -C "${CONST_NVIM_PATH}-$PRM_VERSION" -xvf "$VAR_ORIG_FILE_PATH"
-
+    tar --strip-component=2 -C "${CONST_SUBLIM_PATH}-$PRM_VERSION" -xvf "$VAR_ORIG_FILE_PATH"
+    checkRetValOK
+    ln -s "${CONST_SUBLIM_PATH}-$PRM_VERSION/sublim_text" "${CONST_SUBLIM_PATH}-$PRM_VERSION/subl"
+    checkRetValOK
+    echo "export PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION" | tee -a "$HOME/.bashrc"
+    checkRetValOK
+    PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION
+    checkRetValOK
+    if isCommandExist "source"; then
+      source "$HOME/.bashrc"
+      checkRetValOK
+    fi
   elif isMacOS; then
     hdiutil attach $VAR_ORIG_FILE_PATH
     checkRetValOK
@@ -142,4 +153,9 @@ else
 fi
 
 doneFinalStage
+
+echo ''
+echo "Now start Sublime Text and make some final things: "
+echo 'install additional packages that required for IDE'
+
 exitOK

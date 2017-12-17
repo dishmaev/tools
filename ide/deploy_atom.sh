@@ -2,7 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Deploy Atom with Go plugin on the local OS x64'
+targetDescription 'Deploy Atom Editor with Go plugin on the local OS x64'
 
 ##private consts
 readonly CONST_FILE_APT_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-amd64.deb' #APT-based Linux url for download
@@ -139,7 +139,7 @@ fi
 doneFinalStage
 
 echo ''
-echo "Now start Atom IDE from lauchpad and make some final things: "
+echo "Now start Atom Editor and make some final things: "
 echo 'install additional packages that required for IDE'
 if isMacOS; then
   echo 'xcode-select --install'
