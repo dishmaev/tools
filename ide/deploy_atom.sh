@@ -104,9 +104,9 @@ elif isMacOS; then
   checkRetValOK
   rm -fR $VAR_TMP_DIR_PATH
   checkRetValOK
-  echo "export PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS:$HOME/Applications/Atom.app/Contents/Resources/app/apm/bin" | tee -a "$HOME/.bash_profile"
+  echo "export PATH=$PATH:$HOME/Applications/Atom.app/Contents/MacOS:$HOME/Applications/Atom.app/Contents/Resources/app/apm/bin" | tee -a "$HOME/.bash_profile"
   checkRetValOK
-  PATH=$PATH:$HOME/Applications/Atom.cpp/Contents/MacOS:$HOME/Applications/Atom.app/Contents/Resources/app/apm/bin
+  PATH=$PATH:$HOME/Applications/Atom.app/Contents/MacOS:$HOME/Applications/Atom.app/Contents/Resources/app/apm/bin
   checkRetValOK
   if isCommandExist "source"; then
     source "$HOME/.bash_profile"
@@ -132,7 +132,7 @@ if ! isMacOS; then
   atom --version
   checkRetValOK
 else
-  /Users/dish/Applications/Atom.app/Contents/MacOS/Atom --version
+  $HOME/Applications/Atom.app/Contents/MacOS/Atom --version
   checkRetValOK
 fi
 

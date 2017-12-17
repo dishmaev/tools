@@ -120,9 +120,10 @@ else
     checkRetValOK
     hdiutil unmount '/Volumes/Sublime Text'
     checkRetValOK
-    echo "export $PATH:$HOME/Applications/Sublime Text.app/Contents/MacOS" | tee -a "$HOME/.bash_profile"
+    ln -s "$HOME/Applications/Sublime Text.app/Contents/MacOS/Sublime Text" "$HOME/Applications/Sublime Text.app/Contents/MacOS/subl"
+    echo "export $PATH:$HOME/Applications/Sublime\ Text.app/Contents/MacOS" | tee -a "$HOME/.bash_profile"
     checkRetValOK
-    PATH="$PATH:$HOME/Applications/Sublime Text.app/Contents/MacOS"
+    PATH="$PATH:$HOME/Applications/Sublime\ Text.app/Contents/MacOS"
     checkRetValOK
     if isCommandExist "source"; then
       source "$HOME/.bash_profile"
@@ -131,13 +132,8 @@ else
   fi
 fi
 
-if ! isMacOS; then
-  $CONST_SUBLIM_NAME --version
-  checkRetValOK
-else
-  "$HOME/Applications/Sublime Text.app/Contents/MacOS/Sublime Text" --version
-  checkRetValOK
-fi
+$CONST_SUBLIM_NAME --version
+checkRetValOK
 
 doneFinalStage
 exitOK
