@@ -102,7 +102,7 @@ checkRetValOK
 if isLinuxOS; then
   echo "export PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin" | tee -a "$HOME/.bashrc"
   checkRetValOK
-  PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin
+  export PATH=$PATH:${CONST_SED_PATH}-$PRM_VERSION/bin
   checkRetValOK
   if isCommandExist "source"; then
     source "$HOME/.bashrc"

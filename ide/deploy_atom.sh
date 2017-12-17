@@ -140,7 +140,7 @@ doneFinalStage
 
 echo ''
 echo "Now start Atom Editor and make some final things: "
-echo 'install additional packages that required for IDE'
+echo 'install additional packages that it required'
 if isMacOS; then
   echo 'xcode-select --install'
   echo 'go get -u github.com/derekparker/delve/cmd/dlv'

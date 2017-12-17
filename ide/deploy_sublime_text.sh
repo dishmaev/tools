@@ -112,13 +112,15 @@ else
     fi
   fi
   if isLinuxOS; then
-    tar --strip-component=2 -C "${CONST_SUBLIM_PATH}-$PRM_VERSION" -xvf "$VAR_ORIG_FILE_PATH"
+    mkdir -p "${CONST_SUBLIM_PATH}-$PRM_VERSION"
     checkRetValOK
-    ln -s "${CONST_SUBLIM_PATH}-$PRM_VERSION/sublim_text" "${CONST_SUBLIM_PATH}-$PRM_VERSION/subl"
+    tar --strip-component=1 -C "${CONST_SUBLIM_PATH}-$PRM_VERSION" -xvf "$VAR_ORIG_FILE_PATH"
+    checkRetValOK
+    ln -s "${CONST_SUBLIM_PATH}-$PRM_VERSION/sublime_text" "${CONST_SUBLIM_PATH}-$PRM_VERSION/subl"
     checkRetValOK
     echo "export PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION" | tee -a "$HOME/.bashrc"
     checkRetValOK
-    PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION
+    export PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION
     checkRetValOK
     if isCommandExist "source"; then
       source "$HOME/.bashrc"
@@ -156,6 +158,6 @@ doneFinalStage
 
 echo ''
 echo "Now start Sublime Text and make some final things: "
-echo 'install additional packages that required for IDE'
+echo 'install additional packages that it required'
 
 exitOK
