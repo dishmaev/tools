@@ -158,6 +158,11 @@ doneFinalStage
 
 echo ''
 echo "Now start Sublime Text and make some final things: "
-echo 'install additional packages that it required'
+echo "-set \"spell_check\": true in 'Preferences=>Settings - Syntax Specific'"
+echo "-install Package Control in Tools"
+echo "-install Package GoSublime"
+echo "-install Package GitGutter"
+echo "-install Package BracketHighlighter"
+echo "Another useful plugins describe url https://proglib.io/p/15-sublime-text-plugins/"
 
 exitOK
