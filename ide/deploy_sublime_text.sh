@@ -39,8 +39,6 @@ checkCommandExist 'version' "$PRM_VERSION" ''
 
 ###check body dependencies
 
-checkDependencies 'wget'
-
 ###check required files
 
 #checkRequiredFiles "file1 file2 file3"
