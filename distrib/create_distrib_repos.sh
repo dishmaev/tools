@@ -2,8 +2,7 @@
 
 ###header
 . $(dirname "$0")/../common/define.sh #include common defines, like $COMMON_...
-targetDescription 'Create set of empty packages repositories for some OS: Linux (apt,rpm),
-                    FreeBSD (TO-DO)'
+targetDescription 'Create set of empty packages repositories for some OS: Linux (APT,RPM), Oracle Solaris (TO-DO), FreeBSD (TO-DO)'
 
 ##private consts
 readonly CONST_STAGE_COUNT=4 #stage count
