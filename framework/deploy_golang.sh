@@ -102,22 +102,22 @@ else
     mkdir "${HOME}/go${PRM_VERSION}"
     tar --strip-component=1 -C "${HOME}/go${PRM_VERSION}" -xvf "$VAR_ORIG_FILE_PATH"
     checkRetValOK
-    echo "export PATH=$PATH:$CONST_GO_PATH${PRM_VERSION}/bin:$CONST_GO_PATH/bin" | tee -a "$HOME/.bashrc"
+    echo "export PATH=\$PATH:$CONST_GO_PATH${PRM_VERSION}/bin:$CONST_GO_PATH/bin" | tee -a "$HOME/.profile"
     checkRetValOK
-    echo "export GOBIN=$CONST_GO_PATH/bin" | tee -a "$HOME/.bashrc"
+    echo "export GOBIN=$CONST_GO_PATH/bin" | tee -a "$HOME/.profile"
     checkRetValOK
     export PATH=$PATH:${CONST_GO_PATH}${PRM_VERSION}/bin:$CONST_GO_PATH/bin
     checkRetValOK
     export GOBIN=$CONST_GO_PATH/bin
     checkRetValOK
     if isCommandExist "source"; then
-      source "$HOME/.bashrc"
+      source "$HOME/.profile"
       checkRetValOK
     fi
   elif isMacOS; then
     sudo installer -verbose -pkg $VAR_ORIG_FILE_PATH -target /
     checkRetValOK
-    echo "export PATH=$PATH:/usr/local/go/bin:$CONST_GO_PATH/bin" | tee -a "$HOME/.bash_profile"
+    echo "export PATH=\$PATH:/usr/local/go/bin:$CONST_GO_PATH/bin" | tee -a "$HOME/.bash_profile"
     checkRetValOK
     echo "export GOBIN=$CONST_GO_PATH/bin" | tee -a "$HOME/.bash_profile"
     checkRetValOK

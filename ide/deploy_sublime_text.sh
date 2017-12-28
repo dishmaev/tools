@@ -118,12 +118,12 @@ else
     checkRetValOK
     ln -s "${CONST_SUBLIM_PATH}-$PRM_VERSION/sublime_text" "${CONST_SUBLIM_PATH}-$PRM_VERSION/subl"
     checkRetValOK
-    echo "export PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION" | tee -a "$HOME/.bashrc"
+    echo "export PATH=\$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION" | tee -a "$HOME/.profile"
     checkRetValOK
     export PATH=$PATH:${CONST_SUBLIM_PATH}-$PRM_VERSION
     checkRetValOK
     if isCommandExist "source"; then
-      source "$HOME/.bashrc"
+      source "$HOME/.profile"
       checkRetValOK
     fi
   elif isMacOS; then
@@ -137,7 +137,7 @@ else
     checkRetValOK
     echo "export $PATH:$HOME/Applications/Sublime\ Text.app/Contents/MacOS" | tee -a "$HOME/.bash_profile"
     checkRetValOK
-    PATH="$PATH:$HOME/Applications/Sublime\ Text.app/Contents/MacOS"
+    PATH="$PATH:\$HOME/Applications/Sublime\ Text.app/Contents/MacOS"
     checkRetValOK
     if isCommandExist "source"; then
       source "$HOME/.bash_profile"
