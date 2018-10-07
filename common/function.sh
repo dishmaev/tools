@@ -1211,7 +1211,7 @@ putVmtoolsToEsxi(){
   checkParmsCount $# 1 'putVmtoolsToEsxi'
   local VAR_TMP_DIR_PATH
   VAR_TMP_DIR_PATH=$(mktemp -d) || exitChildError "$VAR_TMP_DIR_PATH"
-  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=2 -C $VAR_TMP_DIR_PATH
+  tar -xzf $COMMON_CONST_LOCAL_VMTOOLS_PATH --strip-component=1 -C $VAR_TMP_DIR_PATH
   checkRetValOK
   $SCP_CLIENT -r $VAR_TMP_DIR_PATH/* $1:$COMMON_CONST_ESXI_VMTOOLS_PATH/
   checkRetValOK
@@ -1229,7 +1229,7 @@ putOvftoolToEsxi(){
 #$1 esxi host
 put_template_tools_to_esxi(){
   checkParmsCount $# 1 'put_template_tools_to_esxi'
-  $SCP_CLIENT -r $ENV_SCRIPT_DIR_NAME/template $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
+  $SCP_CLIENT -r $ENV_SCRIPT_DIR_NAME/template/* $1:$COMMON_CONST_ESXI_TEMPLATES_PATH/
   checkRetValOK
 }
 

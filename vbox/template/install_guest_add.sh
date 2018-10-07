@@ -81,7 +81,8 @@ sudo mount /dev/cdrom /media/cdrom -o loop
 checkRetValOK
 
 if isAPTLinux "$VAR_LINUX_BASED"; then
-  sudo apt -y install build-essential dkms
+  sudo apt -y install build-essential module-assistant
+  sudo m-a -i prepare
 elif isRPMLinux "$VAR_LINUX_BASED"; then
   sudo yum -y install gcc kernel-devel
   checkRetValOK

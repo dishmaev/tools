@@ -23,9 +23,9 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 1 '[esxiHostsPool=$COMMON_CONST_ALL]' "'$COMMON_CONST_ALL'" \
-"Required ssh secret keyID $ENV_SSH_KEYID. Required allowing ssh access on the remote esxi host, \
+"Available esxi hosts: $COMMON_CONST_ESXI_HOSTS_POOL. Required ssh secret keyID $ENV_SSH_KEYID. Required allowing ssh access on the remote esxi host, \
 details https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1002866. \
-Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required $COMMON_CONST_VMTOOLS_FILE_NAME https://my.vmware.com/web/vmware/details?productId=614&downloadGroup=VMTOOLS10110"
+Required OVF Tool https://www.vmware.com/support/developer/ovf/. Required $COMMON_CONST_VMTOOLS_FILE_NAME https://my.vmware.com/web/vmware/details?productId=742&downloadGroup=VMTOOLS1032"
 
 ###check commands
 
@@ -54,6 +54,10 @@ startPrompt
 
 ###body
 
+if [ "$PRM_ESXI_HOSTS_POOL" = "$COMMON_CONST_ALL" ]; then
+  PRM_ESXI_HOSTS_POOL=$COMMON_CONST_ESXI_HOSTS_POOL
+fi
+
 checkSSHKeyExistEsxi "$PRM_ESXI_HOSTS_POOL"
 checkRetValOK
 
@@ -77,6 +81,7 @@ for VAR_HOST in $PRM_ESXI_HOSTS_POOL; do
 mkdir $COMMON_CONST_ESXI_PATCHES_PATH; \
 mkdir $COMMON_CONST_ESXI_IMAGES_PATH;
 mkdir $COMMON_CONST_ESXI_VMTOOLS_PATH;
+mkdir $COMMON_CONST_ESXI_TEMPLATES_PATH;
 mkdir $COMMON_CONST_ESXI_DATA_PATH"
     checkRetValOK
     #copy version tag

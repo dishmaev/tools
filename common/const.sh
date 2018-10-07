@@ -18,7 +18,7 @@ readonly COMMON_CONST_EXIT_SUCCESS=0
 readonly COMMON_CONST_TOOL_TIP='-y batch mode with yes answer' #simple autoyes tooltip
 readonly COMMON_CONST_ERROR_MESS_UNKNOWN='some problem occured while execute last command, details above in output'
 readonly COMMON_CONST_LOCAL_OVFTOOL_PATH='/usr/lib/vmware-ovftool' #ovf tools local directory
-readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-10.1.10-other-6082533.tar.gz' #vmware tools archive file name
+readonly COMMON_CONST_VMTOOLS_FILE_NAME='VMware-Tools-other-10.3.2-9925305.tar.gz' #vmware tools archive file name
 readonly COMMON_CONST_LINUX_APT='apt'
 readonly COMMON_CONST_LINUX_RPM='rpm'
 readonly COMMON_CONST_NULL='<null>' #null value
@@ -121,7 +121,7 @@ $COMMON_CONST_RELEASE_SUITE"
 #readonly COMMON_CONST_GITLABCE_RPM_SH_URL='https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh'
 
 #vmware esxi
-readonly COMMON_CONST_ESXI_HOST='192.168.0.110' #DNS name main esxi host
+readonly COMMON_CONST_ESXI_HOST='192.168.0.86' #DNS name main esxi host
 readonly COMMON_CONST_ESXI_MAC=00:1b:21:39:9b:d4 #MAC main esxi host
 readonly COMMON_CONST_ESXI_MACS_POOL="$COMMON_CONST_ESXI_MAC" #mac esxi hosts, list with space delimiter
 readonly COMMON_CONST_ESXI_HOSTS_POOL="$COMMON_CONST_ESXI_HOST" #esxi hosts, list with space delimiter

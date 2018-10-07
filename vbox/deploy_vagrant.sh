@@ -8,7 +8,7 @@ targetDescription 'Deploy Vagrant on the local OS x86_64'
 readonly CONST_FILE_APT_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.deb' #APT-based Linux url for download
 readonly CONST_FILE_RPM_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.rpm' #RPM-based Linux url for download
 readonly CONST_FILE_MACOS_URL='https://releases.hashicorp.com/vagrant/@PRM_VERSION@/vagrant_@PRM_VERSION@_x86_64.dmg' #MacOS url for download
-readonly CONST_FILE_VERSION='2.0.1'
+readonly CONST_FILE_VERSION='2.1.5'
 
 ##private vars
 PRM_VERSION='' #vagrant version
