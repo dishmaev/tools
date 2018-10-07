@@ -25,8 +25,8 @@ uname -a
 
 if [ "$2" = "rel" ]; then
   #install packages from personal repository
-#  sudo tdnf -y makecache
-#  checkRetValOK
+  sudo tdnf -y makecache
+  checkRetValOK
   sudo tndf -y install $3
   checkRetValOK
 else # tst,dev

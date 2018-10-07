@@ -24,8 +24,8 @@ uname -a
 
 if [ "$2" = "rel" ]; then
   #install packages from personal repository
-#  sudo yum -y makecache fast
-#  checkRetValOK
+  sudo yum -y makecache fast
+  checkRetValOK
   sudo yum -y install $3
   checkRetValOK
 else # tst,dev
