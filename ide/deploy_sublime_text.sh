@@ -7,7 +7,7 @@ targetDescription 'Deploy Sublime Text with Go plugin on the local OS x86_64'
 ##private consts
 readonly CONST_FILE_LINUX_URL='https://download.sublimetext.com/sublime_text_3_build_@PRM_VERSION@_x64.tar.bz2' #Linux url for download
 readonly CONST_FILE_MACOS_URL='https://download.sublimetext.com/Sublime%20Text%20Build%20@PRM_VERSION@.dmg' #MacOS url for download
-readonly CONST_FILE_VERSION='3143'
+readonly CONST_FILE_VERSION='3176'
 readonly CONST_SUBLIM_NAME='subl'
 readonly CONST_SUBLIM_PATH="$HOME/$CONST_SUBLIM_NAME"
 

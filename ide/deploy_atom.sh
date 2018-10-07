@@ -8,7 +8,7 @@ targetDescription 'Deploy Atom Editor with Go plugin on the local OS x64'
 readonly CONST_FILE_APT_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-amd64.deb' #APT-based Linux url for download
 readonly CONST_FILE_RPM_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom.x86_64.rpm' #RPM-based Linux url for download
 readonly CONST_FILE_MACOS_URL='https://github.com/atom/atom/releases/download/v@PRM_VERSION@/atom-mac.zip' #MacOS url for download
-readonly CONST_FILE_VERSION='1.23.1'
+readonly CONST_FILE_VERSION='1.31.2'
 
 ##private vars
 PRM_VERSION='' #IDE version

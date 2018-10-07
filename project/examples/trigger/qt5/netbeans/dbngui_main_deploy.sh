@@ -68,7 +68,6 @@ else # tst,dev
   for VAR_CUR_PACKAGE in ./*.deb; do
     if [ ! -r "$VAR_CUR_PACKAGE" ]; then continue; fi
     sudo apt -y install $VAR_CUR_PACKAGE
-#    checkRetValOK
   done
   #check all dependences
   sudo apt -y install -f

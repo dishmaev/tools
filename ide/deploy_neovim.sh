@@ -8,7 +8,7 @@ targetDescription 'Deploy Neovim with Go plugin on the local OS'
 readonly CONST_FILE_LINUX_URL='https://github.com/neovim/neovim/releases/download/v@PRM_VERSION@/nvim.appimage' #Linux url for download
 readonly CONST_FILE_MACOS_URL='https://github.com/neovim/neovim/releases/download/v@PRM_VERSION@/nvim-macos.tar.gz' #MacOS url for download
 readonly CONST_VIM_PLUG_URL='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-readonly CONST_FILE_VERSION='0.2.2'
+readonly CONST_FILE_VERSION='0.3.1'
 readonly CONST_NVIM_NAME='nvim'
 readonly CONST_NVIM_PATH="$HOME/$CONST_NVIM_NAME"
 

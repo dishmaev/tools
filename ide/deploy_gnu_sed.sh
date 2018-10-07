@@ -7,7 +7,7 @@ targetDescription "Deploy GNU sed ($COMMON_CONST_MACOS_SED) from source on the l
 ##private consts
 readonly CONST_FILE_URL='http://ftp.gnu.org/gnu/sed/sed-@PRM_VERSION@.tar.xz' #Source url for download
 readonly CONST_SED_PATH="$HOME/sed"
-readonly CONST_FILE_VERSION='4.4'
+readonly CONST_FILE_VERSION='4.5'
 
 ##private vars
 PRM_VERSION='' #lib version

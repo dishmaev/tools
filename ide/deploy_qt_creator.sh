@@ -6,7 +6,7 @@ targetDescription 'Deploy Qt Creator on the local OS x64'
 
 ##private consts
 readonly CONST_FILE_URL='https://download.qt.io/official_releases/qt/@VAR_VERSION@/@PRM_VERSION@/qt-opensource-linux-x64-@PRM_VERSION@.run' #url for download
-readonly CONST_FILE_VERSION='5.9.2'
+readonly CONST_FILE_VERSION='5.11'
 
 ##private vars
 PRM_VERSION='' #lib version
@@ -19,7 +19,7 @@ checkAutoYes "$1" || shift
 ###help
 
 echoHelp $# 1 '[version=$CONST_FILE_VERSION]' \
-"$COMMON_CONST_DEFAULT_VERSION" "Version format 'X.X.X'. Qt Creator url https://download.qt.io/official_releases/qt/"
+"$COMMON_CONST_DEFAULT_VERSION" "Version format 'X.X'. Qt Creator url https://download.qt.io/official_releases/qt/"
 
 ###check commands
 
