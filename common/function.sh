@@ -297,11 +297,7 @@ getChildSnapshotsPoolVb(){
   if isEmpty "$VAR_CUR_SSNAME"; then
     exitError "snapshot $2 ID $3 not found for VMID $1"
   fi
-  if isCommandExist "tac"; then
-    VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tac) || exitChildError "$VAR_CUR_SSNAME"
-  elif isCommandExist "tail"; then
-    VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tail -r) || exitChildError "$VAR_CUR_SSNAME"
-  fi
+  VAR_SS_LIST=$(vboxmanage snapshot ${1} list --machinereadable | grep ${VAR_CUR_SSNAME}- | awk -F= '{print $2}' | $SED 's/["]//g' | tail -r) || exitChildError "$VAR_CUR_SSNAME"
   for VAR_CUR_SSID in $VAR_SS_LIST; do
     VAR_RESULT="$VAR_RESULT $VAR_CUR_SSID"
   done
@@ -1058,15 +1054,27 @@ getTrace(){
     do
       VAR_CMD_LINE=$(ps -o args= -f -p $VAR_CP) || exitChildError "$VAR_CMD_LINE"
       VAR_PP=$(grep PPid /proc/$VAR_CP/status | awk '{ print $2; }') || exitChildError "$VAR_PP" # [2]
-      VAR_TRACE="$VAR_TRACE [$VAR_CP]:$VAR_CMD_LINE\n"
+      VAR_TRACE="$VAR_TRACE [$VAR_CP]: $VAR_CMD_LINE"
       if [ "$VAR_CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
         break
       fi
+      VAR_TRACE="$VAR_TRACE\n"
       VAR_CP=$VAR_PP
     done
-    VAR_TRACE=$(echo "$VAR_TRACE" | tac | grep -n ":" | tac) # using tac to "print in reverse" [3]
+    VAR_TRACE=$(echo "$VAR_TRACE" | tail -r | grep -n ":" | tail -r) # using tailt -r to "print in reverse" [3]
   elif isMacOS; then
-    echoWarning "TO-DO MacOS stack trace"
+    while true # safe because "all starts with init..."
+    do
+      VAR_CMD_LINE=$(ps -o command= -p $VAR_CP) || exitChildError "$VAR_CMD_LINE"
+      VAR_PP=$(ps -o ppid= -p $VAR_CP) || exitChildError "$VAR_PP" # [2]
+      VAR_TRACE="$VAR_TRACE [$VAR_CP]: $VAR_CMD_LINE"
+      if [ "$VAR_CP" = "1" ]; then # we reach 'init' [PID 1] => backtrace end
+        break
+      fi
+      VAR_TRACE="$VAR_TRACE\n"
+      VAR_CP=$(echo $VAR_PP | awk '{ print $1; }')
+    done
+    VAR_TRACE=$(echo "$VAR_TRACE" | tail -r | grep -n ":" | tail -r) # using tail -r to "print in reverse" [3]
   elif isFreeBSDOS; then
     echoWarning "TO-DO FreeBSD stack trace"
   fi
